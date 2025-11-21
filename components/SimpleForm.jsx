@@ -52,6 +52,12 @@ import { db, appId } from '../config/firebase';
 // callGemini: ฟังก์ชันสำหรับเรียกใช้ Gemini AI API
 import { callGemini } from '../utils/gemini';
 
+// ============================================================================
+// นำเข้า Local Storage Utility
+// ============================================================================
+// ใช้สำหรับ Demo Mode เมื่อ Firebase ไม่พร้อมใช้งาน
+import { addLocalRequest } from '../utils/localStorage';
+
 /**
  * ============================================================================
  * Component SimpleForm
@@ -138,16 +144,16 @@ const SimpleForm = ({ faculty, onClose, onSubmit, userId }) => {
    * 3. ถ้าสำเร็จ -> เรียก onSubmit เพื่อปิด Popup
    * 4. ถ้าเกิด Error -> แสดง Alert และหยุดการทำงาน
    */
+  // State สำหรับจัดการ Error Message
+  const [errorMessage, setErrorMessage] = useState('');
+
   const handleSubmit = async () => {
-    // ตรวจสอบว่ามี db หรือไม่
-    if (!db) {
-      alert('Firestore ไม่พร้อมใช้งาน ไม่สามารถบันทึกข้อมูลได้\n\nกรุณาตรวจสอบการตั้งค่า Firebase Config ใน index.html');
-      return;
-    }
+    // Reset error message
+    setErrorMessage('');
 
     // ตรวจสอบข้อมูลที่กรอก
     if (!form.position || form.position.trim() === '') {
-      alert('กรุณากรอกชื่อตำแหน่ง');
+      setErrorMessage('กรุณากรอกชื่อตำแหน่ง');
       return;
     }
 
@@ -159,7 +165,7 @@ const SimpleForm = ({ faculty, onClose, onSubmit, userId }) => {
        * - facultyId: ID ของคณะที่สร้างคำขอ
        * - facultyName: ชื่อคณะที่สร้างคำขอ
        * - status: สถานะเริ่มต้น ('submitted' = ส่งเรื่องให้ HR)
-       * - createdAt: เวลาที่สร้างคำขอ (ใช้เวลาจาก Server)
+       * - createdAt: เวลาที่สร้างคำขอ
        * - userId: ID ของผู้ใช้ที่สร้างคำขอ
        */
       const newRequest = {
@@ -168,26 +174,39 @@ const SimpleForm = ({ faculty, onClose, onSubmit, userId }) => {
         facultyId: faculty.id,      // ID ของคณะ
         facultyName: faculty.name,  // ชื่อคณะ
         status: 'submitted',        // สถานะเริ่มต้น: ส่งเรื่องให้ HR แล้ว
-        createdAt: serverTimestamp(), // เวลาจาก Server (ไม่ใช่เวลาจาก Client)
-        userId                      // ID ของผู้ใช้
+        userId: userId || 'local-user'  // ID ของผู้ใช้
       };
-      
-      /**
-       * บันทึกลง Firestore Database
-       * 
-       * collection(db, 'artifacts', appId, 'public', 'data', 'requests'):
-       * - สร้าง Reference ไปยัง Collection 'requests'
-       * - Path: artifacts/{appId}/public/data/requests
-       * 
-       * addDoc(collectionRef, data):
-       * - เพิ่ม Document ใหม่ลงใน Collection
-       * - Firestore จะสร้าง Document ID ให้อัตโนมัติ
-       * - เมื่อบันทึกสำเร็จ Dashboard จะอัปเดตอัตโนมัติ (เพราะใช้ onSnapshot)
-       */
-      await addDoc(
-        collection(db, 'artifacts', appId, 'public', 'data', 'requests'),
-        newRequest
-      );
+
+      // ตรวจสอบว่ามี db หรือไม่
+      if (db) {
+        // ใช้ Firestore (Production Mode)
+        newRequest.createdAt = serverTimestamp(); // เวลาจาก Server
+        
+        /**
+         * บันทึกลง Firestore Database
+         * 
+         * collection(db, 'artifacts', appId, 'public', 'data', 'requests'):
+         * - สร้าง Reference ไปยัง Collection 'requests'
+         * - Path: artifacts/{appId}/public/data/requests
+         * 
+         * addDoc(collectionRef, data):
+         * - เพิ่ม Document ใหม่ลงใน Collection
+         * - Firestore จะสร้าง Document ID ให้อัตโนมัติ
+         * - เมื่อบันทึกสำเร็จ Dashboard จะอัปเดตอัตโนมัติ (เพราะใช้ onSnapshot)
+         */
+        await addDoc(
+          collection(db, 'artifacts', appId, 'public', 'data', 'requests'),
+          newRequest
+        );
+      } else {
+        // ใช้ Local Storage (Demo Mode)
+        console.log('ใช้ Demo Mode: บันทึกข้อมูลลง Local Storage');
+        addLocalRequest(newRequest);
+        
+        // อัปเดต Dashboard โดยการ trigger custom event
+        // Dashboard จะฟัง event นี้และอัปเดตข้อมูลอัตโนมัติ
+        window.dispatchEvent(new Event('localStorageUpdate'));
+      }
       
       /**
        * เรียก onSubmit เพื่อปิด Popup
@@ -198,10 +217,10 @@ const SimpleForm = ({ faculty, onClose, onSubmit, userId }) => {
       /**
        * จัดการ Error เมื่อบันทึกข้อมูลไม่สำเร็จ
        * - แสดง Error ใน Console สำหรับ Developer
-       * - แสดง Alert แจ้งเตือนผู้ใช้
+       * - แสดง Error Message ใน UI
        */
       console.error("Error creating request:", error);
-      alert("เกิดข้อผิดพลาดในการบันทึกข้อมูล: " + (error.message || 'กรุณาลองใหม่อีกครั้ง'));
+      setErrorMessage("เกิดข้อผิดพลาดในการบันทึกข้อมูล: " + (error.message || 'กรุณาลองใหม่อีกครั้ง'));
     }
   };
 
@@ -354,6 +373,35 @@ const SimpleForm = ({ faculty, onClose, onSubmit, userId }) => {
                 placeholder="ระบุหน้าที่ความรับผิดชอบ..."
              />
           </div>
+
+          {/* แสดง Error Message */}
+          {errorMessage && (
+            <div className="bg-red-50 border-2 border-red-300 text-red-800 px-4 py-3 rounded-lg text-sm flex items-start justify-between">
+              <div className="flex-1">
+                <div className="font-semibold mb-1">⚠️ เกิดข้อผิดพลาด</div>
+                <div>{errorMessage}</div>
+              </div>
+              <button 
+                onClick={() => setErrorMessage('')}
+                className="ml-3 text-red-600 hover:text-red-800 flex-shrink-0"
+                aria-label="ปิด"
+              >
+                <X size={18} />
+              </button>
+            </div>
+          )}
+
+          {/* แสดง Demo Mode Notice */}
+          {!db && (
+            <div className="bg-yellow-50 border-2 border-yellow-300 text-yellow-800 px-4 py-3 rounded-lg text-sm">
+              <div className="font-semibold mb-1">ℹ️ โหมด Demo</div>
+              <div className="text-xs">
+                ข้อมูลจะถูกบันทึกใน Browser Local Storage เท่านั้น
+                <br />
+                สำหรับใช้งานจริง กรุณาตั้งค่า Firebase Config ใน index.html
+              </div>
+            </div>
+          )}
         </div>
 
         {/* 

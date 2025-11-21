@@ -67,6 +67,12 @@ import { WORKFLOW_STEPS } from '../constants';
 // SPULogo: Component สำหรับแสดง Logo SPU
 import SPULogo from './SPULogo';
 
+// ============================================================================
+// นำเข้า Local Storage Utility
+// ============================================================================
+// ใช้สำหรับ Demo Mode เมื่อ Firebase ไม่พร้อมใช้งาน
+import { getLocalRequests, updateLocalRequestStatus } from '../utils/localStorage';
+
 /**
  * ============================================================================
  * Component Dashboard
@@ -85,15 +91,36 @@ const Dashboard = ({ userRole, faculty, onLogout, onCreateRequest }) => {
   const [loading, setLoading] = useState(true);
 
   // ========================================================================
-  // useEffect Hook: ดึงข้อมูลจาก Firestore แบบ Real-time
+  // useEffect Hook: ดึงข้อมูลจาก Firestore แบบ Real-time หรือ Local Storage
   // ========================================================================
   // useEffect(() => {...}, [userRole, faculty]) - รันเมื่อ userRole หรือ faculty เปลี่ยน
   useEffect(() => {
     // ตรวจสอบว่ามี db หรือไม่
     if (!db) {
-      console.warn('Firestore ไม่พร้อมใช้งาน ใช้ข้อมูลว่าง');
-      setRequests([]);
-      setLoading(false);
+      // ใช้ Local Storage (Demo Mode)
+      console.log('ใช้ Demo Mode: อ่านข้อมูลจาก Local Storage');
+      try {
+        const localRequests = getLocalRequests();
+        
+        // เรียงลำดับข้อมูลตามเวลา (ใหม่สุดไปเก่าสุด)
+        let data = localRequests.sort((a, b) => {
+          const timeA = a.createdAt?.seconds || 0;
+          const timeB = b.createdAt?.seconds || 0;
+          return timeB - timeA;
+        });
+
+        // กรองข้อมูลตามบทบาท
+        if (userRole === 'hr') {
+          setRequests(data);
+        } else {
+          setRequests(data.filter(r => r.facultyId === faculty?.id));
+        }
+        setLoading(false);
+      } catch (error) {
+        console.error('Error reading from localStorage:', error);
+        setRequests([]);
+        setLoading(false);
+      }
       return;
     }
 
@@ -222,13 +249,26 @@ const Dashboard = ({ userRole, faculty, onLogout, onCreateRequest }) => {
    * @param {string} newStatus - สถานะใหม่ที่ต้องการตั้ง (เช่น 'hr_review', 'vp_hr', etc.)
    */
   const updateStatus = async (reqId, newStatus) => {
-    // ตรวจสอบว่ามี db หรือไม่
-    if (!db) {
-      alert('Firestore ไม่พร้อมใช้งาน ไม่สามารถอัปเดตสถานะได้');
-      return;
-    }
-
     try {
+      // ตรวจสอบว่ามี db หรือไม่
+      if (!db) {
+        // ใช้ Local Storage (Demo Mode)
+        console.log('ใช้ Demo Mode: อัปเดตสถานะใน Local Storage');
+        updateLocalRequestStatus(reqId, newStatus);
+        
+        // อัปเดต State โดยตรง
+        setRequests(prev => prev.map(req => 
+          req.id === reqId 
+            ? { ...req, status: newStatus, lastUpdated: { seconds: Math.floor(Date.now() / 1000) } }
+            : req
+        ));
+        
+        // Trigger event เพื่อให้ components อื่นอัปเดต
+        window.dispatchEvent(new Event('localStorageUpdate'));
+        
+        return;
+      }
+
       /**
        * สร้าง Reference ไปยัง Document ที่ต้องการอัปเดต
        * doc(db, 'artifacts', appId, 'public', 'data', 'requests', reqId)
@@ -434,9 +474,16 @@ const Dashboard = ({ userRole, faculty, onLogout, onCreateRequest }) => {
         {/* ส่วนหัว: หัวข้อและปุ่มสร้างคำขอ */}
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-4 sm:mb-6 bg-white rounded-lg shadow-md p-4 sm:p-6">
           <div className="flex-1">
-            <h2 className="text-xl sm:text-2xl font-bold text-pink-900">
-              รายการคำขอทั้งหมด
-            </h2>
+            <div className="flex items-center gap-2 mb-1">
+              <h2 className="text-xl sm:text-2xl font-bold text-pink-900">
+                รายการคำขอทั้งหมด
+              </h2>
+              {!db && (
+                <span className="text-xs bg-yellow-100 text-yellow-800 px-2 py-1 rounded border border-yellow-300">
+                  Demo Mode
+                </span>
+              )}
+            </div>
             <p className="text-pink-600 text-xs sm:text-sm mt-1">
               {userRole === 'hr' 
                 ? 'คำขอลงอัตรากำลังพลทั้งหมดในระบบ' 
