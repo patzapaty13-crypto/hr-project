@@ -38,7 +38,9 @@ import {
   Users,
   Mail,
   FileCheck,
-  UserCog
+  UserCog,
+  Menu,
+  X
 } from 'lucide-react';
 import SPULogo from './SPULogo';
 import { getLocalRequests } from '../utils/localStorage';
@@ -49,6 +51,7 @@ const AdminDashboard = ({ userRole, faculty, onLogout, onCreateRequest }) => {
   const [requests, setRequests] = useState([]);
   const [loading, setLoading] = useState(true);
   const [activeMenu, setActiveMenu] = useState('dashboard');
+  const [isMenuOpen, setIsMenuOpen] = useState(false); // สำหรับควบคุมการแสดง/ซ่อนเมนูบนมือถือ
 
   // ========================================================================
   // useEffect Hook: ดึงข้อมูลคำขอ
@@ -173,92 +176,222 @@ const AdminDashboard = ({ userRole, faculty, onLogout, onCreateRequest }) => {
         </div>
       </header>
 
-      <div className="flex">
-        {/* Sidebar Navigation */}
-        <aside className="w-64 bg-white border-r border-gray-200 min-h-[calc(100vh-73px)]">
-          <nav className="p-4 space-y-1">
+      {/* Horizontal Navigation Menu */}
+      <div className="bg-white border-b border-gray-200 shadow-sm sticky top-0 z-50">
+        <div className="px-4 sm:px-6">
+          {/* Mobile Menu Button */}
+          <div className="flex items-center justify-between py-3 lg:hidden">
+            <button
+              onClick={() => setIsMenuOpen(!isMenuOpen)}
+              className="p-2 rounded-lg hover:bg-gray-100 transition"
+              aria-label="Toggle menu"
+            >
+              {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
+            </button>
+            <span className="text-sm font-medium text-gray-700">
+              {activeMenu === 'dashboard' && 'Dashboard'}
+              {activeMenu === 'applications' && 'Applications'}
+              {activeMenu === 'projects' && 'Projects'}
+              {activeMenu === 'positions' && 'Positions'}
+              {activeMenu === 'email-templates' && 'Email Templates'}
+              {activeMenu === 'email-logs' && 'Email Logs'}
+              {activeMenu === 'user-management' && 'User Management'}
+            </span>
+          </div>
+
+          {/* Navigation Menu - Desktop (Horizontal) */}
+          <nav className="hidden lg:flex space-x-1 overflow-x-auto">
             <button
               onClick={() => setActiveMenu('dashboard')}
-              className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg transition ${
+              className={`flex items-center space-x-2 px-4 py-3 rounded-lg transition whitespace-nowrap ${
                 activeMenu === 'dashboard'
                   ? 'bg-pink-100 text-pink-700 font-medium'
                   : 'text-gray-700 hover:bg-gray-100'
               }`}
             >
-              <LayoutDashboard size={20} />
+              <LayoutDashboard size={18} />
               <span>Dashboard</span>
             </button>
             <button
               onClick={() => setActiveMenu('applications')}
-              className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg transition ${
+              className={`flex items-center space-x-2 px-4 py-3 rounded-lg transition whitespace-nowrap ${
                 activeMenu === 'applications'
                   ? 'bg-pink-100 text-pink-700 font-medium'
                   : 'text-gray-700 hover:bg-gray-100'
               }`}
             >
-              <FileText size={20} />
+              <FileText size={18} />
               <span>Applications</span>
             </button>
             <button
               onClick={() => setActiveMenu('projects')}
-              className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg transition ${
+              className={`flex items-center space-x-2 px-4 py-3 rounded-lg transition whitespace-nowrap ${
                 activeMenu === 'projects'
                   ? 'bg-pink-100 text-pink-700 font-medium'
                   : 'text-gray-700 hover:bg-gray-100'
               }`}
             >
-              <FolderKanban size={20} />
+              <FolderKanban size={18} />
               <span>Projects</span>
             </button>
             <button
               onClick={() => setActiveMenu('positions')}
-              className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg transition ${
+              className={`flex items-center space-x-2 px-4 py-3 rounded-lg transition whitespace-nowrap ${
                 activeMenu === 'positions'
                   ? 'bg-pink-100 text-pink-700 font-medium'
                   : 'text-gray-700 hover:bg-gray-100'
               }`}
             >
-              <Users size={20} />
+              <Users size={18} />
               <span>Positions</span>
             </button>
             <button
               onClick={() => setActiveMenu('email-templates')}
-              className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg transition ${
+              className={`flex items-center space-x-2 px-4 py-3 rounded-lg transition whitespace-nowrap ${
                 activeMenu === 'email-templates'
                   ? 'bg-pink-100 text-pink-700 font-medium'
                   : 'text-gray-700 hover:bg-gray-100'
               }`}
             >
-              <Mail size={20} />
+              <Mail size={18} />
               <span>Email Templates</span>
             </button>
             <button
               onClick={() => setActiveMenu('email-logs')}
-              className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg transition ${
+              className={`flex items-center space-x-2 px-4 py-3 rounded-lg transition whitespace-nowrap ${
                 activeMenu === 'email-logs'
                   ? 'bg-pink-100 text-pink-700 font-medium'
                   : 'text-gray-700 hover:bg-gray-100'
               }`}
             >
-              <FileCheck size={20} />
+              <FileCheck size={18} />
               <span>Email Logs</span>
             </button>
             <button
               onClick={() => setActiveMenu('user-management')}
-              className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg transition ${
+              className={`flex items-center space-x-2 px-4 py-3 rounded-lg transition whitespace-nowrap ${
                 activeMenu === 'user-management'
                   ? 'bg-pink-100 text-pink-700 font-medium'
                   : 'text-gray-700 hover:bg-gray-100'
               }`}
             >
-              <UserCog size={20} />
+              <UserCog size={18} />
               <span>User Management</span>
             </button>
           </nav>
-        </aside>
 
-        {/* Main Content */}
-        <main className="flex-1 p-6">
+          {/* Mobile Menu - Slide Down */}
+          <nav
+            className={`lg:hidden overflow-hidden transition-all duration-300 ease-in-out ${
+              isMenuOpen ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'
+            }`}
+          >
+            <div className="py-2 space-y-1">
+              <button
+                onClick={() => {
+                  setActiveMenu('dashboard');
+                  setIsMenuOpen(false);
+                }}
+                className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg transition ${
+                  activeMenu === 'dashboard'
+                    ? 'bg-pink-100 text-pink-700 font-medium'
+                    : 'text-gray-700 hover:bg-gray-100'
+                }`}
+              >
+                <LayoutDashboard size={20} />
+                <span>Dashboard</span>
+              </button>
+              <button
+                onClick={() => {
+                  setActiveMenu('applications');
+                  setIsMenuOpen(false);
+                }}
+                className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg transition ${
+                  activeMenu === 'applications'
+                    ? 'bg-pink-100 text-pink-700 font-medium'
+                    : 'text-gray-700 hover:bg-gray-100'
+                }`}
+              >
+                <FileText size={20} />
+                <span>Applications</span>
+              </button>
+              <button
+                onClick={() => {
+                  setActiveMenu('projects');
+                  setIsMenuOpen(false);
+                }}
+                className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg transition ${
+                  activeMenu === 'projects'
+                    ? 'bg-pink-100 text-pink-700 font-medium'
+                    : 'text-gray-700 hover:bg-gray-100'
+                }`}
+              >
+                <FolderKanban size={20} />
+                <span>Projects</span>
+              </button>
+              <button
+                onClick={() => {
+                  setActiveMenu('positions');
+                  setIsMenuOpen(false);
+                }}
+                className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg transition ${
+                  activeMenu === 'positions'
+                    ? 'bg-pink-100 text-pink-700 font-medium'
+                    : 'text-gray-700 hover:bg-gray-100'
+                }`}
+              >
+                <Users size={20} />
+                <span>Positions</span>
+              </button>
+              <button
+                onClick={() => {
+                  setActiveMenu('email-templates');
+                  setIsMenuOpen(false);
+                }}
+                className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg transition ${
+                  activeMenu === 'email-templates'
+                    ? 'bg-pink-100 text-pink-700 font-medium'
+                    : 'text-gray-700 hover:bg-gray-100'
+                }`}
+              >
+                <Mail size={20} />
+                <span>Email Templates</span>
+              </button>
+              <button
+                onClick={() => {
+                  setActiveMenu('email-logs');
+                  setIsMenuOpen(false);
+                }}
+                className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg transition ${
+                  activeMenu === 'email-logs'
+                    ? 'bg-pink-100 text-pink-700 font-medium'
+                    : 'text-gray-700 hover:bg-gray-100'
+                }`}
+              >
+                <FileCheck size={20} />
+                <span>Email Logs</span>
+              </button>
+              <button
+                onClick={() => {
+                  setActiveMenu('user-management');
+                  setIsMenuOpen(false);
+                }}
+                className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg transition ${
+                  activeMenu === 'user-management'
+                    ? 'bg-pink-100 text-pink-700 font-medium'
+                    : 'text-gray-700 hover:bg-gray-100'
+                }`}
+              >
+                <UserCog size={20} />
+                <span>User Management</span>
+              </button>
+            </div>
+          </nav>
+        </div>
+      </div>
+
+      {/* Main Content */}
+      <main className="p-4 sm:p-6">
           {activeMenu === 'dashboard' && (
             <>
               {/* Summary Cards */}
