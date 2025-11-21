@@ -558,7 +558,6 @@ const AdminDashboard = ({ userRole, faculty, onLogout, onCreateRequest }) => {
             </div>
           )}
         </main>
-      </div>
     </div>
   );
 };
