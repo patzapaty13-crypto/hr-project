@@ -199,15 +199,15 @@ const LoginPage = ({ onLogin, onShowRegister }) => {
         <div className="bg-pink-600 text-white py-2 px-4 sm:px-6 text-xs sm:text-sm border-b border-pink-700">
         <div className="max-w-7xl mx-auto flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 sm:gap-0">
           <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-4">
-            <span className="text-white whitespace-nowrap">โทร: <a href="tel:025791111" className="text-white hover:text-pink-200 underline">(02) 579-1111</a></span>
-            <span className="hidden sm:inline text-white/60">|</span>
-            <span className="text-white whitespace-nowrap">อีเมล: <a href="mailto:hr@spu.ac.th" className="text-white hover:text-pink-200 underline break-all">hr@spu.ac.th</a></span>
+            <span className="text-white whitespace-nowrap font-medium">โทร: <a href="tel:025791111" className="text-white hover:text-pink-200 underline font-semibold cursor-pointer transition-all duration-200 hover:scale-105">(02) 579-1111</a></span>
+            <span className="hidden sm:inline text-white/60 font-bold">|</span>
+            <span className="text-white whitespace-nowrap font-medium">อีเมล: <a href="mailto:hr@spu.ac.th" className="text-white hover:text-pink-200 underline break-all font-semibold cursor-pointer transition-all duration-200 hover:scale-105">hr@spu.ac.th</a></span>
           </div>
-          <div className="hidden md:flex items-center gap-3 text-white/80">
-            <span className="text-xs">ติดตามเรา</span>
-            <a href="#" className="hover:text-white transition">f</a>
-            <a href="#" className="hover:text-white transition">t</a>
-            <a href="#" className="hover:text-white transition">in</a>
+          <div className="hidden md:flex items-center gap-4 text-white/90">
+            <span className="text-xs font-semibold tracking-wide">ติดตามเรา</span>
+            <a href="#" className="hover:text-white transition-all duration-200 hover:scale-110 cursor-pointer bg-white/10 hover:bg-white/20 px-2 py-1 rounded text-sm font-bold">f</a>
+            <a href="#" className="hover:text-white transition-all duration-200 hover:scale-110 cursor-pointer bg-white/10 hover:bg-white/20 px-2 py-1 rounded text-sm font-bold">t</a>
+            <a href="#" className="hover:text-white transition-all duration-200 hover:scale-110 cursor-pointer bg-white/10 hover:bg-white/20 px-2 py-1 rounded text-sm font-bold">in</a>
           </div>
         </div>
       </div>
@@ -222,7 +222,7 @@ const LoginPage = ({ onLogin, onShowRegister }) => {
                   size="sm" 
                   onClick={() => window.location.reload()}
                 />
-                <span className="hidden sm:block text-white text-xs sm:text-sm font-medium">Personnel System</span>
+                <span className="hidden sm:block text-white text-sm sm:text-base font-semibold tracking-wide">Personnel System</span>
               </div>
               
               {/* Navigation Menu - Mobile Menu Button */}
@@ -239,14 +239,14 @@ const LoginPage = ({ onLogin, onShowRegister }) => {
               </button>
               
               {/* Navigation Menu - Desktop */}
-              <nav className="hidden lg:flex items-center space-x-6 text-sm">
-                <button onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} className="text-white font-medium border-b-2 border-white pb-1">หน้าหลัก</button>
+              <nav className="hidden lg:flex items-center space-x-4 text-sm">
+                <button onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} className="text-white font-semibold border-b-2 border-white pb-1 px-2 cursor-pointer transition-all duration-200 hover:scale-105">หน้าหลัก</button>
                 <button onClick={() => {
                   alert('ระบบอัตรากำลังพล SPU Personnel System\n\nเวอร์ชัน 1.0.0\nพัฒนาสำหรับมหาวิทยาลัยศรีปทุม');
-                }} className="text-white/80 hover:text-white transition">เกี่ยวกับ</button>
+                }} className="text-white/90 hover:text-white transition-all duration-200 hover:scale-105 cursor-pointer px-2 py-1 rounded hover:bg-white/10 font-medium">เกี่ยวกับ</button>
                 <button onClick={() => {
                   window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
-                }} className="text-white/80 hover:text-white transition">ติดต่อ</button>
+                }} className="text-white/90 hover:text-white transition-all duration-200 hover:scale-105 cursor-pointer px-2 py-1 rounded hover:bg-white/10 font-medium">ติดต่อ</button>
               </nav>
             </div>
           </div>
@@ -258,11 +258,11 @@ const LoginPage = ({ onLogin, onShowRegister }) => {
             <div className="grid lg:grid-cols-2 gap-8 lg:gap-12 items-center">
               {/* Left Content */}
               <div className="text-left space-y-4 sm:space-y-6 order-2 lg:order-1">
-                <p className="text-blue-100 text-xs sm:text-sm font-medium uppercase tracking-wider">ยินดีต้อนรับ</p>
-                <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-white leading-tight drop-shadow-lg">
+                <p className="text-pink-100 text-xs sm:text-sm font-semibold uppercase tracking-widest">ยินดีต้อนรับ</p>
+                <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-black text-white leading-tight drop-shadow-2xl tracking-tight">
                   HR SPU
                 </h1>
-                <p className="text-base sm:text-lg text-white/90 leading-relaxed max-w-xl drop-shadow-md">
+                <p className="text-base sm:text-lg md:text-xl text-white/95 leading-relaxed max-w-xl drop-shadow-lg font-medium">
                   ระบบขออนุมัติอัตรากำลังพลออนไลน์ที่ทันสมัยและใช้งานง่าย 
                   สำหรับคณะและหน่วยงาน รวมถึงสำนักงานบุคคล
                 </p>
@@ -271,13 +271,13 @@ const LoginPage = ({ onLogin, onShowRegister }) => {
                     onClick={() => {
                       alert('ระบบ SPU Personnel System\n\nใช้งานง่าย ปลอดภัย และมีประสิทธิภาพ\n\nเหมาะสำหรับการจัดการอัตรากำลังพล');
                     }}
-                    className="px-5 sm:px-6 py-2.5 sm:py-3 bg-white text-blue-600 rounded-lg hover:bg-blue-50 transition shadow-lg font-medium text-sm sm:text-base"
+                    className="px-6 sm:px-8 py-3 sm:py-3.5 bg-white text-pink-600 rounded-lg hover:bg-pink-50 transition-all duration-200 shadow-lg hover:shadow-xl font-semibold text-sm sm:text-base cursor-pointer transform hover:scale-105 active:scale-95"
                   >
                     เรียนรู้เพิ่มเติม
                   </button>
                   <button 
                     onClick={() => window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' })}
-                    className="px-5 sm:px-6 py-2.5 sm:py-3 bg-white/20 backdrop-blur-sm text-white border-2 border-white rounded-lg hover:bg-white/30 transition font-medium text-sm sm:text-base"
+                    className="px-6 sm:px-8 py-3 sm:py-3.5 bg-white/20 backdrop-blur-sm text-white border-2 border-white rounded-lg hover:bg-white/30 transition-all duration-200 font-semibold text-sm sm:text-base cursor-pointer transform hover:scale-105 active:scale-95"
                   >
                     ติดต่อเรา
                   </button>
@@ -297,11 +297,11 @@ const LoginPage = ({ onLogin, onShowRegister }) => {
                   ส่วนหัวของกล่อง Login - สีชมพูแบบนุ่มนวล
                   ====================================================================
                 */}
-                <div className="bg-blue-50 border-b border-blue-100 p-6">
-                  <h3 className="text-2xl font-bold text-gray-800 mb-1">
+                <div className="bg-pink-50 border-b border-pink-100 p-6">
+                  <h3 className="text-2xl sm:text-3xl font-black text-gray-900 mb-2 tracking-tight">
                     เข้าสู่ระบบ
                   </h3>
-                  <p className="text-gray-600 text-sm">
+                  <p className="text-gray-700 text-sm font-medium">
                     กรุณาเลือกบทบาทและกรอกข้อมูลเพื่อเข้าสู่ระบบ
                   </p>
                 </div>
@@ -314,10 +314,10 @@ const LoginPage = ({ onLogin, onShowRegister }) => {
                 <div className="flex border-b border-gray-100">
                   {/* แท็บที่ 1: สำหรับคณะ/หน่วยงาน */}
                   <button 
-                    className={`flex-1 py-2.5 sm:py-3 text-xs sm:text-sm font-medium transition ${
+                    className={`flex-1 py-2.5 sm:py-3 text-xs sm:text-sm font-semibold transition-all duration-200 cursor-pointer ${
                       role === 'faculty' 
-                        ? 'text-blue-600 border-b-2 border-blue-500 bg-blue-50'  // สถานะ Active
-                        : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50'  // สถานะ Inactive
+                        ? 'text-pink-600 border-b-3 border-pink-500 bg-pink-50'  // สถานะ Active
+                        : 'text-gray-600 hover:text-gray-800 hover:bg-gray-50 active:bg-gray-100'  // สถานะ Inactive
                     }`}
                     onClick={() => setRole('faculty')}
                   >
@@ -326,10 +326,10 @@ const LoginPage = ({ onLogin, onShowRegister }) => {
                   </button>
                   {/* แท็บที่ 2: สำหรับ HR */}
                   <button 
-                    className={`flex-1 py-2.5 sm:py-3 text-xs sm:text-sm font-medium transition ${
+                    className={`flex-1 py-2.5 sm:py-3 text-xs sm:text-sm font-semibold transition-all duration-200 cursor-pointer ${
                       role === 'hr' 
-                        ? 'text-pink-600 border-b-2 border-pink-500 bg-pink-50'  // สถานะ Active
-                        : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50'  // สถานะ Inactive
+                        ? 'text-pink-600 border-b-3 border-pink-500 bg-pink-50'  // สถานะ Active
+                        : 'text-gray-600 hover:text-gray-800 hover:bg-gray-50 active:bg-gray-100'  // สถานะ Inactive
                     }`}
                     onClick={() => setRole('hr')}
                   >
@@ -337,10 +337,10 @@ const LoginPage = ({ onLogin, onShowRegister }) => {
                   </button>
                   {/* แท็บที่ 3: สำหรับ VP HR */}
                   <button 
-                    className={`flex-1 py-2.5 sm:py-3 text-xs sm:text-sm font-medium transition ${
+                    className={`flex-1 py-2.5 sm:py-3 text-xs sm:text-sm font-semibold transition-all duration-200 cursor-pointer ${
                       role === 'vp_hr' 
-                        ? 'text-pink-600 border-b-2 border-pink-500 bg-pink-50'  // สถานะ Active
-                        : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50'  // สถานะ Inactive
+                        ? 'text-pink-600 border-b-3 border-pink-500 bg-pink-50'  // สถานะ Active
+                        : 'text-gray-600 hover:text-gray-800 hover:bg-gray-50 active:bg-gray-100'  // สถานะ Inactive
                     }`}
                     onClick={() => setRole('vp_hr')}
                   >
@@ -348,10 +348,10 @@ const LoginPage = ({ onLogin, onShowRegister }) => {
                   </button>
                   {/* แท็บที่ 4: สำหรับ President */}
                   <button 
-                    className={`flex-1 py-2.5 sm:py-3 text-xs sm:text-sm font-medium transition ${
+                    className={`flex-1 py-2.5 sm:py-3 text-xs sm:text-sm font-semibold transition-all duration-200 cursor-pointer ${
                       role === 'president' 
-                        ? 'text-pink-600 border-b-2 border-pink-500 bg-pink-50'  // สถานะ Active
-                        : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50'  // สถานะ Inactive
+                        ? 'text-pink-600 border-b-3 border-pink-500 bg-pink-50'  // สถานะ Active
+                        : 'text-gray-600 hover:text-gray-800 hover:bg-gray-50 active:bg-gray-100'  // สถานะ Inactive
                     }`}
                     onClick={() => setRole('president')}
                   >
@@ -375,8 +375,8 @@ const LoginPage = ({ onLogin, onShowRegister }) => {
           {/* แสดง Dropdown เลือกคณะเฉพาะ Faculty */}
           {(role === 'faculty') && (
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                เลือกคณะ / หน่วยงาน <span className="text-red-500">*</span>
+              <label className="block text-sm font-semibold text-gray-800 mb-2">
+                เลือกคณะ / หน่วยงาน <span className="text-red-500 font-bold">*</span>
               </label>
               <div className="relative">
                 {/* Icon: Building (แสดงทางซ้ายของ Dropdown) */}
@@ -390,7 +390,7 @@ const LoginPage = ({ onLogin, onShowRegister }) => {
                   onChange: เมื่อเปลี่ยนค่าให้อัปเดต facultyId
                 */}
                 <select 
-                  className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full pl-10 pr-3 py-2.5 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-pink-500 cursor-pointer font-medium text-gray-800 transition-all duration-200 hover:border-pink-400"
                   value={facultyId}
                   onChange={(e) => setFacultyId(e.target.value)}
                   required
@@ -413,19 +413,19 @@ const LoginPage = ({ onLogin, onShowRegister }) => {
             placeholder: เปลี่ยนตามบทบาท (hr@spu.ac.th หรือ staff@spu.ac.th)
           */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              อีเมลมหาวิทยาลัย (@spu.ac.th)
+            <label className="block text-sm font-semibold text-gray-800 mb-2">
+              อีเมลมหาวิทยาลัย (@spu.ac.th) <span className="text-red-500 font-bold">*</span>
             </label>
             <div className="relative">
               {/* Icon: Mail (แสดงทางซ้ายของ Input) */}
               <Mail 
-                className="absolute left-3 top-2.5 text-gray-400" 
-                size={18} 
+                className="absolute left-3 top-3 text-gray-500" 
+                size={20} 
               />
               <input 
                 type="email" 
                 required
-                className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-pink-500"
+                className="w-full pl-11 pr-4 py-2.5 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-pink-500 font-medium text-gray-800 placeholder:text-gray-400 transition-all duration-200 hover:border-pink-400"
                 placeholder={role === 'hr' ? 'hr@spu.ac.th' : 'staff@spu.ac.th'}
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}  // อัปเดต email เมื่อพิมพ์
@@ -439,19 +439,19 @@ const LoginPage = ({ onLogin, onShowRegister }) => {
             required: บังคับให้กรอก
           */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              รหัสผ่าน
+            <label className="block text-sm font-semibold text-gray-800 mb-2">
+              รหัสผ่าน <span className="text-red-500 font-bold">*</span>
             </label>
             <div className="relative">
               {/* Icon: Lock (แสดงทางซ้ายของ Input) */}
               <Lock 
-                className="absolute left-3 top-2.5 text-gray-400" 
-                size={18} 
+                className="absolute left-3 top-3 text-gray-500" 
+                size={20} 
               />
               <input 
                 type="password" 
                 required
-                className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-pink-500"
+                className="w-full pl-11 pr-4 py-2.5 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-pink-500 font-medium text-gray-800 placeholder:text-gray-400 transition-all duration-200 hover:border-pink-400"
                 placeholder="••••••••"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}  // อัปเดต password เมื่อพิมพ์
@@ -472,7 +472,7 @@ const LoginPage = ({ onLogin, onShowRegister }) => {
                 <button 
                   type="submit"
                   disabled={isLoading}
-                  className="w-full bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 transition font-medium shadow-md disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center mt-2"
+                  className="w-full bg-gradient-to-r from-pink-500 to-pink-600 text-white py-3.5 rounded-lg hover:from-pink-600 hover:to-pink-700 transition-all duration-200 font-bold shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center mt-2 cursor-pointer transform hover:scale-[1.02] active:scale-[0.98] text-base"
                 >
                   {isLoading ? (
                     <>
@@ -498,7 +498,7 @@ const LoginPage = ({ onLogin, onShowRegister }) => {
                   {onShowRegister && (
                     <button
                       onClick={onShowRegister}
-                      className="w-full mb-3 bg-white border-2 border-blue-600 text-blue-600 py-2 rounded-lg hover:bg-blue-50 transition font-medium text-sm flex items-center justify-center gap-2"
+                      className="w-full mb-3 bg-white border-2 border-pink-500 text-pink-600 py-2.5 rounded-lg hover:bg-pink-50 hover:border-pink-600 transition-all duration-200 font-bold text-sm flex items-center justify-center gap-2 cursor-pointer transform hover:scale-[1.02] active:scale-[0.98] shadow-sm hover:shadow-md"
                     >
                       <UserPlus size={18} />
                       ลงทะเบียน
@@ -525,17 +525,17 @@ const LoginPage = ({ onLogin, onShowRegister }) => {
                   <Building size={40} className="sm:w-12 sm:h-12 text-blue-600" />
                 </div>
                 <div className="p-4 sm:p-6">
-                  <h3 className="text-lg sm:text-xl font-bold text-gray-800 mb-2 sm:mb-3">จัดการคณะ</h3>
-                  <p className="text-gray-700 text-sm mb-3 sm:mb-4 leading-relaxed">
+                  <h3 className="text-lg sm:text-xl font-black text-gray-900 mb-2 sm:mb-3 tracking-tight">จัดการคณะ</h3>
+                  <p className="text-gray-700 text-sm mb-3 sm:mb-4 leading-relaxed font-medium">
                     สร้างและจัดการคำขออัตรากำลังพลสำหรับคณะและหน่วยงานของคุณได้อย่างง่ายดาย
                   </p>
                   <button 
                     onClick={() => {
                       alert('ระบบจัดการคณะ\n\n- สร้างคำขอใหม่\n- ติดตามสถานะ\n- ใช้ AI ช่วยร่าง Job Description');
                     }}
-                    className="text-blue-600 hover:text-blue-700 font-medium text-sm"
+                    className="text-pink-600 hover:text-pink-700 font-bold text-sm cursor-pointer transition-all duration-200 hover:scale-105 inline-flex items-center gap-1 underline decoration-2 underline-offset-2"
                   >
-                    อ่านเพิ่มเติม →
+                    อ่านเพิ่มเติม <span className="text-base">→</span>
                   </button>
                 </div>
               </div>
@@ -546,8 +546,8 @@ const LoginPage = ({ onLogin, onShowRegister }) => {
                   <Briefcase size={40} className="sm:w-12 sm:h-12 text-green-600" />
                 </div>
                 <div className="p-4 sm:p-6">
-                  <h3 className="text-lg sm:text-xl font-bold text-gray-800 mb-2 sm:mb-3">ระบบอนุมัติ</h3>
-                  <p className="text-gray-700 text-sm mb-3 sm:mb-4 leading-relaxed">
+                  <h3 className="text-lg sm:text-xl font-black text-gray-900 mb-2 sm:mb-3 tracking-tight">ระบบอนุมัติ</h3>
+                  <p className="text-gray-700 text-sm mb-3 sm:mb-4 leading-relaxed font-medium">
                     ระบบอนุมัติอัตรากำลังพลที่รวดเร็ว มีประสิทธิภาพ และติดตามได้ทุกขั้นตอน
                   </p>
                   <button 
@@ -569,8 +569,8 @@ const LoginPage = ({ onLogin, onShowRegister }) => {
                   </svg>
                 </div>
                 <div className="p-4 sm:p-6">
-                  <h3 className="text-lg sm:text-xl font-bold text-gray-800 mb-2 sm:mb-3">ใช้งานง่าย</h3>
-                  <p className="text-gray-700 text-sm mb-3 sm:mb-4 leading-relaxed">
+                  <h3 className="text-lg sm:text-xl font-black text-gray-900 mb-2 sm:mb-3 tracking-tight">ใช้งานง่าย</h3>
+                  <p className="text-gray-700 text-sm mb-3 sm:mb-4 leading-relaxed font-medium">
                     อินเทอร์เฟซที่ใช้งานง่าย พร้อม AI ช่วยเหลือทำให้การทำงานของคุณรวดเร็วขึ้น
                   </p>
                   <button 
@@ -592,34 +592,34 @@ const LoginPage = ({ onLogin, onShowRegister }) => {
             <div className="max-w-7xl mx-auto">
               <div className="grid md:grid-cols-3 gap-8">
                 <div>
-                  <h4 className="text-xl font-bold mb-4 text-white">SPU PERSONNEL</h4>
-                  <p className="text-white/90 text-sm leading-relaxed">
+                  <h4 className="text-xl font-black mb-4 text-white tracking-tight">SPU PERSONNEL</h4>
+                  <p className="text-white/95 text-sm leading-relaxed font-medium">
                     ระบบจัดการอัตรากำลังพลที่ทันสมัยและมีประสิทธิภาพ
                   </p>
                 </div>
                 <div>
-                  <h4 className="text-lg font-semibold mb-4 text-white">ติดต่อเรา</h4>
+                  <h4 className="text-lg font-bold mb-4 text-white tracking-wide">ติดต่อเรา</h4>
                   <p className="text-white/90 text-sm mb-2">มหาวิทยาลัยศรีปทุม</p>
                   <p className="text-white/90 text-sm mb-2">โทร: (02) 579-1111</p>
                   <p className="text-white/90 text-sm">Email: hr@spu.ac.th</p>
                 </div>
                 <div>
-                  <h4 className="text-lg font-semibold mb-4 text-white">ลิงก์ที่เกี่ยวข้อง</h4>
-                  <ul className="space-y-2 text-sm">
+                  <h4 className="text-lg font-bold mb-4 text-white tracking-wide">ลิงก์ที่เกี่ยวข้อง</h4>
+                  <ul className="space-y-2.5 text-sm">
                     <li>
                       <a 
                         href="https://www.spu.ac.th" 
                         target="_blank" 
                         rel="noopener noreferrer"
-                        className="text-white/90 hover:text-white transition inline-flex items-center"
+                        className="text-white/95 hover:text-white transition-all duration-200 inline-flex items-center font-semibold cursor-pointer hover:scale-105 underline decoration-2 underline-offset-2 hover:decoration-white"
                       >
-                        เว็บไซต์หลักมหาวิทยาลัย <span className="ml-1">↗</span>
+                        เว็บไซต์หลักมหาวิทยาลัย <span className="ml-1 font-bold">↗</span>
                       </a>
                     </li>
                     <li>
                       <button 
                         onClick={() => alert('ระบบอื่นๆ กำลังอยู่ในระหว่างการพัฒนา')}
-                        className="text-white/90 hover:text-white transition"
+                        className="text-white/95 hover:text-white transition-all duration-200 font-semibold cursor-pointer hover:scale-105 underline decoration-2 underline-offset-2 hover:decoration-white"
                       >
                         ระบบอื่นๆ
                       </button>
@@ -629,7 +629,7 @@ const LoginPage = ({ onLogin, onShowRegister }) => {
                         onClick={() => {
                           alert('คู่มือการใช้งาน:\n\n1. เลือกบทบาท (คณะ/HR)\n2. เลือกคณะ (ถ้าเป็นคณะ)\n3. กรอกอีเมลและรหัสผ่าน\n4. กดเข้าสู่ระบบ\n\nสำหรับความช่วยเหลือเพิ่มเติม โปรดติดต่อ hr@spu.ac.th');
                         }}
-                        className="text-white/90 hover:text-white transition"
+                        className="text-white/95 hover:text-white transition-all duration-200 font-semibold cursor-pointer hover:scale-105 underline decoration-2 underline-offset-2 hover:decoration-white"
                       >
                         ความช่วยเหลือ
                       </button>
