@@ -32,6 +32,11 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 
 // ============================================================================
+// นำเข้า React Router
+// ============================================================================
+import { BrowserRouter } from 'react-router-dom';
+
+// ============================================================================
 // นำเข้า App Component (Component หลัก)
 // ============================================================================
 // App: Component หลักของแอปพลิเคชัน (จัดการ Authentication และ Navigation)
@@ -57,7 +62,9 @@ import App from '../App.jsx';
  */
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
-    <App />
+    <BrowserRouter>
+      <App />
+    </BrowserRouter>
   </React.StrictMode>,
 );
 

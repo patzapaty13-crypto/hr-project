@@ -58,6 +58,12 @@ import { callGemini } from '../utils/gemini';
 // ใช้สำหรับ Demo Mode เมื่อ Firebase ไม่พร้อมใช้งาน
 import { addLocalRequest } from '../utils/localStorage';
 
+// ============================================================================
+// นำเข้า Email Service
+// ============================================================================
+// ใช้สำหรับส่งอีเมลแจ้งเตือนเมื่อมีการสร้างคำขอใหม่
+import { sendRequestNotificationEmail } from '../utils/emailService';
+
 /**
  * ============================================================================
  * Component SimpleForm
@@ -180,6 +186,8 @@ const SimpleForm = ({ faculty, onClose, onSubmit, userId }) => {
         userId: userId || 'local-user'  // ID ของผู้ใช้
       };
 
+      let savedRequestId = null;
+
       // ตรวจสอบว่ามี db หรือไม่
       if (db) {
         // ใช้ Firestore (Production Mode)
@@ -197,15 +205,16 @@ const SimpleForm = ({ faculty, onClose, onSubmit, userId }) => {
          * - Firestore จะสร้าง Document ID ให้อัตโนมัติ
          * - เมื่อบันทึกสำเร็จ Dashboard จะอัปเดตอัตโนมัติ (เพราะใช้ onSnapshot)
          */
-        await addDoc(
+        const docRef = await addDoc(
           collection(db, 'artifacts', appId, 'public', 'data', 'requests'),
           newRequest
         );
+        savedRequestId = docRef.id;
       } else {
         // ใช้ Local Storage (Demo Mode)
         console.log('✅ ใช้ Demo Mode: บันทึกข้อมูลลง Local Storage');
         try {
-          addLocalRequest(newRequest);
+          savedRequestId = addLocalRequest(newRequest);
           console.log('✅ บันทึกข้อมูลสำเร็จใน Local Storage');
           
           // อัปเดต Dashboard โดยการ trigger custom event
@@ -217,6 +226,21 @@ const SimpleForm = ({ faculty, onClose, onSubmit, userId }) => {
           setErrorMessage('เกิดข้อผิดพลาดในการบันทึกข้อมูลใน Local Storage: ' + localError.message);
           return; // หยุดการทำงาน ไม่ปิด Popup
         }
+      }
+
+      // ส่งอีเมลแจ้งเตือน (ไม่รอผลลัพธ์ เพื่อไม่ให้ช้าผู้ใช้)
+      if (savedRequestId) {
+        sendRequestNotificationEmail(newRequest, savedRequestId)
+          .then(result => {
+            if (result.success) {
+              console.log('✅ ส่งอีเมลแจ้งเตือนสำเร็จ');
+            } else {
+              console.warn('⚠️ ไม่สามารถส่งอีเมลได้:', result.message);
+            }
+          })
+          .catch(error => {
+            console.error('❌ Error sending email:', error);
+          });
       }
       
       /**

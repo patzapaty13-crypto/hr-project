@@ -19,6 +19,7 @@
  */
 
 import React, { useState, useEffect } from 'react';
+import { Routes, Route } from 'react-router-dom';
 
 // ============================================================================
 // นำเข้า Firebase Authentication Functions
@@ -46,9 +47,11 @@ import { auth } from './config/firebase';
 // LoginPage: Component สำหรับหน้าเข้าสู่ระบบ
 // Dashboard: Component สำหรับหน้า Dashboard แสดงรายการคำขอ
 // SimpleForm: Component สำหรับ Popup สร้างคำขอใหม่
+// ConfirmationPage: หน้ายืนยันคำขอผ่านอีเมล
 import LoginPage from './components/LoginPage';
 import Dashboard from './components/Dashboard';
 import SimpleForm from './components/SimpleForm';
+import ConfirmationPage from './components/ConfirmationPage';
 
 // ============================================================================
 // Component หลักของแอปพลิเคชัน
@@ -240,39 +243,47 @@ export default function App() {
    * ถ้า Login แล้ว ให้แสดง Dashboard และ Form (ถ้าเปิดอยู่)
    */
   return (
-    <>
-      {/* 
-        Component Dashboard: หน้าแสดงรายการคำขอทั้งหมด
-        Props ที่ส่งไป:
-        - userRole: บทบาทของผู้ใช้ (สำหรับกรองข้อมูลและแสดงปุ่ม)
-        - faculty: ข้อมูลคณะ (สำหรับกรองข้อมูล)
-        - onLogout: ฟังก์ชันสำหรับออกจากระบบ
-        - onCreateRequest: ฟังก์ชันสำหรับเปิด Popup Form
-      */}
-      <Dashboard 
-        userRole={role} 
-        faculty={selectedFaculty} 
-        onLogout={handleLogout}
-        onCreateRequest={() => setShowForm(true)}  // เมื่อกดปุ่มสร้างคำขอ ให้แสดง Form
-      />
+    <Routes>
+      {/* Route สำหรับ Confirmation Page (ไม่ต้อง Login) */}
+      <Route path="/confirm/:requestId" element={<ConfirmationPage />} />
       
-      {/* 
-        Conditional Rendering: แสดง SimpleForm เฉพาะเมื่อ showForm = true
-        Component SimpleForm: Popup สำหรับสร้างคำขอใหม่
-        Props ที่ส่งไป:
-        - faculty: ข้อมูลคณะที่เลือก (สำหรับแสดงใน Form)
-        - userId: ID ของผู้ใช้ (สำหรับเก็บไว้ในข้อมูลคำขอ)
-        - onClose: ฟังก์ชันสำหรับปิด Popup
-        - onSubmit: ฟังก์ชันที่เรียกหลังจากบันทึกข้อมูลสำเร็จ
-      */}
-      {showForm && (
-        <SimpleForm 
-          faculty={selectedFaculty} 
-          userId={user.uid}  // user.uid = Firebase User ID
-          onClose={() => setShowForm(false)}  // เมื่อกดปิด ให้ซ่อน Form
-          onSubmit={() => setShowForm(false)}  // เมื่อบันทึกสำเร็จ ให้ซ่อน Form
-        />
-      )}
-    </>
+      {/* Route หลัก (ต้อง Login) */}
+      <Route path="*" element={
+        <>
+          {/* 
+            Component Dashboard: หน้าแสดงรายการคำขอทั้งหมด
+            Props ที่ส่งไป:
+            - userRole: บทบาทของผู้ใช้ (สำหรับกรองข้อมูลและแสดงปุ่ม)
+            - faculty: ข้อมูลคณะ (สำหรับกรองข้อมูล)
+            - onLogout: ฟังก์ชันสำหรับออกจากระบบ
+            - onCreateRequest: ฟังก์ชันสำหรับเปิด Popup Form
+          */}
+          <Dashboard 
+            userRole={role} 
+            faculty={selectedFaculty} 
+            onLogout={handleLogout}
+            onCreateRequest={() => setShowForm(true)}  // เมื่อกดปุ่มสร้างคำขอ ให้แสดง Form
+          />
+          
+          {/* 
+            Conditional Rendering: แสดง SimpleForm เฉพาะเมื่อ showForm = true
+            Component SimpleForm: Popup สำหรับสร้างคำขอใหม่
+            Props ที่ส่งไป:
+            - faculty: ข้อมูลคณะที่เลือก (สำหรับแสดงใน Form)
+            - userId: ID ของผู้ใช้ (สำหรับเก็บไว้ในข้อมูลคำขอ)
+            - onClose: ฟังก์ชันสำหรับปิด Popup
+            - onSubmit: ฟังก์ชันที่เรียกหลังจากบันทึกข้อมูลสำเร็จ
+          */}
+          {showForm && (
+            <SimpleForm 
+              faculty={selectedFaculty} 
+              userId={user.uid}  // user.uid = Firebase User ID
+              onClose={() => setShowForm(false)}  // เมื่อกดปิด ให้ซ่อน Form
+              onSubmit={() => setShowForm(false)}  // เมื่อบันทึกสำเร็จ ให้ซ่อน Form
+            />
+          )}
+        </>
+      } />
+    </Routes>
   );
 }
