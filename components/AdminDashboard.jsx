@@ -392,7 +392,7 @@ const AdminDashboard = ({ userRole, faculty, onLogout, onCreateRequest }) => {
 
       {/* Main Content */}
       <main className="p-4 sm:p-6">
-          {activeMenu === 'dashboard' && (
+        {activeMenu === 'dashboard' && (
             <>
               {/* Summary Cards */}
               <div className="grid grid-cols-1 md:grid-cols-5 gap-4 mb-6">
@@ -539,10 +539,10 @@ const AdminDashboard = ({ userRole, faculty, onLogout, onCreateRequest }) => {
                 </div>
               </div>
             </>
-          )}
+        )}
 
-          {/* Other Menu Views */}
-          {activeMenu !== 'dashboard' && (
+        {/* Other Menu Views */}
+        {activeMenu !== 'dashboard' && (
             <div className="bg-white rounded-lg shadow p-12 text-center border border-gray-200">
               <h2 className="text-2xl font-bold text-gray-800 mb-4">
                 {activeMenu === 'applications' && 'Applications'}
@@ -556,8 +556,8 @@ const AdminDashboard = ({ userRole, faculty, onLogout, onCreateRequest }) => {
                 This feature is coming soon...
               </p>
             </div>
-          )}
-        </main>
+        )}
+      </main>
     </div>
   );
 };
