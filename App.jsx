@@ -50,6 +50,7 @@ import { auth } from './config/firebase';
 // SimpleForm: Component สำหรับ Popup สร้างคำขอใหม่
 // ConfirmationPage: หน้ายืนยันคำขอผ่านอีเมล
 import LoginPage from './components/LoginPage';
+import RegisterPage from './components/RegisterPage';
 import Dashboard from './components/Dashboard';
 import AdminDashboard from './components/AdminDashboard';
 import SimpleForm from './components/SimpleForm';
@@ -74,6 +75,9 @@ export default function App() {
   
   // showForm: ควบคุมการแสดง/ซ่อน Popup Form สร้างคำขอใหม่ (true = แสดง, false = ซ่อน)
   const [showForm, setShowForm] = useState(false);
+  
+  // showRegister: ควบคุมการแสดงหน้า Register (true = แสดง Register, false = แสดง Login)
+  const [showRegister, setShowRegister] = useState(false);
   
   // useAdminDashboard: ควบคุมการแสดง Admin Dashboard หรือ Dashboard ปกติ (true = Admin Dashboard, false = Dashboard ปกติ)
   // เก็บค่าใน localStorage เพื่อให้คงอยู่หลัง refresh
@@ -158,50 +162,49 @@ export default function App() {
   /**
    * handleLogin: ฟังก์ชันที่ถูกเรียกเมื่อผู้ใช้กดปุ่ม Login ในหน้า LoginPage
    * 
-   * @param {string} userRole - บทบาทของผู้ใช้ ('hr' หรือ 'faculty')
-   * @param {Object|null} faculty - ข้อมูลคณะที่เลือก (null ถ้าเป็น HR)
+   * @param {string} userRole - บทบาทของผู้ใช้ ('hr', 'vp_hr', 'president', หรือ 'faculty')
+   * @param {Object|null} faculty - ข้อมูลคณะที่เลือก (null ถ้าไม่ใช่ faculty)
+   * @param {Object} firebaseUser - Firebase User Object (ถ้ามี)
    */
-  const handleLogin = async (userRole, faculty) => {
+  const handleLogin = async (userRole, faculty, firebaseUser = null) => {
     try {
-      // ตรวจสอบว่ามี auth instance หรือไม่
-      if (!auth) {
-        // ถ้าไม่มี auth ให้ใช้ Local State โดยตรง
-        console.warn('Firebase Auth ไม่พร้อมใช้งาน ใช้การ Login แบบ Local State');
-        setRole(userRole);
-        setSelectedFaculty(faculty);
-        // สร้าง mock user object เพื่อให้ระบบทำงานได้
-        setUser({ uid: 'local-user-' + Date.now(), isAnonymous: true });
-        return;
-      }
-
-      // ตรวจสอบว่ามี Firebase config หรือไม่
-      const firebaseConfig = JSON.parse(window.__firebase_config || '{}');
-      if (!firebaseConfig.apiKey || firebaseConfig.apiKey === 'YOUR_API_KEY') {
-        // ถ้ายังไม่ได้ตั้งค่า Firebase ให้ข้ามการ Login และใช้ State โดยตรง
-        console.warn('Firebase config ไม่ถูกต้อง ใช้การ Login แบบ Local State');
-        setRole(userRole);
-        setSelectedFaculty(faculty);
-        // สร้าง mock user object เพื่อให้ระบบทำงานได้
-        setUser({ uid: 'local-user-' + Date.now(), isAnonymous: true });
-        return;
-      }
-
-      // สร้าง Session จริงใน Firebase ด้วย Anonymous Authentication
-      // ไม่ต้องระบุ Email/Password แต่ Firebase จะสร้าง User ID ให้อัตโนมัติ
-      try {
-        await signInAnonymously(auth);
-        // หลังจาก signInAnonymously สำเร็จ onAuthStateChanged จะทำงานอัตโนมัติ
-        // และ setUser ให้อัตโนมัติ
-      } catch (authError) {
-        // ถ้า Firebase Auth ล้มเหลว ให้ใช้ Local State แทน
-        console.warn('Firebase Authentication ล้มเหลว ใช้การ Login แบบ Local State:', authError);
-        // สร้าง mock user object เพื่อให้ระบบทำงานได้
-        setUser({ uid: 'local-user-' + Date.now(), isAnonymous: true });
+      // ถ้ามี Firebase User (จาก Email/Password Login) ให้ใช้
+      if (firebaseUser) {
+        setUser(firebaseUser);
+      } else {
+        // ถ้าไม่มี auth instance ให้ใช้ Local State
+        if (!auth) {
+          console.warn('Firebase Auth ไม่พร้อมใช้งาน ใช้การ Login แบบ Local State');
+          setUser({ uid: 'local-user-' + Date.now(), isAnonymous: true });
+        } else {
+          // ตรวจสอบว่ามี Firebase config หรือไม่
+          const firebaseConfig = JSON.parse(window.__firebase_config || '{}');
+          if (!firebaseConfig.apiKey || firebaseConfig.apiKey === 'YOUR_API_KEY') {
+            console.warn('Firebase config ไม่ถูกต้อง ใช้การ Login แบบ Local State');
+            setUser({ uid: 'local-user-' + Date.now(), isAnonymous: true });
+          } else {
+            // ใช้ Anonymous Authentication เป็น fallback
+            try {
+              await signInAnonymously(auth);
+            } catch (authError) {
+              console.warn('Firebase Authentication ล้มเหลว ใช้การ Login แบบ Local State:', authError);
+              setUser({ uid: 'local-user-' + Date.now(), isAnonymous: true });
+            }
+          }
+        }
       }
       
-      // เก็บบทบาทและคณะที่เลือกไว้ใน State
+      // เก็บบทบาทและคณะที่เลือกไว้ใน State และ localStorage
       setRole(userRole);
       setSelectedFaculty(faculty);
+      
+      // เก็บข้อมูล Login ใน localStorage
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('spu_hr_role', userRole);
+        if (faculty) {
+          localStorage.setItem('spu_hr_faculty', JSON.stringify(faculty));
+        }
+      }
     } catch (error) {
       // จัดการ Error ทั่วไป
       console.error('เกิดข้อผิดพลาดในการ Login:', error);
@@ -209,6 +212,14 @@ export default function App() {
       setRole(userRole);
       setSelectedFaculty(faculty);
       setUser({ uid: 'local-user-' + Date.now(), isAnonymous: true });
+      
+      // เก็บข้อมูล Login ใน localStorage
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('spu_hr_role', userRole);
+        if (faculty) {
+          localStorage.setItem('spu_hr_faculty', JSON.stringify(faculty));
+        }
+      }
     }
   };
 
@@ -252,14 +263,28 @@ export default function App() {
   // ========================================================================
   
   /**
-   * ถ้ายังไม่ Login หรือไม่มีบทบาท ให้แสดงหน้า LoginPage
+   * ถ้ายังไม่ Login หรือไม่มีบทบาท ให้แสดงหน้า LoginPage หรือ RegisterPage
    * - !user: ยังไม่มีข้อมูลผู้ใช้ (ยังไม่ Login)
    * - !role: ยังไม่ได้เลือกบทบาท
+   * - showRegister: แสดงหน้า Register ถ้าเป็น true
    */
   if (!user || !role) {
+    if (showRegister) {
+      return (
+        <RegisterPage 
+          onBackToLogin={() => setShowRegister(false)}
+          onRegisterSuccess={(email) => {
+            setShowRegister(false);
+            // Auto-fill email in login form (optional)
+          }}
+        />
+      );
+    }
+    
     return (
       <LoginPage 
         onLogin={handleLogin}  // ส่งฟังก์ชัน handleLogin ไปให้ LoginPage เรียกใช้
+        onShowRegister={() => setShowRegister(true)}  // ส่งฟังก์ชันแสดงหน้า Register
       />
     );
   }

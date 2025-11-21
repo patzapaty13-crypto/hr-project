@@ -33,7 +33,18 @@ import React, { useState } from 'react';
 // Building: Icon สำหรับคณะ/หน่วยงาน (ใช้กับ Dropdown)
 // Lock: Icon สำหรับรหัสผ่าน
 // Mail: Icon สำหรับอีเมล
-import { Building, Lock, Mail, Briefcase } from 'lucide-react';
+import { Building, Lock, Mail, Briefcase, UserPlus } from 'lucide-react';
+
+// ============================================================================
+// นำเข้า Firebase Authentication
+// ============================================================================
+import { signInWithEmailAndPassword } from 'firebase/auth';
+import { auth } from '../config/firebase';
+
+// ============================================================================
+// นำเข้า User Service
+// ============================================================================
+import { getUserByEmail, checkAccess } from '../utils/userService';
 
 // ============================================================================
 // นำเข้า Constants
@@ -52,11 +63,11 @@ import SPULogo from './SPULogo';
  * Component LoginPage
  * ============================================================================
  */
-const LoginPage = ({ onLogin }) => {
+const LoginPage = ({ onLogin, onShowRegister }) => {
   // ========================================================================
   // State Management: เก็บค่าจากฟอร์ม
   // ========================================================================
-  // role: บทบาทที่เลือก ('faculty' = คณะ/หน่วยงาน, 'hr' = สำนักงานบุคคล)
+  // role: บทบาทที่เลือก ('faculty' = คณะ/หน่วยงาน, 'hr' = เจ้าหน้าที่ฝ่ายบุคคล, 'vp_hr' = รองอธิการบดี, 'president' = อธิการบดี)
   // เริ่มต้นเป็น 'faculty' (ฝั่งคณะ)
   const [role, setRole] = useState('faculty');
   
@@ -93,42 +104,84 @@ const LoginPage = ({ onLogin }) => {
     setIsLoading(true);
 
     try {
-      /**
-       * ตรวจสอบบทบาทและส่งข้อมูลกลับไปยัง App.jsx
-       * 
-       * ถ้าเป็น 'faculty':
-       * - หาข้อมูลคณะจาก FACULTIES Array ตาม facultyId ที่เลือก
-       * - ส่งข้อมูลคณะ (Object) ไปยัง onLogin
-       * 
-       * ถ้าเป็น 'hr':
-       * - ส่ง null แทนข้อมูลคณะ (เพราะ HR ไม่ต้องเลือกคณะ)
-       */
-      if (role === 'faculty') {
-        // ตรวจสอบว่ามีคณะที่เลือกหรือไม่
-        if (!facultyId) {
-          setError('กรุณาเลือกคณะ/หน่วยงาน');
-          setIsLoading(false);
-          return;
-        }
+      // Validation
+      if (!email || !password) {
+        setError('กรุณากรอกอีเมลและรหัสผ่าน');
+        setIsLoading(false);
+        return;
+      }
 
-        // หาข้อมูลคณะจาก Array ตาม ID ที่เลือก
-        const selectedFaculty = FACULTIES.find(faculty => faculty.id === facultyId);
-        
+      if (role === 'faculty' && !facultyId) {
+        setError('กรุณาเลือกคณะ/หน่วยงาน');
+        setIsLoading(false);
+        return;
+      }
+
+      // Login ด้วย Email/Password
+      let userCredential;
+      if (auth) {
+        try {
+          userCredential = await signInWithEmailAndPassword(auth, email.toLowerCase(), password);
+        } catch (authError) {
+          if (authError.code === 'auth/user-not-found') {
+            setError('ไม่พบผู้ใช้ในระบบ กรุณาลงทะเบียนก่อน');
+            setIsLoading(false);
+            return;
+          } else if (authError.code === 'auth/wrong-password') {
+            setError('รหัสผ่านไม่ถูกต้อง');
+            setIsLoading(false);
+            return;
+          } else if (authError.code === 'auth/invalid-email') {
+            setError('รูปแบบอีเมลไม่ถูกต้อง');
+            setIsLoading(false);
+            return;
+          }
+          throw authError;
+        }
+      } else {
+        // Demo Mode: สร้าง mock user
+        userCredential = {
+          user: {
+            uid: 'demo-user-' + Date.now(),
+            email: email.toLowerCase()
+          }
+        };
+      }
+
+      // ดึงข้อมูลผู้ใช้จาก Database
+      const userData = await getUserByEmail(email.toLowerCase());
+
+      if (!userData) {
+        setError('ไม่พบข้อมูลผู้ใช้ในระบบ กรุณาลงทะเบียนก่อน');
+        setIsLoading(false);
+        return;
+      }
+
+      // ตรวจสอบสิทธิ์การเข้าถึง
+      const accessCheck = checkAccess(userData, role, role === 'faculty' ? facultyId : null);
+      
+      if (!accessCheck.allowed) {
+        setError(accessCheck.message);
+        setIsLoading(false);
+        return;
+      }
+
+      // หาข้อมูลคณะ (ถ้าเป็น faculty)
+      let selectedFaculty = null;
+      if (role === 'faculty') {
+        selectedFaculty = FACULTIES.find(f => f.id === facultyId);
         if (!selectedFaculty) {
           setError('ไม่พบข้อมูลคณะที่เลือก');
           setIsLoading(false);
           return;
         }
-
-        // เรียก onLogin พร้อมส่งบทบาทและข้อมูลคณะ
-        await onLogin('faculty', selectedFaculty);
-      } else {
-        // เรียก onLogin พร้อมส่งบทบาท HR และ null (ไม่มีคณะ)
-        await onLogin('hr', null);
       }
+
+      // เรียก onLogin พร้อมส่งข้อมูล
+      await onLogin(role, selectedFaculty, userCredential.user);
     } catch (err) {
-      setError('เกิดข้อผิดพลาดในการเข้าสู่ระบบ กรุณาลองใหม่อีกครั้ง');
       console.error('Login error:', err);
+      setError(err.message || 'เกิดข้อผิดพลาดในการเข้าสู่ระบบ กรุณาลองใหม่อีกครั้ง');
     } finally {
       setIsLoading(false);
     }
@@ -211,7 +264,7 @@ const LoginPage = ({ onLogin }) => {
             <div className="text-left space-y-4 sm:space-y-6 order-2 lg:order-1">
               <p className="text-pink-500 text-xs sm:text-sm font-medium uppercase tracking-wider">ยินดีต้อนรับ</p>
               <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-gray-800 leading-tight">
-                เข้าสู่ระบบอัตรากำลังพล
+                HR SPU
               </h1>
               <p className="text-base sm:text-lg text-gray-600 leading-relaxed max-w-xl">
                 ระบบขออนุมัติอัตรากำลังพลออนไลน์ที่ทันสมัยและใช้งานง่าย 
@@ -286,6 +339,28 @@ const LoginPage = ({ onLogin }) => {
                   >
                     สำหรับ HR
                   </button>
+                  {/* แท็บที่ 3: สำหรับ VP HR */}
+                  <button 
+                    className={`flex-1 py-2.5 sm:py-3 text-xs sm:text-sm font-medium transition ${
+                      role === 'vp_hr' 
+                        ? 'text-pink-600 border-b-2 border-pink-500 bg-pink-50'  // สถานะ Active
+                        : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50'  // สถานะ Inactive
+                    }`}
+                    onClick={() => setRole('vp_hr')}
+                  >
+                    รองอธิการฯ
+                  </button>
+                  {/* แท็บที่ 4: สำหรับ President */}
+                  <button 
+                    className={`flex-1 py-2.5 sm:py-3 text-xs sm:text-sm font-medium transition ${
+                      role === 'president' 
+                        ? 'text-pink-600 border-b-2 border-pink-500 bg-pink-50'  // สถานะ Active
+                        : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50'  // สถานะ Inactive
+                    }`}
+                    onClick={() => setRole('president')}
+                  >
+                    อธิการบดี
+                  </button>
                 </div>
 
                 {/* 
@@ -301,10 +376,11 @@ const LoginPage = ({ onLogin }) => {
             แสดงเฉพาะเมื่อ role = 'faculty'
             ถ้า role = 'hr' จะไม่แสดง (เพราะ HR ไม่ต้องเลือกคณะ)
           */}
-          {role === 'faculty' && (
+          {/* แสดง Dropdown เลือกคณะเฉพาะ Faculty */}
+          {(role === 'faculty') && (
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                เลือกคณะ / หน่วยงาน
+                เลือกคณะ / หน่วยงาน <span className="text-red-500">*</span>
               </label>
               <div className="relative">
                 {/* Icon: Building (แสดงทางซ้ายของ Dropdown) */}
@@ -321,6 +397,7 @@ const LoginPage = ({ onLogin }) => {
                   className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-pink-500"
                   value={facultyId}
                   onChange={(e) => setFacultyId(e.target.value)}
+                  required
                 >
                   {/* แสดง Option สำหรับแต่ละคณะ */}
                   {FACULTIES.map(faculty => (
@@ -417,11 +494,24 @@ const LoginPage = ({ onLogin }) => {
         
                 {/* 
                   ====================================================================
-                  ส่วนล่าง: ลิขสิทธิ์ - สีชมพูแบบนุ่มนวล
+                  ส่วนล่าง: ปุ่มลงทะเบียนและลิขสิทธิ์
                   ====================================================================
                 */}
-                <div className="bg-gray-50 p-4 text-center text-xs text-gray-500 border-t border-gray-100">
-                  &copy; 2025 Sripatum University. All Rights Reserved.
+                <div className="bg-gray-50 p-4 border-t border-gray-100">
+                  {/* ปุ่มลงทะเบียน */}
+                  {onShowRegister && (
+                    <button
+                      onClick={onShowRegister}
+                      className="w-full mb-3 bg-white border-2 border-pink-500 text-pink-600 py-2 rounded-lg hover:bg-pink-50 transition font-medium text-sm flex items-center justify-center gap-2"
+                    >
+                      <UserPlus size={18} />
+                      ลงทะเบียน
+                    </button>
+                  )}
+                  {/* ลิขสิทธิ์ */}
+                  <div className="text-center text-xs text-gray-500">
+                    &copy; 2025 Sripatum University. All Rights Reserved.
+                  </div>
                 </div>
               </div>
             </div>
