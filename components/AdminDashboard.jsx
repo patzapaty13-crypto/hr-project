@@ -150,7 +150,13 @@ const AdminDashboard = ({ userRole, faculty, onLogout, onCreateRequest }) => {
           </div>
           <div className="flex items-center space-x-3">
             <button
-              onClick={() => window.location.reload()}
+              onClick={() => {
+                // ลบค่า useAdminDashboard จาก localStorage และ reload
+                if (typeof window !== 'undefined') {
+                  localStorage.removeItem('spu_hr_useAdminDashboard');
+                  window.location.reload();
+                }
+              }}
               className="px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-700 rounded-lg flex items-center text-sm transition"
             >
               <LayoutDashboard size={16} className="mr-2" />

@@ -76,7 +76,15 @@ export default function App() {
   const [showForm, setShowForm] = useState(false);
   
   // useAdminDashboard: ควบคุมการแสดง Admin Dashboard หรือ Dashboard ปกติ (true = Admin Dashboard, false = Dashboard ปกติ)
-  const [useAdminDashboard, setUseAdminDashboard] = useState(false);
+  // เก็บค่าใน localStorage เพื่อให้คงอยู่หลัง refresh
+  const [useAdminDashboard, setUseAdminDashboard] = useState(() => {
+    // อ่านค่าจาก localStorage เมื่อ component โหลดครั้งแรก
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('spu_hr_useAdminDashboard');
+      return saved === 'true';
+    }
+    return false;
+  });
 
   // ========================================================================
   // useEffect Hook: จัดการ Authentication เมื่อ Component โหลด
@@ -120,6 +128,11 @@ export default function App() {
           if (!currentUser) {
             setRole(null);
             setSelectedFaculty(null);
+            setUseAdminDashboard(false);
+            // ลบค่า useAdminDashboard จาก localStorage เมื่อ Logout
+            if (typeof window !== 'undefined') {
+              localStorage.removeItem('spu_hr_useAdminDashboard');
+            }
           }
         });
       } catch (error) {
@@ -208,6 +221,11 @@ export default function App() {
    * เมื่อ Sign Out แล้ว onAuthStateChanged จะทำงานและเคลียร์ State อัตโนมัติ
    */
   const handleLogout = () => {
+    // ลบค่า useAdminDashboard จาก localStorage เมื่อออกจากระบบ
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem('spu_hr_useAdminDashboard');
+    }
+    
     if (auth) {
       try {
         signOut(auth);
@@ -218,12 +236,14 @@ export default function App() {
         setUser(null);
         setRole(null);
         setSelectedFaculty(null);
+        setUseAdminDashboard(false);
       }
     } else {
       // ถ้าไม่มี auth ให้เคลียร์ State โดยตรง
       setUser(null);
       setRole(null);
       setSelectedFaculty(null);
+      setUseAdminDashboard(false);
     }
   };
 
