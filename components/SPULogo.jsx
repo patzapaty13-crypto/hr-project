@@ -26,23 +26,12 @@ import React, { useRef, useEffect, useState } from 'react';
  * ============================================================================
  */
 const SPULogo = ({ size = 'md', className = '', onClick }) => {
-  // Refs สำหรับคำนวณความกว้างของ SRIPATUM text
-  const sripatumRef = useRef(null);
+  // State สำหรับเก็บความกว้างของ SRIPATUM text
   const [barWidth, setBarWidth] = useState(80); // default width
+  const sripatumRef = useRef(null);
+  const resizeObserverRef = useRef(null);
 
-  // Callback ref สำหรับคำนวณความกว้างเมื่อ element mount
-  const setSripatumRef = (node) => {
-    if (node) {
-      sripatumRef.current = node;
-      // คำนวณความกว้างทันทีเมื่อ element mount
-      const width = node.offsetWidth;
-      if (width > 0) {
-        setBarWidth(width);
-      }
-    }
-  };
-
-  // ฟังก์ชันคำนวณความกว้างของ SRIPATUM text
+  // ฟังก์ชันคำนวณความกว้าง
   const calculateBarWidth = () => {
     if (sripatumRef.current) {
       const width = sripatumRef.current.offsetWidth;
@@ -52,23 +41,56 @@ const SPULogo = ({ size = 'md', className = '', onClick }) => {
     }
   };
 
-  // คำนวณความกว้างของ SRIPATUM text เพื่อให้แถบยาวเท่ากัน
-  useEffect(() => {
-    // รอให้ DOM render เสร็จก่อน
-    const timer = setTimeout(() => {
+  // Callback ref สำหรับคำนวณความกว้างทันทีเมื่อ element mount
+  const setSripatumRef = (node) => {
+    sripatumRef.current = node;
+    
+    if (node) {
+      // คำนวณความกว้างทันทีเมื่อ element mount
       calculateBarWidth();
-    }, 100);
 
-    // รีเฟรชเมื่อหน้าจอเปลี่ยนขนาด
+      // รอให้ fonts โหลดเสร็จ (ถ้ามี)
+      if (document.fonts && document.fonts.ready) {
+        document.fonts.ready.then(() => {
+          calculateBarWidth();
+        });
+      }
+
+      // ใช้ ResizeObserver เพื่อตรวจจับการเปลี่ยนแปลงขนาด
+      if (resizeObserverRef.current) {
+        resizeObserverRef.current.disconnect();
+      }
+
+      resizeObserverRef.current = new ResizeObserver(() => {
+        calculateBarWidth();
+      });
+
+      resizeObserverRef.current.observe(node);
+    } else {
+      // Cleanup เมื่อ element unmount
+      if (resizeObserverRef.current) {
+        resizeObserverRef.current.disconnect();
+        resizeObserverRef.current = null;
+      }
+    }
+  };
+
+  // ใช้ useEffect สำหรับ resize listener และ cleanup
+  useEffect(() => {
     const handleResize = () => {
       calculateBarWidth();
     };
 
     window.addEventListener('resize', handleResize);
+    
+    // รีเฟรชเมื่อ size เปลี่ยน
+    calculateBarWidth();
 
     return () => {
-      clearTimeout(timer);
       window.removeEventListener('resize', handleResize);
+      if (resizeObserverRef.current) {
+        resizeObserverRef.current.disconnect();
+      }
     };
   }, [size]);
   // กำหนดขนาดตาม size prop
