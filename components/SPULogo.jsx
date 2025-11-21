@@ -30,12 +30,46 @@ const SPULogo = ({ size = 'md', className = '', onClick }) => {
   const sripatumRef = useRef(null);
   const [barWidth, setBarWidth] = useState(80); // default width
 
-  // คำนวณความกว้างของ SRIPATUM text เพื่อให้แถบยาวเท่ากัน
-  useEffect(() => {
+  // Callback ref สำหรับคำนวณความกว้างเมื่อ element mount
+  const setSripatumRef = (node) => {
+    if (node) {
+      sripatumRef.current = node;
+      // คำนวณความกว้างทันทีเมื่อ element mount
+      const width = node.offsetWidth;
+      if (width > 0) {
+        setBarWidth(width);
+      }
+    }
+  };
+
+  // ฟังก์ชันคำนวณความกว้างของ SRIPATUM text
+  const calculateBarWidth = () => {
     if (sripatumRef.current) {
       const width = sripatumRef.current.offsetWidth;
-      setBarWidth(width);
+      if (width > 0) {
+        setBarWidth(width);
+      }
     }
+  };
+
+  // คำนวณความกว้างของ SRIPATUM text เพื่อให้แถบยาวเท่ากัน
+  useEffect(() => {
+    // รอให้ DOM render เสร็จก่อน
+    const timer = setTimeout(() => {
+      calculateBarWidth();
+    }, 100);
+
+    // รีเฟรชเมื่อหน้าจอเปลี่ยนขนาด
+    const handleResize = () => {
+      calculateBarWidth();
+    };
+
+    window.addEventListener('resize', handleResize);
+
+    return () => {
+      clearTimeout(timer);
+      window.removeEventListener('resize', handleResize);
+    };
   }, [size]);
   // กำหนดขนาดตาม size prop
   const sizeClasses = {
@@ -89,7 +123,7 @@ const SPULogo = ({ size = 'md', className = '', onClick }) => {
         {/* แถวแรก: SRIPATUM + แถบสีดำแนวนอน (แถบยาวเท่ากับความกว้างของ SRIPATUM) */}
         <div className="flex items-center gap-1.5 sm:gap-2">
           <span 
-            ref={sripatumRef}
+            ref={setSripatumRef}
             className={`font-bold ${sizes.university} leading-none tracking-wider uppercase whitespace-nowrap`} 
             style={{ 
               color: blackColor,
