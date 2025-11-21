@@ -37,13 +37,25 @@ const BASE_URL = typeof window !== 'undefined'
 export const sendRequestNotificationEmail = async (requestData, requestId) => {
   // ตรวจสอบว่ามี EmailJS config หรือไม่
   if (!EMAILJS_SERVICE_ID || !EMAILJS_TEMPLATE_ID || !EMAILJS_PUBLIC_KEY) {
-    console.warn('EmailJS config ไม่ครบถ้วน ข้ามการส่งอีเมล');
-    console.log('EmailJS Config:', {
+    const configStatus = {
       serviceId: EMAILJS_SERVICE_ID ? '✓' : '✗',
       templateId: EMAILJS_TEMPLATE_ID ? '✓' : '✗',
       publicKey: EMAILJS_PUBLIC_KEY ? '✓' : '✗'
-    });
-    return { success: false, message: 'EmailJS config ไม่ครบถ้วน' };
+    };
+    
+    console.warn('❌ EmailJS config ไม่ครบถ้วน ข้ามการส่งอีเมล');
+    console.log('EmailJS Config Status:', configStatus);
+    
+    // แสดงรายละเอียด config ที่ขาด
+    const missing = [];
+    if (!EMAILJS_SERVICE_ID || EMAILJS_SERVICE_ID === 'YOUR_SERVICE_ID') missing.push('Service ID');
+    if (!EMAILJS_TEMPLATE_ID || EMAILJS_TEMPLATE_ID === 'YOUR_TEMPLATE_ID') missing.push('Template ID');
+    if (!EMAILJS_PUBLIC_KEY || EMAILJS_PUBLIC_KEY === 'YOUR_PUBLIC_KEY') missing.push('Public Key');
+    
+    return { 
+      success: false, 
+      message: `EmailJS config ไม่ครบถ้วน: ${missing.join(', ')}. กรุณาตรวจสอบการตั้งค่าใน index.html` 
+    };
   }
 
   try {
@@ -74,6 +86,13 @@ export const sendRequestNotificationEmail = async (requestData, requestId) => {
     };
 
     // ส่งอีเมลผ่าน EmailJS
+    console.log('📧 กำลังส่งอีเมล...', {
+      serviceId: EMAILJS_SERVICE_ID,
+      templateId: EMAILJS_TEMPLATE_ID,
+      to: RECIPIENT_EMAIL,
+      requestId: requestId
+    });
+
     const response = await emailjs.send(
       EMAILJS_SERVICE_ID,
       EMAILJS_TEMPLATE_ID,
@@ -81,11 +100,49 @@ export const sendRequestNotificationEmail = async (requestData, requestId) => {
       EMAILJS_PUBLIC_KEY
     );
 
-    console.log('✅ ส่งอีเมลสำเร็จ:', response);
-    return { success: true, message: 'ส่งอีเมลสำเร็จ', response };
+    console.log('✅ ส่งอีเมลสำเร็จ:', {
+      status: response.status,
+      text: response.text,
+      requestId: requestId,
+      to: RECIPIENT_EMAIL
+    });
+    
+    return { 
+      success: true, 
+      message: `ส่งอีเมลสำเร็จไปยัง ${RECIPIENT_EMAIL}`, 
+      response,
+      requestId: requestId
+    };
   } catch (error) {
-    console.error('❌ Error sending email:', error);
-    return { success: false, message: error.message || 'เกิดข้อผิดพลาดในการส่งอีเมล', error };
+    console.error('❌ Error sending email:', {
+      error: error,
+      message: error.message,
+      status: error.status,
+      text: error.text,
+      serviceId: EMAILJS_SERVICE_ID,
+      templateId: EMAILJS_TEMPLATE_ID,
+      publicKey: EMAILJS_PUBLIC_KEY ? '✓' : '✗'
+    });
+    
+    // แสดง error message ที่ละเอียดขึ้น
+    let errorMessage = 'เกิดข้อผิดพลาดในการส่งอีเมล';
+    if (error.status) {
+      errorMessage += ` (Status: ${error.status})`;
+    }
+    if (error.text) {
+      errorMessage += ` - ${error.text}`;
+    }
+    if (error.message) {
+      errorMessage += ` - ${error.message}`;
+    }
+    
+    return { 
+      success: false, 
+      message: errorMessage, 
+      error: error,
+      status: error.status,
+      text: error.text
+    };
   }
 };
 
