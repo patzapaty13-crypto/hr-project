@@ -374,7 +374,7 @@ const Dashboard = ({ userRole, faculty, onLogout, onCreateRequest, onSwitchToAdm
         - แสดงบทบาทหรือชื่อคณะ
         - ปุ่มออกจากระบบ
       */}
-      <nav className="bg-pink-300 text-pink-900 shadow-lg px-4 sm:px-6 py-3 sm:py-4">
+      <nav className="bg-blue-600 text-white shadow-lg px-4 sm:px-6 py-3 sm:py-4">
         <div className="max-w-7xl mx-auto flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-0">
           {/* ส่วนซ้าย: Logo SPU และข้อมูลผู้ใช้ */}
           <div className="flex items-center space-x-2 sm:space-x-4 w-full sm:w-auto">
@@ -384,7 +384,7 @@ const Dashboard = ({ userRole, faculty, onLogout, onCreateRequest, onSwitchToAdm
             </div>
             
             {/* แถบแนวตั้งแยก */}
-            <div className="hidden sm:block h-10 w-px bg-pink-700"></div>
+            <div className="hidden sm:block h-10 w-px bg-blue-400"></div>
             
             {/* ข้อความ: บทบาท/คณะ */}
             <div className="min-w-0 flex-1 sm:flex-none">
@@ -394,21 +394,21 @@ const Dashboard = ({ userRole, faculty, onLogout, onCreateRequest, onSwitchToAdm
                   - HR: Briefcase (กระเป๋า)
                   - Faculty: Building (อาคาร)
                 */}
-                <div className="bg-pink-700 p-1 sm:p-1.5 rounded shadow-sm flex-shrink-0">
+                <div className="bg-blue-500 p-1 sm:p-1.5 rounded shadow-sm flex-shrink-0">
                   {userRole === 'hr' ? (
-                    <Briefcase size={16} className="sm:w-[18px] sm:h-[18px]" />
+                    <Briefcase size={16} className="sm:w-[18px] sm:h-[18px] text-white" />
                   ) : (
-                    <Building size={16} className="sm:w-[18px] sm:h-[18px]" />
+                    <Building size={16} className="sm:w-[18px] sm:h-[18px] text-white" />
                   )}
                 </div>
-                <p className="text-xs sm:text-sm font-medium text-pink-800 truncate">
+                <p className="text-xs sm:text-sm font-medium text-white truncate">
                   {userRole === 'hr' 
                     ? 'สำนักงานบุคคล (HR)'  // ถ้าเป็น HR แสดง "สำนักงานบุคคล (HR)"
                     : faculty?.name          // ถ้าเป็น Faculty แสดงชื่อคณะ
                   }
                 </p>
               </div>
-              <p className="text-[10px] sm:text-xs text-pink-700 mt-0.5 hidden sm:block">
+              <p className="text-[10px] sm:text-xs text-blue-200 mt-0.5 hidden sm:block">
                 Personnel System
               </p>
             </div>
@@ -419,7 +419,7 @@ const Dashboard = ({ userRole, faculty, onLogout, onCreateRequest, onSwitchToAdm
             {userRole === 'hr' && onSwitchToAdmin && (
               <button 
                 onClick={onSwitchToAdmin}
-                className="hidden sm:block text-sm text-pink-900 hover:text-pink-800 transition px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg hover:bg-pink-200"
+                className="hidden sm:block text-sm text-white hover:text-blue-200 transition px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg hover:bg-blue-500"
                 title="Switch to Admin Dashboard"
               >
                 📊 Admin View
@@ -427,7 +427,7 @@ const Dashboard = ({ userRole, faculty, onLogout, onCreateRequest, onSwitchToAdm
             )}
             <button 
               onClick={onCreateRequest}
-              className="hidden sm:block text-sm text-white hover:text-pink-200 transition px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg hover:bg-pink-800"
+              className="hidden sm:block text-sm text-white hover:text-blue-200 transition px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg hover:bg-blue-500"
             >
               {userRole === 'faculty' && 'สร้างคำขอใหม่'}
             </button>
@@ -435,7 +435,7 @@ const Dashboard = ({ userRole, faculty, onLogout, onCreateRequest, onSwitchToAdm
             {userRole === 'faculty' && (
               <button 
                 onClick={onCreateRequest}
-                className="sm:hidden fixed bottom-6 right-6 bg-pink-200 hover:bg-pink-300 text-pink-900 p-4 rounded-full shadow-lg z-50 transition"
+                className="sm:hidden fixed bottom-6 right-6 bg-blue-600 hover:bg-blue-700 text-white p-4 rounded-full shadow-lg z-50 transition"
                 aria-label="สร้างคำขอใหม่"
               >
                 <Plus size={24} />
@@ -443,7 +443,7 @@ const Dashboard = ({ userRole, faculty, onLogout, onCreateRequest, onSwitchToAdm
             )}
             <button 
               onClick={onLogout} 
-                className="text-xs sm:text-sm bg-pink-200 hover:bg-pink-300 text-pink-900 px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg flex items-center transition shadow-md"
+                className="text-xs sm:text-sm bg-blue-500 hover:bg-blue-700 text-white px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg flex items-center transition shadow-md"
             >
               <LogOut size={14} className="sm:w-4 sm:h-4 mr-1 sm:mr-2" /> 
               <span className="hidden sm:inline">ออกจากระบบ</span>
@@ -472,23 +472,52 @@ const Dashboard = ({ userRole, faculty, onLogout, onCreateRequest, onSwitchToAdm
             </p>
           </div>
           
-          {/* สถิติ */}
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6 mt-6 sm:mt-8">
-            <div className="bg-white/60 backdrop-blur-sm rounded-lg p-4 sm:p-6 text-center border border-pink-200">
-              <div className="text-2xl sm:text-3xl font-bold mb-1 sm:mb-2 text-pink-900">{requests.length}</div>
-              <div className="text-sm sm:text-base text-pink-800">คำขอทั้งหมด</div>
+          {/* KPI Cards - 4 สีตามรูป (Blue, Green, Yellow, Red) */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mt-6 sm:mt-8">
+            {/* Card 1: Blue - คำขอทั้งหมด */}
+            <div className="bg-blue-600 rounded-lg p-4 sm:p-6 text-white shadow-lg hover:shadow-xl transition">
+              <div className="flex items-center justify-between mb-2">
+                <h3 className="text-sm sm:text-base font-semibold">คำขอทั้งหมด</h3>
+                <Briefcase size={24} className="opacity-80" />
+              </div>
+              <div className="text-3xl sm:text-4xl font-bold mb-1">{requests.length}</div>
+              <div className="text-xs sm:text-sm text-blue-200">Total Requests</div>
             </div>
-            <div className="bg-white/60 backdrop-blur-sm rounded-lg p-4 sm:p-6 text-center border border-pink-200">
-              <div className="text-2xl sm:text-3xl font-bold mb-1 sm:mb-2 text-pink-900">
+            
+            {/* Card 2: Green - กำลังดำเนินการ */}
+            <div className="bg-green-600 rounded-lg p-4 sm:p-6 text-white shadow-lg hover:shadow-xl transition">
+              <div className="flex items-center justify-between mb-2">
+                <h3 className="text-sm sm:text-base font-semibold">กำลังดำเนินการ</h3>
+                <Building size={24} className="opacity-80" />
+              </div>
+              <div className="text-3xl sm:text-4xl font-bold mb-1">
                 {requests.filter(r => r.status === 'submitted' || r.status === 'hr_review').length}
               </div>
-              <div className="text-sm sm:text-base text-pink-800">กำลังดำเนินการ</div>
+              <div className="text-xs sm:text-sm text-green-200">In Progress</div>
             </div>
-            <div className="bg-white/60 backdrop-blur-sm rounded-lg p-4 sm:p-6 text-center border border-pink-200">
-              <div className="text-2xl sm:text-3xl font-bold mb-1 sm:mb-2 text-pink-900">
+            
+            {/* Card 3: Yellow - กำลังพิจารณา */}
+            <div className="bg-yellow-500 rounded-lg p-4 sm:p-6 text-white shadow-lg hover:shadow-xl transition">
+              <div className="flex items-center justify-between mb-2">
+                <h3 className="text-sm sm:text-base font-semibold">กำลังพิจารณา</h3>
+                <Plus size={24} className="opacity-80" />
+              </div>
+              <div className="text-3xl sm:text-4xl font-bold mb-1">
+                {requests.filter(r => r.status === 'vp_hr' || r.status === 'president').length}
+              </div>
+              <div className="text-xs sm:text-sm text-yellow-200">Under Review</div>
+            </div>
+            
+            {/* Card 4: Red - ประกาศรับสมัครแล้ว */}
+            <div className="bg-red-600 rounded-lg p-4 sm:p-6 text-white shadow-lg hover:shadow-xl transition">
+              <div className="flex items-center justify-between mb-2">
+                <h3 className="text-sm sm:text-base font-semibold">ประกาศรับสมัคร</h3>
+                <Briefcase size={24} className="opacity-80" />
+              </div>
+              <div className="text-3xl sm:text-4xl font-bold mb-1">
                 {requests.filter(r => r.status === 'recruiting').length}
               </div>
-              <div className="text-sm sm:text-base text-pink-800">ประกาศรับสมัครแล้ว</div>
+              <div className="text-xs sm:text-sm text-red-200">Recruiting</div>
             </div>
           </div>
         </div>
