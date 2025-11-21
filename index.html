@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="th">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>SPU Personnel System</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Firebase Configuration -->
+    <script>
+      // Firebase Config - ต้องตั้งค่าเองตามโปรเจกต์ Firebase ของคุณ
+      window.__firebase_config = JSON.stringify({
+        apiKey: "YOUR_API_KEY",
+        authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
+        projectId: "YOUR_PROJECT_ID",
+        storageBucket: "YOUR_PROJECT_ID.appspot.com",
+        messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
+        appId: "YOUR_APP_ID"
+      });
+      
+      // App ID สำหรับ Firestore
+      window.__app_id = 'spu-hr-simple';
+      
+      // Initial Auth Token (ถ้ามี)
+      window.__initial_auth_token = null;
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.jsx"></script>
+  </body>
+</html>
+
