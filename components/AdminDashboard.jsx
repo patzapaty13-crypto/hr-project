@@ -47,7 +47,7 @@ import { getLocalRequests } from '../utils/localStorage';
 import { db, appId } from '../config/firebase';
 import { collection, query, onSnapshot } from 'firebase/firestore';
 
-const AdminDashboard = ({ userRole, faculty, onLogout, onCreateRequest }) => {
+const AdminDashboard = ({ userRole, faculty, onLogout, onCreateRequest, onSwitchToStandard }) => {
   const [requests, setRequests] = useState([]);
   const [loading, setLoading] = useState(true);
   const [activeMenu, setActiveMenu] = useState('dashboard');
@@ -154,10 +154,15 @@ const AdminDashboard = ({ userRole, faculty, onLogout, onCreateRequest }) => {
           <div className="flex items-center space-x-3">
             <button
               onClick={() => {
-                // ลบค่า useAdminDashboard จาก localStorage และ reload
-                if (typeof window !== 'undefined') {
-                  localStorage.removeItem('spu_hr_useAdminDashboard');
-                  window.location.reload();
+                // เรียกใช้ onSwitchToStandard เพื่อสลับกลับไปหน้า Dashboard ปกติ
+                if (onSwitchToStandard) {
+                  onSwitchToStandard();
+                } else {
+                  // Fallback: ถ้าไม่มี prop ให้ใช้วิธีเดิม (แต่ไม่ควรเกิดขึ้น)
+                  if (typeof window !== 'undefined') {
+                    localStorage.removeItem('spu_hr_useAdminDashboard');
+                    window.location.reload();
+                  }
                 }
               }}
               className="px-4 py-2 bg-pink-100 hover:bg-pink-200 text-pink-800 rounded-lg flex items-center text-sm transition shadow-sm"

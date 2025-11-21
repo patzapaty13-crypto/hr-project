@@ -286,6 +286,12 @@ export default function App() {
               faculty={selectedFaculty} 
               onLogout={handleLogout}
               onCreateRequest={() => setShowForm(true)}
+              onSwitchToStandard={() => {
+                setUseAdminDashboard(false);
+                if (typeof window !== 'undefined') {
+                  localStorage.removeItem('spu_hr_useAdminDashboard');
+                }
+              }}
             />
           ) : (
             <>
