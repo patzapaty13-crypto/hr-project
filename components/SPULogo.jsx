@@ -7,8 +7,8 @@
  * - แสดง Logo ของมหาวิทยาลัยศรีปทุม (SRIPATUM UNIVERSITY)
  * - Logo ประกอบด้วย:
  *   - "SPU" ตัวใหญ่อ้วน สีดำ (Top Section)
- *   - "SRIPATUM UNIVERSITY" สีชมพูเข้ม (magenta/hot pink)
- *   - แถบสีชมพูแนวนอน
+ *   - "SRIPATUM UNIVERSITY" สีดำ
+ *   - แถบสีดำแนวนอน
  * 
  * Props:
  * - size: ขนาดของ Logo ('sm' | 'md' | 'lg' | 'xl') - Default: 'md'
@@ -52,8 +52,8 @@ const SPULogo = ({ size = 'md', className = '', onClick }) => {
 
   const sizes = sizeClasses[size] || sizeClasses.md;
 
-  // สี magenta/hot pink (#E91E63) สำหรับ SRIPATUM UNIVERSITY
-  const magentaColor = '#E91E63';
+  // สีดำ (#000000) สำหรับ SRIPATUM UNIVERSITY และแถบ (ตามรูปใหม่)
+  const blackColor = '#000000';
 
   return (
     <div 
@@ -66,25 +66,25 @@ const SPULogo = ({ size = 'md', className = '', onClick }) => {
         SPU
       </div>
       
-      {/* Bottom Section: SRIPATUM UNIVERSITY (สีชมพูเข้ม - magenta/hot pink) */}
+      {/* Bottom Section: SRIPATUM UNIVERSITY (สีดำ - ตามรูปใหม่) */}
       <div className="flex flex-col items-start w-full">
-        {/* แถวแรก: SRIPATUM + แถบสีชมพูแนวนอน */}
+        {/* แถวแรก: SRIPATUM + แถบสีดำแนวนอน */}
         <div className="flex items-center w-full gap-1.5">
           <span 
             className={`font-bold ${sizes.university} leading-none tracking-wider uppercase whitespace-nowrap`} 
             style={{ 
-              color: magentaColor,
+              color: blackColor,
               fontFamily: 'sans-serif',
               fontWeight: 700
             }}
           >
             SRIPATUM
           </span>
-          {/* แถบสีชมพูแนวนอน */}
+          {/* แถบสีดำแนวนอน */}
           <div 
             className={`${sizes.bar} flex-1`}
             style={{ 
-              backgroundColor: magentaColor,
+              backgroundColor: blackColor,
               minHeight: sizes.bar === 'h-1' ? '4px' : sizes.bar === 'h-1.5' ? '6px' : sizes.bar === 'h-2' ? '8px' : '10px',
               minWidth: '30px'
             }}
@@ -95,7 +95,7 @@ const SPULogo = ({ size = 'md', className = '', onClick }) => {
         <span 
           className={`font-bold ${sizes.university} leading-none tracking-wider uppercase mt-0.5`}
           style={{ 
-            color: magentaColor,
+            color: blackColor,
             fontFamily: 'sans-serif',
             fontWeight: 700
           }}

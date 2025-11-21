@@ -67,8 +67,8 @@ const BackgroundSlider = ({ children, className = '' }) => {
               className="w-full h-full object-cover"
             />
             {/* Overlay เพื่อให้ข้อความอ่านง่าย */}
-            {/* Overlay เพื่อให้ข้อความอ่านง่าย - ใช้ gradient สีชมพูอ่อน */}
-            <div className="absolute inset-0 bg-gradient-to-br from-pink-900/70 via-pink-800/60 to-rose-900/70"></div>
+            {/* Overlay เพื่อให้ข้อความอ่านง่าย - ใช้ gradient สีม่วง-น้ำเงินอ่อน */}
+            <div className="absolute inset-0 bg-gradient-to-br from-slate-900/70 via-blue-900/60 to-indigo-900/70"></div>
           </div>
         ))}
       </div>

@@ -229,10 +229,10 @@ const RegisterPage = ({ onBackToLogin, onRegisterSuccess }) => {
         </div>
 
         {/* Title */}
-        <h1 className="text-2xl sm:text-3xl font-bold text-center text-pink-900 mb-2">
+        <h1 className="text-2xl sm:text-3xl font-bold text-center text-gray-900 mb-2">
           ลงทะเบียน
         </h1>
-        <p className="text-center text-pink-700 mb-6 text-sm sm:text-base">
+        <p className="text-center text-gray-600 mb-6 text-sm sm:text-base">
           สร้างบัญชีใหม่สำหรับระบบ HR SPU
         </p>
 
@@ -256,7 +256,7 @@ const RegisterPage = ({ onBackToLogin, onRegisterSuccess }) => {
         <form onSubmit={handleSubmit} className="space-y-4">
           {/* Role Selection */}
           <div>
-            <label className="block text-sm font-medium text-pink-900 mb-2">
+            <label className="block text-sm font-medium text-gray-900 mb-2">
               บทบาท <span className="text-red-500">*</span>
             </label>
             <select
@@ -269,7 +269,7 @@ const RegisterPage = ({ onBackToLogin, onRegisterSuccess }) => {
                   setFacultyId(FACULTIES[0]?.id || '');
                 }
               }}
-              className="w-full px-4 py-2 border border-pink-300 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-transparent bg-white text-pink-900"
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white text-gray-900"
               required
             >
               <option value="faculty">คณะ/หน่วยงาน</option>
@@ -282,15 +282,15 @@ const RegisterPage = ({ onBackToLogin, onRegisterSuccess }) => {
           {/* Faculty Selection (เฉพาะ Faculty) */}
           {role === 'faculty' && (
             <div>
-              <label className="block text-sm font-medium text-pink-900 mb-2">
+              <label className="block text-sm font-medium text-gray-900 mb-2">
                 คณะ/หน่วยงาน <span className="text-red-500">*</span>
               </label>
               <div className="relative">
-                <Building className="absolute left-3 top-1/2 transform -translate-y-1/2 text-pink-500" size={20} />
+                <Building className="absolute left-3 top-1/2 transform -translate-y-1/2 text-blue-500" size={20} />
                 <select
                   value={facultyId}
                   onChange={(e) => setFacultyId(e.target.value)}
-                  className="w-full pl-10 pr-4 py-2 border border-pink-300 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-transparent bg-white text-pink-900"
+                  className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white text-gray-900"
                   required
                 >
                   {FACULTIES.map((faculty) => (
@@ -305,11 +305,11 @@ const RegisterPage = ({ onBackToLogin, onRegisterSuccess }) => {
 
           {/* Full Name */}
           <div>
-            <label className="block text-sm font-medium text-pink-900 mb-2">
+            <label className="block text-sm font-medium text-gray-900 mb-2">
               ชื่อ-นามสกุล <span className="text-red-500">*</span>
             </label>
             <div className="relative">
-              <User className="absolute left-3 top-1/2 transform -translate-y-1/2 text-pink-500" size={20} />
+              <User className="absolute left-3 top-1/2 transform -translate-y-1/2 text-blue-500" size={20} />
               <input
                 type="text"
                 value={fullName}
@@ -323,11 +323,11 @@ const RegisterPage = ({ onBackToLogin, onRegisterSuccess }) => {
 
           {/* Email */}
           <div>
-            <label className="block text-sm font-medium text-pink-900 mb-2">
+            <label className="block text-sm font-medium text-gray-900 mb-2">
               อีเมล <span className="text-red-500">*</span>
             </label>
             <div className="relative">
-              <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-pink-500" size={20} />
+              <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-blue-500" size={20} />
               <input
                 type="email"
                 value={email}
@@ -338,7 +338,7 @@ const RegisterPage = ({ onBackToLogin, onRegisterSuccess }) => {
               />
             </div>
             {role === 'faculty' && (
-              <p className="text-xs text-pink-600 mt-1">
+              <p className="text-xs text-gray-600 mt-1">
                 * อีเมลกลางใช้ได้แค่ 1 คณะต่ออีเมล
               </p>
             )}
@@ -346,11 +346,11 @@ const RegisterPage = ({ onBackToLogin, onRegisterSuccess }) => {
 
           {/* Password */}
           <div>
-            <label className="block text-sm font-medium text-pink-900 mb-2">
+            <label className="block text-sm font-medium text-gray-900 mb-2">
               รหัสผ่าน <span className="text-red-500">*</span>
             </label>
             <div className="relative">
-              <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-pink-500" size={20} />
+              <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-blue-500" size={20} />
               <input
                 type="password"
                 value={password}
@@ -365,11 +365,11 @@ const RegisterPage = ({ onBackToLogin, onRegisterSuccess }) => {
 
           {/* Confirm Password */}
           <div>
-            <label className="block text-sm font-medium text-pink-900 mb-2">
+            <label className="block text-sm font-medium text-gray-900 mb-2">
               ยืนยันรหัสผ่าน <span className="text-red-500">*</span>
             </label>
             <div className="relative">
-              <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-pink-500" size={20} />
+              <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-blue-500" size={20} />
               <input
                 type="password"
                 value={confirmPassword}
@@ -386,7 +386,7 @@ const RegisterPage = ({ onBackToLogin, onRegisterSuccess }) => {
           <button
             type="submit"
             disabled={isLoading}
-            className="w-full bg-gradient-to-r from-pink-500 to-rose-500 text-white py-3 px-4 rounded-lg font-semibold hover:from-pink-600 hover:to-rose-600 transition transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none shadow-lg"
+            className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 text-white py-3 px-4 rounded-lg font-semibold hover:from-blue-700 hover:to-indigo-700 transition transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none shadow-lg"
           >
             {isLoading ? 'กำลังลงทะเบียน...' : 'ลงทะเบียน'}
           </button>
@@ -396,7 +396,7 @@ const RegisterPage = ({ onBackToLogin, onRegisterSuccess }) => {
         <div className="mt-6 text-center">
           <button
             onClick={onBackToLogin}
-            className="text-sm text-pink-600 hover:text-pink-800 transition"
+            className="text-sm text-blue-600 hover:text-blue-800 transition"
           >
             ← กลับไปหน้าเข้าสู่ระบบ
           </button>
