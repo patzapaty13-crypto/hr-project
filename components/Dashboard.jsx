@@ -631,7 +631,7 @@ const Dashboard = ({ userRole, faculty, onLogout, onCreateRequest, onSwitchToAdm
                       </span>
                     </td>
                     {/* คอลัมน์ที่ 5: ปุ่มจัดการ (สำหรับ HR เท่านั้น) */}
-                    <td className="p-4 text-right">
+                    <td className="p-4">
                       {userRole === 'hr' ? (
                         /* 
                           ปุ่ม Action สำหรับ HR
@@ -641,12 +641,12 @@ const Dashboard = ({ userRole, faculty, onLogout, onCreateRequest, onSwitchToAdm
                           - vp_hr (VP อนุมัติแล้ว) -> ปุ่ม "เสนออธิการฯ"
                           - president (อธิการบดีอนุมัติแล้ว) -> ปุ่ม "ประกาศรับสมัคร"
                         */
-                        <div className="space-x-2">
+                        <div className="flex justify-end space-x-2">
                           {/* ถ้าสถานะ = 'submitted' แสดงปุ่ม "รับเรื่อง" */}
                           {request.status === 'submitted' && (
                             <button 
                               onClick={() => updateStatus(request.id, 'hr_review')}
-                              className="text-xs bg-pink-200 text-pink-900 px-3 py-1.5 rounded-lg hover:bg-pink-300 transition shadow-md"
+                              className="text-xs bg-pink-200 text-pink-900 px-3 py-1.5 rounded-lg hover:bg-pink-300 transition shadow-md whitespace-nowrap"
                             >
                               รับเรื่อง
                             </button>
@@ -655,7 +655,7 @@ const Dashboard = ({ userRole, faculty, onLogout, onCreateRequest, onSwitchToAdm
                           {request.status === 'hr_review' && (
                             <button 
                               onClick={() => updateStatus(request.id, 'vp_hr')}
-                              className="text-xs bg-pink-200 text-pink-900 px-3 py-1.5 rounded-lg hover:bg-pink-300 transition shadow-md"
+                              className="text-xs bg-pink-200 text-pink-900 px-3 py-1.5 rounded-lg hover:bg-pink-300 transition shadow-md whitespace-nowrap"
                             >
                               เสนอ VP
                             </button>
@@ -664,7 +664,7 @@ const Dashboard = ({ userRole, faculty, onLogout, onCreateRequest, onSwitchToAdm
                           {request.status === 'vp_hr' && (
                             <button 
                               onClick={() => updateStatus(request.id, 'president')}
-                              className="text-xs bg-rose-600 text-white px-3 py-1.5 rounded-lg hover:bg-rose-700 transition shadow-md"
+                              className="text-xs bg-rose-600 text-white px-3 py-1.5 rounded-lg hover:bg-rose-700 transition shadow-md whitespace-nowrap"
                             >
                               เสนออธิการฯ
                             </button>
@@ -673,7 +673,7 @@ const Dashboard = ({ userRole, faculty, onLogout, onCreateRequest, onSwitchToAdm
                           {request.status === 'president' && (
                             <button 
                               onClick={() => updateStatus(request.id, 'recruiting')}
-                              className="text-xs bg-pink-700 text-white px-3 py-1.5 rounded-lg hover:bg-pink-800 transition shadow-md"
+                              className="text-xs bg-pink-700 text-white px-3 py-1.5 rounded-lg hover:bg-pink-800 transition shadow-md whitespace-nowrap"
                             >
                               ประกาศรับสมัคร
                             </button>
