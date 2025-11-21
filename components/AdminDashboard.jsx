@@ -138,9 +138,9 @@ const AdminDashboard = ({ userRole, faculty, onLogout, onCreateRequest }) => {
   // Render
   // ========================================================================
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gradient-to-br from-pink-50 via-rose-50 to-pink-100">
       {/* Header */}
-      <header className="bg-white border-b border-gray-200 shadow-sm">
+      <header className="bg-white border-b border-pink-200 shadow-sm">
         <div className="px-6 py-4 flex justify-between items-center">
           <div className="flex items-center space-x-4">
             <SPULogo size="sm" />
@@ -160,14 +160,14 @@ const AdminDashboard = ({ userRole, faculty, onLogout, onCreateRequest }) => {
                   window.location.reload();
                 }
               }}
-              className="px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-700 rounded-lg flex items-center text-sm transition"
+              className="px-4 py-2 bg-pink-100 hover:bg-pink-200 text-pink-800 rounded-lg flex items-center text-sm transition shadow-sm"
             >
               <LayoutDashboard size={16} className="mr-2" />
               Standard View
             </button>
             <button
               onClick={onLogout}
-              className="px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-700 rounded-lg flex items-center text-sm transition"
+              className="px-4 py-2 bg-pink-100 hover:bg-pink-200 text-pink-800 rounded-lg flex items-center text-sm transition shadow-sm"
             >
               <LogOut size={16} className="mr-2" />
               Logout
@@ -177,7 +177,7 @@ const AdminDashboard = ({ userRole, faculty, onLogout, onCreateRequest }) => {
       </header>
 
       {/* Horizontal Navigation Menu */}
-      <div className="bg-white border-b border-gray-200 shadow-sm sticky top-0 z-50">
+      <div className="bg-white border-b border-pink-200 shadow-sm sticky top-0 z-50">
         <div className="px-4 sm:px-6">
           {/* Mobile Menu Button */}
           <div className="flex items-center justify-between py-3 lg:hidden">
@@ -205,8 +205,8 @@ const AdminDashboard = ({ userRole, faculty, onLogout, onCreateRequest }) => {
               onClick={() => setActiveMenu('dashboard')}
               className={`flex items-center space-x-2 px-4 py-3 rounded-lg transition whitespace-nowrap ${
                 activeMenu === 'dashboard'
-                  ? 'bg-pink-100 text-pink-700 font-medium'
-                  : 'text-gray-700 hover:bg-gray-100'
+                  ? 'bg-pink-200 text-pink-800 font-medium'
+                  : 'text-gray-700 hover:bg-pink-50'
               }`}
             >
               <LayoutDashboard size={18} />
@@ -216,8 +216,8 @@ const AdminDashboard = ({ userRole, faculty, onLogout, onCreateRequest }) => {
               onClick={() => setActiveMenu('applications')}
               className={`flex items-center space-x-2 px-4 py-3 rounded-lg transition whitespace-nowrap ${
                 activeMenu === 'applications'
-                  ? 'bg-pink-100 text-pink-700 font-medium'
-                  : 'text-gray-700 hover:bg-gray-100'
+                  ? 'bg-pink-200 text-pink-800 font-medium'
+                  : 'text-gray-700 hover:bg-pink-50'
               }`}
             >
               <FileText size={18} />
@@ -227,8 +227,8 @@ const AdminDashboard = ({ userRole, faculty, onLogout, onCreateRequest }) => {
               onClick={() => setActiveMenu('projects')}
               className={`flex items-center space-x-2 px-4 py-3 rounded-lg transition whitespace-nowrap ${
                 activeMenu === 'projects'
-                  ? 'bg-pink-100 text-pink-700 font-medium'
-                  : 'text-gray-700 hover:bg-gray-100'
+                  ? 'bg-pink-200 text-pink-800 font-medium'
+                  : 'text-gray-700 hover:bg-pink-50'
               }`}
             >
               <FolderKanban size={18} />
@@ -238,8 +238,8 @@ const AdminDashboard = ({ userRole, faculty, onLogout, onCreateRequest }) => {
               onClick={() => setActiveMenu('positions')}
               className={`flex items-center space-x-2 px-4 py-3 rounded-lg transition whitespace-nowrap ${
                 activeMenu === 'positions'
-                  ? 'bg-pink-100 text-pink-700 font-medium'
-                  : 'text-gray-700 hover:bg-gray-100'
+                  ? 'bg-pink-200 text-pink-800 font-medium'
+                  : 'text-gray-700 hover:bg-pink-50'
               }`}
             >
               <Users size={18} />
@@ -249,8 +249,8 @@ const AdminDashboard = ({ userRole, faculty, onLogout, onCreateRequest }) => {
               onClick={() => setActiveMenu('email-templates')}
               className={`flex items-center space-x-2 px-4 py-3 rounded-lg transition whitespace-nowrap ${
                 activeMenu === 'email-templates'
-                  ? 'bg-pink-100 text-pink-700 font-medium'
-                  : 'text-gray-700 hover:bg-gray-100'
+                  ? 'bg-pink-200 text-pink-800 font-medium'
+                  : 'text-gray-700 hover:bg-pink-50'
               }`}
             >
               <Mail size={18} />
@@ -260,8 +260,8 @@ const AdminDashboard = ({ userRole, faculty, onLogout, onCreateRequest }) => {
               onClick={() => setActiveMenu('email-logs')}
               className={`flex items-center space-x-2 px-4 py-3 rounded-lg transition whitespace-nowrap ${
                 activeMenu === 'email-logs'
-                  ? 'bg-pink-100 text-pink-700 font-medium'
-                  : 'text-gray-700 hover:bg-gray-100'
+                  ? 'bg-pink-200 text-pink-800 font-medium'
+                  : 'text-gray-700 hover:bg-pink-50'
               }`}
             >
               <FileCheck size={18} />
@@ -271,8 +271,8 @@ const AdminDashboard = ({ userRole, faculty, onLogout, onCreateRequest }) => {
               onClick={() => setActiveMenu('user-management')}
               className={`flex items-center space-x-2 px-4 py-3 rounded-lg transition whitespace-nowrap ${
                 activeMenu === 'user-management'
-                  ? 'bg-pink-100 text-pink-700 font-medium'
-                  : 'text-gray-700 hover:bg-gray-100'
+                  ? 'bg-pink-200 text-pink-800 font-medium'
+                  : 'text-gray-700 hover:bg-pink-50'
               }`}
             >
               <UserCog size={18} />
@@ -438,7 +438,7 @@ const AdminDashboard = ({ userRole, faculty, onLogout, onCreateRequest }) => {
                       <YAxis />
                       <Tooltip />
                       <Legend />
-                      <Bar dataKey="count" fill="#ec4899" />
+                      <Bar dataKey="count" fill="#f9a8d4" />
                     </BarChart>
                   </ResponsiveContainer>
                 </div>
