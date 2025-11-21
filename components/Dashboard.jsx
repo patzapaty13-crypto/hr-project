@@ -99,29 +99,48 @@ const Dashboard = ({ userRole, faculty, onLogout, onCreateRequest }) => {
     if (!db) {
       // ใช้ Local Storage (Demo Mode)
       console.log('ใช้ Demo Mode: อ่านข้อมูลจาก Local Storage');
-      try {
-        const localRequests = getLocalRequests();
-        
-        // เรียงลำดับข้อมูลตามเวลา (ใหม่สุดไปเก่าสุด)
-        let data = localRequests.sort((a, b) => {
-          const timeA = a.createdAt?.seconds || 0;
-          const timeB = b.createdAt?.seconds || 0;
-          return timeB - timeA;
-        });
+      
+      const loadLocalData = () => {
+        try {
+          const localRequests = getLocalRequests();
+          
+          // เรียงลำดับข้อมูลตามเวลา (ใหม่สุดไปเก่าสุด)
+          let data = localRequests.sort((a, b) => {
+            const timeA = a.createdAt?.seconds || 0;
+            const timeB = b.createdAt?.seconds || 0;
+            return timeB - timeA;
+          });
 
-        // กรองข้อมูลตามบทบาท
-        if (userRole === 'hr') {
-          setRequests(data);
-        } else {
-          setRequests(data.filter(r => r.facultyId === faculty?.id));
+          // กรองข้อมูลตามบทบาท
+          if (userRole === 'hr') {
+            setRequests(data);
+          } else {
+            setRequests(data.filter(r => r.facultyId === faculty?.id));
+          }
+          setLoading(false);
+        } catch (error) {
+          console.error('Error reading from localStorage:', error);
+          setRequests([]);
+          setLoading(false);
         }
-        setLoading(false);
-      } catch (error) {
-        console.error('Error reading from localStorage:', error);
-        setRequests([]);
-        setLoading(false);
-      }
-      return;
+      };
+
+      // โหลดข้อมูลครั้งแรก
+      loadLocalData();
+
+      // ฟัง storage event เพื่ออัปเดตเมื่อมีการเปลี่ยนแปลง
+      const handleStorageChange = () => {
+        loadLocalData();
+      };
+      window.addEventListener('storage', handleStorageChange);
+      
+      // ฟัง custom event สำหรับอัปเดตภายใน tab เดียวกัน
+      window.addEventListener('localStorageUpdate', handleStorageChange);
+
+      return () => {
+        window.removeEventListener('storage', handleStorageChange);
+        window.removeEventListener('localStorageUpdate', handleStorageChange);
+      };
     }
 
     /**
