@@ -18,7 +18,7 @@
  * ============================================================================
  */
 
-import React from 'react';
+import React, { useRef, useEffect, useState } from 'react';
 
 /**
  * ============================================================================
@@ -26,27 +26,38 @@ import React from 'react';
  * ============================================================================
  */
 const SPULogo = ({ size = 'md', className = '', onClick }) => {
+  // Refs สำหรับคำนวณความกว้างของ SRIPATUM text
+  const sripatumRef = useRef(null);
+  const [barWidth, setBarWidth] = useState(80); // default width
+
+  // คำนวณความกว้างของ SRIPATUM text เพื่อให้แถบยาวเท่ากัน
+  useEffect(() => {
+    if (sripatumRef.current) {
+      const width = sripatumRef.current.offsetWidth;
+      setBarWidth(width);
+    }
+  }, [size]);
   // กำหนดขนาดตาม size prop
   const sizeClasses = {
     sm: {
       spu: 'text-xl sm:text-2xl',           // SPU ขนาดเล็ก - responsive
       university: 'text-[7px] sm:text-[8px]',  // SRIPATUM UNIVERSITY ขนาดเล็ก - responsive
-      bar: 'h-0.5 sm:h-1'                 // แถบเล็ก - responsive
+      barHeight: 'h-[1.5px] sm:h-[2px]'      // แถบเล็ก - responsive (ความสูงตามขนาดตัวอักษร)
     },
     md: {
       spu: 'text-3xl sm:text-4xl md:text-5xl',           // SPU ขนาดกลาง - responsive
       university: 'text-[9px] sm:text-[10px] md:text-xs',  // SRIPATUM UNIVERSITY ขนาดกลาง - responsive
-      bar: 'h-1 sm:h-1.5'                           // แถบกลาง - responsive
+      barHeight: 'h-[2px] sm:h-[2.5px] md:h-[3px]'      // แถบกลาง - responsive
     },
     lg: {
       spu: 'text-4xl sm:text-5xl md:text-6xl',          // SPU ขนาดใหญ่ - responsive
       university: 'text-[10px] sm:text-xs md:text-sm',     // SRIPATUM UNIVERSITY ขนาดใหญ่ - responsive
-      bar: 'h-1.5 sm:h-2'                            // แถบใหญ่ - responsive
+      barHeight: 'h-[2.5px] sm:h-[3px] md:h-[4px]'      // แถบใหญ่ - responsive
     },
     xl: {
       spu: 'text-5xl sm:text-6xl md:text-7xl',         // SPU ขนาดใหญ่มาก - responsive
       university: 'text-xs sm:text-sm md:text-base',   // SRIPATUM UNIVERSITY ขนาดใหญ่มาก - responsive
-      bar: 'h-2 sm:h-2.5'                         // แถบใหญ่มาก - responsive
+      barHeight: 'h-[3px] sm:h-[4px] md:h-[5px]'      // แถบใหญ่มาก - responsive
     }
   };
 
@@ -61,16 +72,24 @@ const SPULogo = ({ size = 'md', className = '', onClick }) => {
       onClick={onClick}
       style={{ minWidth: 'fit-content' }}
     >
-      {/* Top Section: SPU (สีดำ, ตัวใหญ่อ้วน) */}
-      <div className={`font-black text-black ${sizes.spu} leading-none mb-1.5 tracking-tight text-left`} style={{ fontFamily: 'sans-serif', fontWeight: 900 }}>
+      {/* Top Section: SPU (สีดำ, ตัวใหญ่อ้วน, tracking แน่นมาก) */}
+      <div 
+        className={`font-black text-black ${sizes.spu} leading-none mb-1 sm:mb-1.5 tracking-tighter text-left`} 
+        style={{ 
+          fontFamily: 'sans-serif', 
+          fontWeight: 900,
+          letterSpacing: '-0.02em' // tracking แน่นมาก
+        }}
+      >
         SPU
       </div>
       
       {/* Bottom Section: SRIPATUM UNIVERSITY (สีดำ - ตามรูปใหม่) */}
-      <div className="flex flex-col items-start w-full">
-        {/* แถวแรก: SRIPATUM + แถบสีดำแนวนอน */}
-        <div className="flex items-center w-full gap-1.5">
+      <div className="flex flex-col items-start">
+        {/* แถวแรก: SRIPATUM + แถบสีดำแนวนอน (แถบยาวเท่ากับความกว้างของ SRIPATUM) */}
+        <div className="flex items-center gap-1.5 sm:gap-2">
           <span 
+            ref={sripatumRef}
             className={`font-bold ${sizes.university} leading-none tracking-wider uppercase whitespace-nowrap`} 
             style={{ 
               color: blackColor,
@@ -80,21 +99,20 @@ const SPULogo = ({ size = 'md', className = '', onClick }) => {
           >
             SRIPATUM
           </span>
-          {/* แถบสีดำแนวนอน */}
+          {/* แถบสีดำแนวนอน - ยาวเท่ากับความกว้างของ SRIPATUM text */}
           <div 
-            className={`${sizes.bar}`}
+            className={`${sizes.barHeight} bg-black`}
             style={{ 
               backgroundColor: blackColor,
-              minHeight: sizes.bar === 'h-0.5' ? '2px' : sizes.bar === 'h-1' ? '4px' : sizes.bar === 'h-1.5' ? '6px' : sizes.bar === 'h-2' ? '8px' : '10px',
-              width: '40px',
+              width: `${barWidth}px`,
               flexShrink: 0
             }}
           ></div>
         </div>
         
-        {/* แถวที่สอง: UNIVERSITY (ด้านล่างของ SRIPATUM) */}
+        {/* แถวที่สอง: UNIVERSITY (ด้านล่างของ SRIPATUM, จัดชิดซ้ายเหมือนกัน) */}
         <span 
-          className={`font-bold ${sizes.university} leading-none tracking-wider uppercase mt-0.5`}
+          className={`font-bold ${sizes.university} leading-none tracking-wider uppercase mt-0.5 sm:mt-1`}
           style={{ 
             color: blackColor,
             fontFamily: 'sans-serif',
