@@ -374,7 +374,7 @@ const Dashboard = ({ userRole, faculty, onLogout, onCreateRequest, onSwitchToAdm
         - แสดงบทบาทหรือชื่อคณะ
         - ปุ่มออกจากระบบ
       */}
-      <nav className="bg-pink-900 text-white shadow-lg px-4 sm:px-6 py-3 sm:py-4">
+      <nav className="bg-pink-300 text-pink-900 shadow-lg px-4 sm:px-6 py-3 sm:py-4">
         <div className="max-w-7xl mx-auto flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-0">
           {/* ส่วนซ้าย: Logo SPU และข้อมูลผู้ใช้ */}
           <div className="flex items-center space-x-2 sm:space-x-4 w-full sm:w-auto">
@@ -401,14 +401,14 @@ const Dashboard = ({ userRole, faculty, onLogout, onCreateRequest, onSwitchToAdm
                     <Building size={16} className="sm:w-[18px] sm:h-[18px]" />
                   )}
                 </div>
-                <p className="text-xs sm:text-sm font-medium text-pink-100 truncate">
+                <p className="text-xs sm:text-sm font-medium text-pink-800 truncate">
                   {userRole === 'hr' 
                     ? 'สำนักงานบุคคล (HR)'  // ถ้าเป็น HR แสดง "สำนักงานบุคคล (HR)"
                     : faculty?.name          // ถ้าเป็น Faculty แสดงชื่อคณะ
                   }
                 </p>
               </div>
-              <p className="text-[10px] sm:text-xs text-pink-300 mt-0.5 hidden sm:block">
+              <p className="text-[10px] sm:text-xs text-pink-700 mt-0.5 hidden sm:block">
                 Personnel System
               </p>
             </div>
@@ -419,7 +419,7 @@ const Dashboard = ({ userRole, faculty, onLogout, onCreateRequest, onSwitchToAdm
             {userRole === 'hr' && onSwitchToAdmin && (
               <button 
                 onClick={onSwitchToAdmin}
-                className="hidden sm:block text-sm text-white hover:text-pink-200 transition px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg hover:bg-pink-800"
+                className="hidden sm:block text-sm text-pink-900 hover:text-pink-800 transition px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg hover:bg-pink-200"
                 title="Switch to Admin Dashboard"
               >
                 📊 Admin View
@@ -435,7 +435,7 @@ const Dashboard = ({ userRole, faculty, onLogout, onCreateRequest, onSwitchToAdm
             {userRole === 'faculty' && (
               <button 
                 onClick={onCreateRequest}
-                className="sm:hidden fixed bottom-6 right-6 bg-pink-600 hover:bg-pink-700 text-white p-4 rounded-full shadow-lg z-50 transition"
+                className="sm:hidden fixed bottom-6 right-6 bg-pink-200 hover:bg-pink-300 text-pink-900 p-4 rounded-full shadow-lg z-50 transition"
                 aria-label="สร้างคำขอใหม่"
               >
                 <Plus size={24} />
@@ -443,7 +443,7 @@ const Dashboard = ({ userRole, faculty, onLogout, onCreateRequest, onSwitchToAdm
             )}
             <button 
               onClick={onLogout} 
-              className="text-xs sm:text-sm bg-pink-700 hover:bg-pink-800 text-white px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg flex items-center transition shadow-md"
+                className="text-xs sm:text-sm bg-pink-200 hover:bg-pink-300 text-pink-900 px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg flex items-center transition shadow-md"
             >
               <LogOut size={14} className="sm:w-4 sm:h-4 mr-1 sm:mr-2" /> 
               <span className="hidden sm:inline">ออกจากระบบ</span>
@@ -458,13 +458,13 @@ const Dashboard = ({ userRole, faculty, onLogout, onCreateRequest, onSwitchToAdm
         Hero Section - พื้นที่แสดงข้อมูลสรุป
         ====================================================================
       */}
-      <section className="bg-gradient-to-r from-pink-600 via-pink-700 to-rose-700 text-white py-8 sm:py-12 px-4 sm:px-6">
+      <section className="bg-gradient-to-r from-pink-300 via-pink-200 to-rose-200 text-pink-900 py-8 sm:py-12 px-4 sm:px-6">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-6 sm:mb-8">
             <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold mb-3 sm:mb-4">
               {userRole === 'hr' ? 'จัดการคำขอทั้งหมด' : 'คำขอของฉัน'}
             </h1>
-            <p className="text-base sm:text-lg lg:text-xl text-pink-100 px-4">
+                <p className="text-base sm:text-lg lg:text-xl text-pink-800 px-4">
               {userRole === 'hr' 
                 ? 'ดูและจัดการคำขอลงอัตรากำลังพลทั้งหมดจากคณะและหน่วยงานต่างๆ' 
                 : 'ดูและติดตามสถานะคำขอของคณะคุณ'
@@ -474,21 +474,21 @@ const Dashboard = ({ userRole, faculty, onLogout, onCreateRequest, onSwitchToAdm
           
           {/* สถิติ */}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6 mt-6 sm:mt-8">
-            <div className="bg-white/20 backdrop-blur-sm rounded-lg p-4 sm:p-6 text-center">
-              <div className="text-2xl sm:text-3xl font-bold mb-1 sm:mb-2">{requests.length}</div>
-              <div className="text-sm sm:text-base text-pink-100">คำขอทั้งหมด</div>
+            <div className="bg-white/60 backdrop-blur-sm rounded-lg p-4 sm:p-6 text-center border border-pink-200">
+              <div className="text-2xl sm:text-3xl font-bold mb-1 sm:mb-2 text-pink-900">{requests.length}</div>
+              <div className="text-sm sm:text-base text-pink-800">คำขอทั้งหมด</div>
             </div>
-            <div className="bg-white/20 backdrop-blur-sm rounded-lg p-4 sm:p-6 text-center">
-              <div className="text-2xl sm:text-3xl font-bold mb-1 sm:mb-2">
+            <div className="bg-white/60 backdrop-blur-sm rounded-lg p-4 sm:p-6 text-center border border-pink-200">
+              <div className="text-2xl sm:text-3xl font-bold mb-1 sm:mb-2 text-pink-900">
                 {requests.filter(r => r.status === 'submitted' || r.status === 'hr_review').length}
               </div>
-              <div className="text-sm sm:text-base text-pink-100">กำลังดำเนินการ</div>
+              <div className="text-sm sm:text-base text-pink-800">กำลังดำเนินการ</div>
             </div>
-            <div className="bg-white/20 backdrop-blur-sm rounded-lg p-4 sm:p-6 text-center">
-              <div className="text-2xl sm:text-3xl font-bold mb-1 sm:mb-2">
+            <div className="bg-white/60 backdrop-blur-sm rounded-lg p-4 sm:p-6 text-center border border-pink-200">
+              <div className="text-2xl sm:text-3xl font-bold mb-1 sm:mb-2 text-pink-900">
                 {requests.filter(r => r.status === 'recruiting').length}
               </div>
-              <div className="text-sm sm:text-base text-pink-100">ประกาศรับสมัครแล้ว</div>
+              <div className="text-sm sm:text-base text-pink-800">ประกาศรับสมัครแล้ว</div>
             </div>
           </div>
         </div>
@@ -528,7 +528,7 @@ const Dashboard = ({ userRole, faculty, onLogout, onCreateRequest, onSwitchToAdm
           {userRole === 'faculty' && (
             <button 
               onClick={onCreateRequest}  // เมื่อกดให้เรียก onCreateRequest เพื่อเปิด Popup Form
-              className="hidden sm:flex bg-gradient-to-r from-pink-600 to-rose-600 text-white px-4 sm:px-6 py-2 sm:py-3 rounded-lg hover:from-pink-700 hover:to-rose-700 items-center text-xs sm:text-sm font-medium shadow-lg transition transform hover:scale-105 w-full sm:w-auto justify-center"
+                className="hidden sm:flex bg-gradient-to-r from-pink-200 to-rose-200 text-pink-900 px-4 sm:px-6 py-2 sm:py-3 rounded-lg hover:from-pink-300 hover:to-rose-300 items-center text-xs sm:text-sm font-medium shadow-lg transition transform hover:scale-105 w-full sm:w-auto justify-center"
             >
               <Plus size={18} className="sm:w-5 sm:h-5 mr-2" /> 
               สร้างคำขอใหม่
@@ -646,7 +646,7 @@ const Dashboard = ({ userRole, faculty, onLogout, onCreateRequest, onSwitchToAdm
                           {request.status === 'submitted' && (
                             <button 
                               onClick={() => updateStatus(request.id, 'hr_review')}
-                              className="text-xs bg-pink-600 text-white px-3 py-1.5 rounded-lg hover:bg-pink-700 transition shadow-md"
+                              className="text-xs bg-pink-200 text-pink-900 px-3 py-1.5 rounded-lg hover:bg-pink-300 transition shadow-md"
                             >
                               รับเรื่อง
                             </button>
@@ -655,7 +655,7 @@ const Dashboard = ({ userRole, faculty, onLogout, onCreateRequest, onSwitchToAdm
                           {request.status === 'hr_review' && (
                             <button 
                               onClick={() => updateStatus(request.id, 'vp_hr')}
-                              className="text-xs bg-pink-500 text-white px-3 py-1.5 rounded-lg hover:bg-pink-600 transition shadow-md"
+                              className="text-xs bg-pink-200 text-pink-900 px-3 py-1.5 rounded-lg hover:bg-pink-300 transition shadow-md"
                             >
                               เสนอ VP
                             </button>
@@ -803,7 +803,7 @@ const Dashboard = ({ userRole, faculty, onLogout, onCreateRequest, onSwitchToAdm
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8 mb-6 sm:mb-8">
             <div>
               <h4 className="text-xl font-bold mb-4 flex items-center">
-                <div className="bg-pink-700 p-2 rounded-lg mr-3">
+                <div className="bg-pink-200 p-2 rounded-lg mr-3">
                   {userRole === 'hr' ? <Briefcase size={20} /> : <Building size={20} />}
                 </div>
                 SPU PERSONNEL
@@ -828,7 +828,7 @@ const Dashboard = ({ userRole, faculty, onLogout, onCreateRequest, onSwitchToAdm
                     href="https://www.spu.ac.th" 
                     target="_blank" 
                     rel="noopener noreferrer"
-                    className="text-pink-200 hover:text-white transition inline-flex items-center"
+                        className="text-pink-800 hover:text-pink-900 transition inline-flex items-center"
                   >
                     เว็บไซต์หลักมหาวิทยาลัย <span className="ml-1">↗</span>
                   </a>
@@ -836,7 +836,7 @@ const Dashboard = ({ userRole, faculty, onLogout, onCreateRequest, onSwitchToAdm
                 <li>
                   <button 
                     onClick={() => alert('ระบบอื่นๆ กำลังอยู่ในระหว่างการพัฒนา')}
-                    className="text-pink-200 hover:text-white transition"
+                        className="text-pink-800 hover:text-pink-900 transition"
                   >
                     ระบบอื่นๆ
                   </button>
@@ -846,7 +846,7 @@ const Dashboard = ({ userRole, faculty, onLogout, onCreateRequest, onSwitchToAdm
                     onClick={() => {
                       alert('คู่มือการใช้งาน:\n\nสำหรับคณะ:\n- กด "สร้างคำขอใหม่" เพื่อสร้างคำขอ\n- ใช้ AI ช่วยร่าง Job Description\n- ติดตามสถานะคำขอ\n\nสำหรับ HR:\n- รับเรื่องและตรวจสอบ\n- อัปเดตสถานะคำขอ\n- เสนอให้ผู้บริหารพิจารณา');
                     }}
-                    className="text-pink-200 hover:text-white transition"
+                        className="text-pink-800 hover:text-pink-900 transition"
                   >
                     คู่มือการใช้งาน
                   </button>
@@ -856,7 +856,7 @@ const Dashboard = ({ userRole, faculty, onLogout, onCreateRequest, onSwitchToAdm
                     onClick={() => {
                       alert('สำหรับความช่วยเหลือ:\n\nโทร: (02) 579-1111\nEmail: hr@spu.ac.th\n\nเวลาทำการ: จันทร์-ศุกร์ 8:30-17:00 น.');
                     }}
-                    className="text-pink-200 hover:text-white transition"
+                        className="text-pink-800 hover:text-pink-900 transition"
                   >
                     ความช่วยเหลือ
                   </button>
