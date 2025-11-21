@@ -140,13 +140,13 @@ const AdminDashboard = ({ userRole, faculty, onLogout, onCreateRequest, onSwitch
   return (
     <div className="min-h-screen bg-white">
       {/* Header */}
-      <header className="bg-pink-500 text-white border-b border-pink-600 shadow-lg">
+      <header className="bg-white text-gray-900 border-b border-gray-200 shadow-sm">
         <div className="px-6 py-4 flex justify-between items-center">
           <div className="flex items-center space-x-4">
             <SPULogo size="sm" />
             <div>
-              <h1 className="text-xl font-bold text-white">HR@SPU Personnel System</h1>
-              <p className="text-sm text-pink-100">
+              <h1 className="text-xl font-bold text-gray-900">HR@SPU Personnel System</h1>
+              <p className="text-sm text-gray-600">
                 {userRole === 'hr' ? 'สำนักงานบุคคล (HR)' : faculty?.name}
               </p>
             </div>
@@ -165,14 +165,14 @@ const AdminDashboard = ({ userRole, faculty, onLogout, onCreateRequest, onSwitch
                   }
                 }
               }}
-              className="px-4 py-2 bg-pink-400 hover:bg-pink-600 text-white rounded-lg flex items-center text-sm transition shadow-sm"
+              className="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-900 rounded-lg flex items-center text-sm transition shadow-sm font-semibold"
             >
               <LayoutDashboard size={16} className="mr-2" />
               Standard View
             </button>
             <button
               onClick={onLogout}
-              className="px-4 py-2 bg-pink-400 hover:bg-pink-600 text-white rounded-lg flex items-center text-sm transition shadow-sm"
+              className="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-900 rounded-lg flex items-center text-sm transition shadow-sm font-semibold"
             >
               <LogOut size={16} className="mr-2" />
               Logout

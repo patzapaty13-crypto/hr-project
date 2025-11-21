@@ -57,12 +57,12 @@ const SPULogo = ({ size = 'md', className = '', onClick }) => {
 
   return (
     <div 
-      className={`flex flex-col items-center justify-center ${onClick ? 'cursor-pointer' : ''} ${className}`}
+      className={`flex flex-col items-start justify-center ${onClick ? 'cursor-pointer' : ''} ${className}`}
       onClick={onClick}
       style={{ minWidth: 'fit-content' }}
     >
-      {/* Top Section: SPU (สีดำ, ตัวใหญ่อ้วน, ตรงกลาง) */}
-      <div className={`font-black text-black ${sizes.spu} leading-none mb-1.5 tracking-tight text-center`} style={{ fontFamily: 'sans-serif', fontWeight: 900 }}>
+      {/* Top Section: SPU (สีดำ, ตัวใหญ่อ้วน) */}
+      <div className={`font-black text-black ${sizes.spu} leading-none mb-1.5 tracking-tight text-left`} style={{ fontFamily: 'sans-serif', fontWeight: 900 }}>
         SPU
       </div>
       
@@ -82,11 +82,12 @@ const SPULogo = ({ size = 'md', className = '', onClick }) => {
           </span>
           {/* แถบสีดำแนวนอน */}
           <div 
-            className={`${sizes.bar} flex-1`}
+            className={`${sizes.bar}`}
             style={{ 
               backgroundColor: blackColor,
-              minHeight: sizes.bar === 'h-1' ? '4px' : sizes.bar === 'h-1.5' ? '6px' : sizes.bar === 'h-2' ? '8px' : '10px',
-              minWidth: '30px'
+              minHeight: sizes.bar === 'h-0.5' ? '2px' : sizes.bar === 'h-1' ? '4px' : sizes.bar === 'h-1.5' ? '6px' : sizes.bar === 'h-2' ? '8px' : '10px',
+              width: '40px',
+              flexShrink: 0
             }}
           ></div>
         </div>

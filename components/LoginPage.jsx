@@ -195,39 +195,39 @@ const LoginPage = ({ onLogin, onShowRegister }) => {
   return (
     <BackgroundSlider>
       <div className="min-h-screen">
-        {/* Top Bar - ข้อมูลติดต่อ - สีชมพู */}
-        <div className="bg-pink-600 text-white py-2 px-4 sm:px-6 text-xs sm:text-sm border-b border-pink-700">
+        {/* Top Bar - ข้อมูลติดต่อ - สีขาว */}
+        <div className="bg-white text-gray-700 py-2 px-4 sm:px-6 text-xs sm:text-sm border-b border-gray-200">
         <div className="max-w-7xl mx-auto flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 sm:gap-0">
           <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-4">
-            <span className="text-white whitespace-nowrap font-medium">โทร: <a href="tel:025791111" className="text-white hover:text-pink-200 underline font-semibold cursor-pointer transition-all duration-200 hover:scale-105">(02) 579-1111</a></span>
-            <span className="hidden sm:inline text-white/60 font-bold">|</span>
-            <span className="text-white whitespace-nowrap font-medium">อีเมล: <a href="mailto:hr@spu.ac.th" className="text-white hover:text-pink-200 underline break-all font-semibold cursor-pointer transition-all duration-200 hover:scale-105">hr@spu.ac.th</a></span>
+            <span className="text-gray-700 whitespace-nowrap font-medium">โทร: <a href="tel:025791111" className="text-gray-900 hover:text-pink-600 underline font-semibold cursor-pointer transition-all duration-200 hover:scale-105">(02) 579-1111</a></span>
+            <span className="hidden sm:inline text-gray-400 font-bold">|</span>
+            <span className="text-gray-700 whitespace-nowrap font-medium">อีเมล: <a href="mailto:hr@spu.ac.th" className="text-gray-900 hover:text-pink-600 underline break-all font-semibold cursor-pointer transition-all duration-200 hover:scale-105">hr@spu.ac.th</a></span>
           </div>
-          <div className="hidden md:flex items-center gap-4 text-white/90">
+          <div className="hidden md:flex items-center gap-4 text-gray-600">
             <span className="text-xs font-semibold tracking-wide">ติดตามเรา</span>
-            <a href="#" className="hover:text-white transition-all duration-200 hover:scale-110 cursor-pointer bg-white/10 hover:bg-white/20 px-2 py-1 rounded text-sm font-bold">f</a>
-            <a href="#" className="hover:text-white transition-all duration-200 hover:scale-110 cursor-pointer bg-white/10 hover:bg-white/20 px-2 py-1 rounded text-sm font-bold">t</a>
-            <a href="#" className="hover:text-white transition-all duration-200 hover:scale-110 cursor-pointer bg-white/10 hover:bg-white/20 px-2 py-1 rounded text-sm font-bold">in</a>
+            <a href="#" className="hover:text-gray-900 transition-all duration-200 hover:scale-110 cursor-pointer bg-gray-100 hover:bg-gray-200 px-2 py-1 rounded text-sm font-bold">f</a>
+            <a href="#" className="hover:text-gray-900 transition-all duration-200 hover:scale-110 cursor-pointer bg-gray-100 hover:bg-gray-200 px-2 py-1 rounded text-sm font-bold">t</a>
+            <a href="#" className="hover:text-gray-900 transition-all duration-200 hover:scale-110 cursor-pointer bg-gray-100 hover:bg-gray-200 px-2 py-1 rounded text-sm font-bold">in</a>
           </div>
         </div>
       </div>
 
-        {/* Main Navigation Header - สีชมพู */}
-        <header className="bg-pink-500 text-white border-b border-pink-600 sticky top-0 z-50">
+        {/* Main Navigation Header - สีขาว */}
+        <header className="bg-white text-gray-900 border-b border-gray-200 sticky top-0 z-50 shadow-sm">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 py-3 sm:py-4">
             <div className="flex justify-between items-center">
-              {/* Logo SPU - ไม่ลอย */}
-              <div className="flex items-center gap-2 sm:gap-4">
+              {/* Logo SPU - Horizontal Layout */}
+              <div className="flex items-center gap-3 sm:gap-4">
                 <SPULogo 
                   size="sm" 
                   onClick={() => window.location.reload()}
                 />
-                <span className="hidden sm:block text-white text-sm sm:text-base font-semibold tracking-wide">Personnel System</span>
+                <span className="hidden sm:block text-gray-900 text-base sm:text-lg font-bold tracking-wide">Personnel System</span>
               </div>
               
               {/* Navigation Menu - Mobile Menu Button */}
               <button 
-                className="lg:hidden p-2 text-white hover:text-pink-200 transition"
+                className="lg:hidden p-2 text-gray-700 hover:text-gray-900 transition"
                 onClick={() => {
                   alert('เมนู: หน้าหลัก | เกี่ยวกับ | ติดต่อ');
                 }}
@@ -240,13 +240,13 @@ const LoginPage = ({ onLogin, onShowRegister }) => {
               
               {/* Navigation Menu - Desktop */}
               <nav className="hidden lg:flex items-center space-x-4 text-sm">
-                <button onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} className="text-white font-semibold border-b-2 border-white pb-1 px-2 cursor-pointer transition-all duration-200 hover:scale-105">หน้าหลัก</button>
+                <button onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} className="text-gray-900 font-bold border-b-2 border-gray-900 pb-1 px-2 cursor-pointer transition-all duration-200 hover:scale-105">หน้าหลัก</button>
                 <button onClick={() => {
                   alert('ระบบอัตรากำลังพล SPU Personnel System\n\nเวอร์ชัน 1.0.0\nพัฒนาสำหรับมหาวิทยาลัยศรีปทุม');
-                }} className="text-white/90 hover:text-white transition-all duration-200 hover:scale-105 cursor-pointer px-2 py-1 rounded hover:bg-white/10 font-medium">เกี่ยวกับ</button>
+                }} className="text-gray-700 hover:text-gray-900 transition-all duration-200 hover:scale-105 cursor-pointer px-2 py-1 rounded hover:bg-gray-100 font-semibold">เกี่ยวกับ</button>
                 <button onClick={() => {
                   window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
-                }} className="text-white/90 hover:text-white transition-all duration-200 hover:scale-105 cursor-pointer px-2 py-1 rounded hover:bg-white/10 font-medium">ติดต่อ</button>
+                }} className="text-gray-700 hover:text-gray-900 transition-all duration-200 hover:scale-105 cursor-pointer px-2 py-1 rounded hover:bg-gray-100 font-semibold">ติดต่อ</button>
               </nav>
             </div>
           </div>
