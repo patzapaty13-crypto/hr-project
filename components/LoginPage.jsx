@@ -141,12 +141,12 @@ const LoginPage = ({ onLogin }) => {
   return (
     <div className="min-h-screen bg-white">
       {/* Top Bar - ข้อมูลติดต่อ */}
-      <div className="bg-pink-100 text-gray-700 py-2 px-6 text-sm">
-        <div className="max-w-7xl mx-auto flex justify-between items-center">
-          <div className="flex items-center gap-4">
-            <span className="text-gray-600">โทร: <a href="tel:025791111" className="text-pink-600 hover:text-pink-700">(02) 579-1111</a></span>
-            <span className="text-gray-500">|</span>
-            <span className="text-gray-600">อีเมล: <a href="mailto:hr@spu.ac.th" className="text-pink-600 hover:text-pink-700">hr@spu.ac.th</a></span>
+      <div className="bg-pink-100 text-gray-700 py-2 px-4 sm:px-6 text-xs sm:text-sm">
+        <div className="max-w-7xl mx-auto flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 sm:gap-0">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-4">
+            <span className="text-gray-600 whitespace-nowrap">โทร: <a href="tel:025791111" className="text-pink-600 hover:text-pink-700">(02) 579-1111</a></span>
+            <span className="hidden sm:inline text-gray-500">|</span>
+            <span className="text-gray-600 whitespace-nowrap">อีเมล: <a href="mailto:hr@spu.ac.th" className="text-pink-600 hover:text-pink-700 break-all">hr@spu.ac.th</a></span>
           </div>
           <div className="hidden md:flex items-center gap-3 text-gray-500">
             <span className="text-xs">ติดตามเรา</span>
@@ -159,20 +159,34 @@ const LoginPage = ({ onLogin }) => {
 
       {/* Main Navigation Header */}
       <header className="bg-white border-b border-gray-100 shadow-sm sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-6 py-4">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-3 sm:py-4">
           <div className="flex justify-between items-center">
             {/* Logo SPU */}
-            <div className="flex items-center gap-4">
-              <div className="bg-white px-3 py-1.5 rounded shadow-sm hover:shadow-md transition">
+            <div className="flex items-center gap-2 sm:gap-4">
+              <div className="bg-white px-2 sm:px-3 py-1 sm:py-1.5 rounded shadow-sm hover:shadow-md transition">
                 <SPULogo 
                   size="sm" 
                   onClick={() => window.location.reload()}
                 />
               </div>
-              <span className="hidden md:block text-gray-600 text-sm">Personnel System</span>
+              <span className="hidden sm:block text-gray-600 text-xs sm:text-sm">Personnel System</span>
             </div>
             
-            {/* Navigation Menu */}
+            {/* Navigation Menu - Mobile Menu Button */}
+            <button 
+              className="lg:hidden p-2 text-gray-600 hover:text-pink-600 transition"
+              onClick={() => {
+                // Mobile menu toggle (สามารถเพิ่ม state สำหรับ mobile menu ได้)
+                alert('เมนู: หน้าหลัก | เกี่ยวกับ | ติดต่อ');
+              }}
+              aria-label="เมนู"
+            >
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+              </svg>
+            </button>
+            
+            {/* Navigation Menu - Desktop */}
             <nav className="hidden lg:flex items-center space-x-6 text-sm">
               <button onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} className="text-pink-600 font-medium border-b-2 border-pink-600 pb-1">หน้าหลัก</button>
               <button onClick={() => {
@@ -187,34 +201,34 @@ const LoginPage = ({ onLogin }) => {
       </header>
 
       {/* Hero Section with Background Image */}
-      <section className="relative min-h-[600px] flex items-center bg-gradient-to-r from-pink-50 via-white to-pink-50">
+      <section className="relative min-h-[500px] sm:min-h-[600px] flex items-center bg-gradient-to-r from-pink-50 via-white to-pink-50">
         {/* Background Overlay */}
         <div className="absolute inset-0 bg-gradient-to-r from-white/80 via-white/60 to-pink-50/80 z-10"></div>
         
-        <div className="max-w-7xl mx-auto px-6 py-12 relative z-20 w-full">
-          <div className="grid lg:grid-cols-2 gap-12 items-center">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8 sm:py-12 relative z-20 w-full">
+          <div className="grid lg:grid-cols-2 gap-8 lg:gap-12 items-center">
             {/* Left Content */}
-            <div className="text-left space-y-6">
-              <p className="text-pink-500 text-sm font-medium uppercase tracking-wider">ยินดีต้อนรับ</p>
-              <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-gray-800 leading-tight">
+            <div className="text-left space-y-4 sm:space-y-6 order-2 lg:order-1">
+              <p className="text-pink-500 text-xs sm:text-sm font-medium uppercase tracking-wider">ยินดีต้อนรับ</p>
+              <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-gray-800 leading-tight">
                 เข้าสู่ระบบอัตรากำลังพล
               </h1>
-              <p className="text-lg text-gray-600 leading-relaxed max-w-xl">
+              <p className="text-base sm:text-lg text-gray-600 leading-relaxed max-w-xl">
                 ระบบขออนุมัติอัตรากำลังพลออนไลน์ที่ทันสมัยและใช้งานง่าย 
                 สำหรับคณะและหน่วยงาน รวมถึงสำนักงานบุคคล
               </p>
-              <div className="flex gap-4 mt-8">
+              <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 mt-6 sm:mt-8">
                 <button 
                   onClick={() => {
                     alert('ระบบ SPU Personnel System\n\nใช้งานง่าย ปลอดภัย และมีประสิทธิภาพ\n\nเหมาะสำหรับการจัดการอัตรากำลังพล');
                   }}
-                  className="px-6 py-3 bg-pink-500 text-white rounded-lg hover:bg-pink-600 transition shadow-md font-medium"
+                  className="px-5 sm:px-6 py-2.5 sm:py-3 bg-pink-500 text-white rounded-lg hover:bg-pink-600 transition shadow-md font-medium text-sm sm:text-base"
                 >
                   เรียนรู้เพิ่มเติม
                 </button>
                 <button 
                   onClick={() => window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' })}
-                  className="px-6 py-3 bg-white text-pink-600 border-2 border-pink-500 rounded-lg hover:bg-pink-50 transition font-medium"
+                  className="px-5 sm:px-6 py-2.5 sm:py-3 bg-white text-pink-600 border-2 border-pink-500 rounded-lg hover:bg-pink-50 transition font-medium text-sm sm:text-base"
                 >
                   ติดต่อเรา
                 </button>
@@ -222,10 +236,11 @@ const LoginPage = ({ onLogin }) => {
             </div>
 
             {/* Right Content - Login Form */}
-            <div className="flex justify-center lg:justify-end">
+            <div className="flex justify-center lg:justify-end order-1 lg:order-2 w-full lg:w-auto">
               {/* 
                 กล่อง Login: พื้นหลังขาว มีเงาและมุมโค้ง
                 max-w-md: ความกว้างสูงสุด 28rem (448px)
+                responsive: w-full บน mobile, max-w-md บน desktop
               */}
               <div className="bg-white shadow-xl rounded-lg w-full max-w-md overflow-hidden border border-gray-100">
                 {/* 
@@ -250,18 +265,19 @@ const LoginPage = ({ onLogin }) => {
                 <div className="flex border-b border-gray-100">
                   {/* แท็บที่ 1: สำหรับคณะ/หน่วยงาน */}
                   <button 
-                    className={`flex-1 py-3 text-sm font-medium transition ${
+                    className={`flex-1 py-2.5 sm:py-3 text-xs sm:text-sm font-medium transition ${
                       role === 'faculty' 
                         ? 'text-pink-600 border-b-2 border-pink-500 bg-pink-50'  // สถานะ Active
                         : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50'  // สถานะ Inactive
                     }`}
                     onClick={() => setRole('faculty')}
                   >
-                    สำหรับคณะ/หน่วยงาน
+                    <span className="hidden sm:inline">สำหรับคณะ/หน่วยงาน</span>
+                    <span className="sm:hidden">คณะ</span>
                   </button>
                   {/* แท็บที่ 2: สำหรับ HR */}
                   <button 
-                    className={`flex-1 py-3 text-sm font-medium transition ${
+                    className={`flex-1 py-2.5 sm:py-3 text-xs sm:text-sm font-medium transition ${
                       role === 'hr' 
                         ? 'text-pink-600 border-b-2 border-pink-500 bg-pink-50'  // สถานะ Active
                         : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50'  // สถานะ Inactive
@@ -272,14 +288,14 @@ const LoginPage = ({ onLogin }) => {
                   </button>
                 </div>
 
-        {/* 
-          ====================================================================
-          ฟอร์มกรอกข้อมูล (Form)
-          ====================================================================
-          onSubmit={handleSubmit}: เมื่อกดปุ่ม Submit จะเรียก handleSubmit
-          space-y-4: ระยะห่างระหว่าง Elements ในแนวตั้ง
-        */}
-        <form onSubmit={handleSubmit} className="p-6 space-y-4">
+                {/* 
+                  ====================================================================
+                  ฟอร์มกรอกข้อมูล (Form)
+                  ====================================================================
+                  onSubmit={handleSubmit}: เมื่อกดปุ่ม Submit จะเรียก handleSubmit
+                  space-y-4: ระยะห่างระหว่าง Elements ในแนวตั้ง
+                */}
+                <form onSubmit={handleSubmit} className="p-4 sm:p-6 space-y-4">
           {/* 
             Field 1: Dropdown เลือกคณะ/หน่วยงาน
             แสดงเฉพาะเมื่อ role = 'faculty'
@@ -414,17 +430,17 @@ const LoginPage = ({ onLogin }) => {
       </section>
 
       {/* Feature Cards Section */}
-      <section className="bg-white py-16 px-6">
+      <section className="bg-white py-12 sm:py-16 px-4 sm:px-6">
         <div className="max-w-7xl mx-auto">
-          <div className="grid md:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
             {/* Card 1 */}
             <div className="bg-white border border-gray-100 rounded-lg shadow-md hover:shadow-lg transition overflow-hidden">
-              <div className="h-48 bg-gradient-to-br from-pink-100 to-rose-100 flex items-center justify-center">
-                <Building size={48} className="text-pink-400" />
+              <div className="h-40 sm:h-48 bg-gradient-to-br from-pink-100 to-rose-100 flex items-center justify-center">
+                <Building size={40} className="sm:w-12 sm:h-12 text-pink-400" />
               </div>
-              <div className="p-6">
-                <h3 className="text-xl font-bold text-gray-800 mb-3">จัดการคณะ</h3>
-                <p className="text-gray-600 text-sm mb-4 leading-relaxed">
+              <div className="p-4 sm:p-6">
+                <h3 className="text-lg sm:text-xl font-bold text-gray-800 mb-2 sm:mb-3">จัดการคณะ</h3>
+                <p className="text-gray-600 text-sm mb-3 sm:mb-4 leading-relaxed">
                   สร้างและจัดการคำขออัตรากำลังพลสำหรับคณะและหน่วยงานของคุณได้อย่างง่ายดาย
                 </p>
                 <button 
@@ -440,12 +456,12 @@ const LoginPage = ({ onLogin }) => {
 
             {/* Card 2 */}
             <div className="bg-white border border-gray-100 rounded-lg shadow-md hover:shadow-lg transition overflow-hidden">
-              <div className="h-48 bg-gradient-to-br from-pink-100 to-rose-100 flex items-center justify-center">
-                <Briefcase size={48} className="text-pink-400" />
+              <div className="h-40 sm:h-48 bg-gradient-to-br from-pink-100 to-rose-100 flex items-center justify-center">
+                <Briefcase size={40} className="sm:w-12 sm:h-12 text-pink-400" />
               </div>
-              <div className="p-6">
-                <h3 className="text-xl font-bold text-gray-800 mb-3">ระบบอนุมัติ</h3>
-                <p className="text-gray-600 text-sm mb-4 leading-relaxed">
+              <div className="p-4 sm:p-6">
+                <h3 className="text-lg sm:text-xl font-bold text-gray-800 mb-2 sm:mb-3">ระบบอนุมัติ</h3>
+                <p className="text-gray-600 text-sm mb-3 sm:mb-4 leading-relaxed">
                   ระบบอนุมัติอัตรากำลังพลที่รวดเร็ว มีประสิทธิภาพ และติดตามได้ทุกขั้นตอน
                 </p>
                 <button 
@@ -460,15 +476,15 @@ const LoginPage = ({ onLogin }) => {
             </div>
 
             {/* Card 3 */}
-            <div className="bg-white border border-gray-100 rounded-lg shadow-md hover:shadow-lg transition overflow-hidden">
-              <div className="h-48 bg-gradient-to-br from-pink-100 to-rose-100 flex items-center justify-center">
-                <svg className="w-12 h-12 text-pink-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div className="bg-white border border-gray-100 rounded-lg shadow-md hover:shadow-lg transition overflow-hidden sm:col-span-2 lg:col-span-1">
+              <div className="h-40 sm:h-48 bg-gradient-to-br from-pink-100 to-rose-100 flex items-center justify-center">
+                <svg className="w-10 h-10 sm:w-12 sm:h-12 text-pink-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
                 </svg>
               </div>
-              <div className="p-6">
-                <h3 className="text-xl font-bold text-gray-800 mb-3">ใช้งานง่าย</h3>
-                <p className="text-gray-600 text-sm mb-4 leading-relaxed">
+              <div className="p-4 sm:p-6">
+                <h3 className="text-lg sm:text-xl font-bold text-gray-800 mb-2 sm:mb-3">ใช้งานง่าย</h3>
+                <p className="text-gray-600 text-sm mb-3 sm:mb-4 leading-relaxed">
                   อินเทอร์เฟซที่ใช้งานง่าย พร้อม AI ช่วยเหลือทำให้การทำงานของคุณรวดเร็วขึ้น
                 </p>
                 <button 

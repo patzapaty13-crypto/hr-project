@@ -214,32 +214,33 @@ const SimpleForm = ({ faculty, onClose, onSubmit, userId }) => {
   // flex items-center justify-center: จัดให้ Popup อยู่กึ่งกลาง
   // z-50: วางไว้เหนือ Elements อื่นๆ
   return (
-    <div className="fixed inset-0 bg-pink-900 bg-opacity-70 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+    <div className="fixed inset-0 bg-pink-900 bg-opacity-70 backdrop-blur-sm flex items-center justify-center z-50 p-3 sm:p-4 overflow-y-auto">
       {/* 
         Popup Modal: กล่องฟอร์ม
         bg-white: พื้นหลังขาว
         rounded-lg: มุมโค้ง
         max-w-lg: ความกว้างสูงสุด 32rem (512px)
         shadow-xl: เงาเพื่อให้เด่นชัด
+        responsive: w-full บน mobile, max-w-lg บน desktop
       */}
-      <div className="bg-white rounded-2xl w-full max-w-lg shadow-2xl border-2 border-pink-200">
+      <div className="bg-white rounded-xl sm:rounded-2xl w-full max-w-lg shadow-2xl border-2 border-pink-200 my-auto">
         {/* 
           ====================================================================
           ส่วนหัว Popup: หัวข้อและปุ่มปิด
           ====================================================================
         */}
-        <div className="p-5 border-b flex justify-between items-center bg-gradient-to-r from-pink-600 to-rose-600 rounded-t-2xl">
+        <div className="p-4 sm:p-5 border-b flex justify-between items-center bg-gradient-to-r from-pink-600 to-rose-600 rounded-t-xl sm:rounded-t-2xl sticky top-0 z-10">
           {/* หัวข้อ */}
-          <h3 className="font-bold text-white text-lg">
+          <h3 className="font-bold text-white text-base sm:text-lg">
             บันทึกข้อความขออัตราใหม่
           </h3>
           {/* ปุ่มปิด (X) */}
           <button 
             onClick={onClose}  // เมื่อกดให้เรียก onClose เพื่อปิด Popup
             aria-label="ปิด"
-            className="text-white hover:bg-white/20 rounded-full p-1 transition"
+            className="text-white hover:bg-white/20 rounded-full p-1 transition flex-shrink-0"
           >
-            <X size={20} />
+            <X size={18} className="sm:w-5 sm:h-5" />
           </button>
         </div>
         
@@ -249,7 +250,7 @@ const SimpleForm = ({ faculty, onClose, onSubmit, userId }) => {
           ====================================================================
           space-y-4: ระยะห่างระหว่าง Fields ในแนวตั้ง
         */}
-        <div className="p-6 space-y-4">
+        <div className="p-4 sm:p-6 space-y-4 max-h-[calc(100vh-200px)] overflow-y-auto">
           {/* 
             Field 1: หน่วยงาน (แสดงเท่านั้น ไม่สามารถแก้ไขได้)
             disabled: ไม่สามารถแก้ไขได้ (เพราะมาจากคณะที่เลือกตอน Login)
@@ -286,15 +287,16 @@ const SimpleForm = ({ faculty, onClose, onSubmit, userId }) => {
           {/* 
             Field 3 & 4: ประเภทและจำนวน (อยู่แถวเดียวกัน)
             flex space-x-4: จัดให้อยู่แถวเดียวกัน มีระยะห่างระหว่างกัน
+            responsive: flex-col บน mobile, flex-row บน desktop
           */}
-          <div className="flex space-x-4">
+          <div className="flex flex-col sm:flex-row gap-4 sm:space-x-4 sm:gap-0">
             {/* Field 3: ประเภท (Dropdown) */}
             <div className="flex-1">
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 ประเภท
               </label>
               <select 
-                className="w-full border px-3 py-2 rounded"
+                className="w-full border-2 border-pink-200 px-3 py-2 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-pink-500 focus:outline-none"
                 value={form.type}
                 onChange={e => setForm({...form, type: e.target.value})}  // อัปเดต type เมื่อเลือก
               >
@@ -303,14 +305,14 @@ const SimpleForm = ({ faculty, onClose, onSubmit, userId }) => {
               </select>
             </div>
             {/* Field 4: จำนวน (Input ตัวเลข) */}
-            <div className="w-1/3">
+            <div className="w-full sm:w-1/3">
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 จำนวน
               </label>
               <input 
                 type="number" 
                 min="1"  // จำนวนขั้นต่ำ 1
-                className="w-full border px-3 py-2 rounded"
+                className="w-full border-2 border-pink-200 px-3 py-2 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-pink-500 focus:outline-none"
                 value={form.amount}
                 onChange={e => {
                   const value = e.target.value;
@@ -361,18 +363,18 @@ const SimpleForm = ({ faculty, onClose, onSubmit, userId }) => {
           flex justify-end: จัดให้ปุ่มอยู่ทางขวา
           space-x-3: ระยะห่างระหว่างปุ่ม
         */}
-        <div className="p-5 border-t bg-pink-50 rounded-b-2xl flex justify-end space-x-3">
+        <div className="p-4 sm:p-5 border-t bg-pink-50 rounded-b-xl sm:rounded-b-2xl flex flex-col-reverse sm:flex-row justify-end gap-3 sm:space-x-3 sticky bottom-0">
           {/* ปุ่มยกเลิก: ปิด Popup โดยไม่บันทึกข้อมูล */}
           <button 
             onClick={onClose}  // เมื่อกดให้เรียก onClose เพื่อปิด Popup
-            className="px-5 py-2 text-pink-700 text-sm font-medium hover:bg-pink-100 rounded-lg transition border border-pink-300"
+            className="px-4 sm:px-5 py-2.5 sm:py-2 text-pink-700 text-sm font-medium hover:bg-pink-100 rounded-lg transition border border-pink-300 w-full sm:w-auto"
           >
             ยกเลิก
           </button>
           {/* ปุ่มบันทึกข้อมูล: บันทึกข้อมูลลง Firestore */}
           <button 
             onClick={handleSubmit}  // เมื่อกดให้เรียก handleSubmit เพื่อบันทึกข้อมูล
-            className="px-5 py-2 bg-gradient-to-r from-pink-600 to-rose-600 text-white text-sm font-medium rounded-lg hover:from-pink-700 hover:to-rose-700 transition shadow-md"
+            className="px-4 sm:px-5 py-2.5 sm:py-2 bg-gradient-to-r from-pink-600 to-rose-600 text-white text-sm font-medium rounded-lg hover:from-pink-700 hover:to-rose-700 transition shadow-md w-full sm:w-auto"
           >
             บันทึกข้อมูล
           </button>

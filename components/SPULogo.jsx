@@ -29,24 +29,24 @@ const SPULogo = ({ size = 'md', className = '', onClick }) => {
   // กำหนดขนาดตาม size prop
   const sizeClasses = {
     sm: {
-      spu: 'text-2xl',           // SPU ขนาดเล็ก
-      university: 'text-[8px]',  // SRIPATUM UNIVERSITY ขนาดเล็ก
-      bar: 'h-1'                 // แถบเล็ก
+      spu: 'text-xl sm:text-2xl',           // SPU ขนาดเล็ก - responsive
+      university: 'text-[7px] sm:text-[8px]',  // SRIPATUM UNIVERSITY ขนาดเล็ก - responsive
+      bar: 'h-0.5 sm:h-1'                 // แถบเล็ก - responsive
     },
     md: {
-      spu: 'text-4xl md:text-5xl',           // SPU ขนาดกลาง
-      university: 'text-[10px] md:text-xs',  // SRIPATUM UNIVERSITY ขนาดกลาง
-      bar: 'h-1.5'                           // แถบกลาง
+      spu: 'text-3xl sm:text-4xl md:text-5xl',           // SPU ขนาดกลาง - responsive
+      university: 'text-[9px] sm:text-[10px] md:text-xs',  // SRIPATUM UNIVERSITY ขนาดกลาง - responsive
+      bar: 'h-1 sm:h-1.5'                           // แถบกลาง - responsive
     },
     lg: {
-      spu: 'text-5xl md:text-6xl',          // SPU ขนาดใหญ่
-      university: 'text-xs md:text-sm',     // SRIPATUM UNIVERSITY ขนาดใหญ่
-      bar: 'h-2'                            // แถบใหญ่
+      spu: 'text-4xl sm:text-5xl md:text-6xl',          // SPU ขนาดใหญ่ - responsive
+      university: 'text-[10px] sm:text-xs md:text-sm',     // SRIPATUM UNIVERSITY ขนาดใหญ่ - responsive
+      bar: 'h-1.5 sm:h-2'                            // แถบใหญ่ - responsive
     },
     xl: {
-      spu: 'text-6xl md:text-7xl',         // SPU ขนาดใหญ่มาก
-      university: 'text-sm md:text-base',   // SRIPATUM UNIVERSITY ขนาดใหญ่มาก
-      bar: 'h-2.5'                         // แถบใหญ่มาก
+      spu: 'text-5xl sm:text-6xl md:text-7xl',         // SPU ขนาดใหญ่มาก - responsive
+      university: 'text-xs sm:text-sm md:text-base',   // SRIPATUM UNIVERSITY ขนาดใหญ่มาก - responsive
+      bar: 'h-2 sm:h-2.5'                         // แถบใหญ่มาก - responsive
     }
   };
 

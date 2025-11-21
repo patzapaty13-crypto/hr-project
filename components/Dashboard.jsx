@@ -315,59 +315,70 @@ const Dashboard = ({ userRole, faculty, onLogout, onCreateRequest }) => {
         - แสดงบทบาทหรือชื่อคณะ
         - ปุ่มออกจากระบบ
       */}
-      <nav className="bg-pink-900 text-white shadow-lg px-6 py-4">
-        <div className="max-w-7xl mx-auto flex justify-between items-center">
+      <nav className="bg-pink-900 text-white shadow-lg px-4 sm:px-6 py-3 sm:py-4">
+        <div className="max-w-7xl mx-auto flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-0">
           {/* ส่วนซ้าย: Logo SPU และข้อมูลผู้ใช้ */}
-          <div className="flex items-center space-x-4">
+          <div className="flex items-center space-x-2 sm:space-x-4 w-full sm:w-auto">
             {/* Logo SPU */}
-            <div className="bg-white px-3 py-2 rounded-lg shadow-md hover:shadow-lg transition">
+            <div className="bg-white px-2 sm:px-3 py-1.5 sm:py-2 rounded-lg shadow-md hover:shadow-lg transition flex-shrink-0">
               <SPULogo size="sm" />
             </div>
             
             {/* แถบแนวตั้งแยก */}
-            <div className="h-10 w-px bg-pink-700"></div>
+            <div className="hidden sm:block h-10 w-px bg-pink-700"></div>
             
             {/* ข้อความ: บทบาท/คณะ */}
-            <div>
-              <div className="flex items-center gap-2">
+            <div className="min-w-0 flex-1 sm:flex-none">
+              <div className="flex items-center gap-1.5 sm:gap-2">
                 {/* 
                   Icon: แสดง Icon ตามบทบาท
                   - HR: Briefcase (กระเป๋า)
                   - Faculty: Building (อาคาร)
                 */}
-                <div className="bg-pink-700 p-1.5 rounded shadow-sm">
+                <div className="bg-pink-700 p-1 sm:p-1.5 rounded shadow-sm flex-shrink-0">
                   {userRole === 'hr' ? (
-                    <Briefcase size={18} />
+                    <Briefcase size={16} className="sm:w-[18px] sm:h-[18px]" />
                   ) : (
-                    <Building size={18} />
+                    <Building size={16} className="sm:w-[18px] sm:h-[18px]" />
                   )}
                 </div>
-                <p className="text-sm font-medium text-pink-100">
+                <p className="text-xs sm:text-sm font-medium text-pink-100 truncate">
                   {userRole === 'hr' 
                     ? 'สำนักงานบุคคล (HR)'  // ถ้าเป็น HR แสดง "สำนักงานบุคคล (HR)"
                     : faculty?.name          // ถ้าเป็น Faculty แสดงชื่อคณะ
                   }
                 </p>
               </div>
-              <p className="text-xs text-pink-300 mt-0.5">
+              <p className="text-[10px] sm:text-xs text-pink-300 mt-0.5 hidden sm:block">
                 Personnel System
               </p>
             </div>
           </div>
           {/* ส่วนขวา: Navigation และปุ่มออกจากระบบ */}
-          <div className="flex items-center space-x-6">
+          <div className="flex items-center space-x-3 sm:space-x-6 w-full sm:w-auto justify-end">
             <button 
               onClick={onCreateRequest}
-              className="hidden md:block text-sm text-white hover:text-pink-200 transition px-4 py-2 rounded-lg hover:bg-pink-800"
+              className="hidden sm:block text-sm text-white hover:text-pink-200 transition px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg hover:bg-pink-800"
             >
               {userRole === 'faculty' && 'สร้างคำขอใหม่'}
             </button>
+            {/* Mobile: Floating Action Button */}
+            {userRole === 'faculty' && (
+              <button 
+                onClick={onCreateRequest}
+                className="sm:hidden fixed bottom-6 right-6 bg-pink-600 hover:bg-pink-700 text-white p-4 rounded-full shadow-lg z-50 transition"
+                aria-label="สร้างคำขอใหม่"
+              >
+                <Plus size={24} />
+              </button>
+            )}
             <button 
               onClick={onLogout} 
-              className="text-sm bg-pink-700 hover:bg-pink-800 text-white px-4 py-2 rounded-lg flex items-center transition shadow-md"
+              className="text-xs sm:text-sm bg-pink-700 hover:bg-pink-800 text-white px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg flex items-center transition shadow-md"
             >
-              <LogOut size={16} className="mr-2" /> 
-              ออกจากระบบ
+              <LogOut size={14} className="sm:w-4 sm:h-4 mr-1 sm:mr-2" /> 
+              <span className="hidden sm:inline">ออกจากระบบ</span>
+              <span className="sm:hidden">ออก</span>
             </button>
           </div>
         </div>
@@ -378,13 +389,13 @@ const Dashboard = ({ userRole, faculty, onLogout, onCreateRequest }) => {
         Hero Section - พื้นที่แสดงข้อมูลสรุป
         ====================================================================
       */}
-      <section className="bg-gradient-to-r from-pink-600 via-pink-700 to-rose-700 text-white py-12 px-6">
+      <section className="bg-gradient-to-r from-pink-600 via-pink-700 to-rose-700 text-white py-8 sm:py-12 px-4 sm:px-6">
         <div className="max-w-7xl mx-auto">
-          <div className="text-center mb-8">
-            <h1 className="text-4xl md:text-5xl font-bold mb-4">
+          <div className="text-center mb-6 sm:mb-8">
+            <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold mb-3 sm:mb-4">
               {userRole === 'hr' ? 'จัดการคำขอทั้งหมด' : 'คำขอของฉัน'}
             </h1>
-            <p className="text-xl text-pink-100">
+            <p className="text-base sm:text-lg lg:text-xl text-pink-100 px-4">
               {userRole === 'hr' 
                 ? 'ดูและจัดการคำขอลงอัตรากำลังพลทั้งหมดจากคณะและหน่วยงานต่างๆ' 
                 : 'ดูและติดตามสถานะคำขอของคณะคุณ'
@@ -393,22 +404,22 @@ const Dashboard = ({ userRole, faculty, onLogout, onCreateRequest }) => {
           </div>
           
           {/* สถิติ */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-8">
-            <div className="bg-white/20 backdrop-blur-sm rounded-lg p-6 text-center">
-              <div className="text-3xl font-bold mb-2">{requests.length}</div>
-              <div className="text-pink-100">คำขอทั้งหมด</div>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6 mt-6 sm:mt-8">
+            <div className="bg-white/20 backdrop-blur-sm rounded-lg p-4 sm:p-6 text-center">
+              <div className="text-2xl sm:text-3xl font-bold mb-1 sm:mb-2">{requests.length}</div>
+              <div className="text-sm sm:text-base text-pink-100">คำขอทั้งหมด</div>
             </div>
-            <div className="bg-white/20 backdrop-blur-sm rounded-lg p-6 text-center">
-              <div className="text-3xl font-bold mb-2">
+            <div className="bg-white/20 backdrop-blur-sm rounded-lg p-4 sm:p-6 text-center">
+              <div className="text-2xl sm:text-3xl font-bold mb-1 sm:mb-2">
                 {requests.filter(r => r.status === 'submitted' || r.status === 'hr_review').length}
               </div>
-              <div className="text-pink-100">กำลังดำเนินการ</div>
+              <div className="text-sm sm:text-base text-pink-100">กำลังดำเนินการ</div>
             </div>
-            <div className="bg-white/20 backdrop-blur-sm rounded-lg p-6 text-center">
-              <div className="text-3xl font-bold mb-2">
+            <div className="bg-white/20 backdrop-blur-sm rounded-lg p-4 sm:p-6 text-center">
+              <div className="text-2xl sm:text-3xl font-bold mb-1 sm:mb-2">
                 {requests.filter(r => r.status === 'recruiting').length}
               </div>
-              <div className="text-pink-100">ประกาศรับสมัครแล้ว</div>
+              <div className="text-sm sm:text-base text-pink-100">ประกาศรับสมัครแล้ว</div>
             </div>
           </div>
         </div>
@@ -419,14 +430,14 @@ const Dashboard = ({ userRole, faculty, onLogout, onCreateRequest }) => {
         เนื้อหาหลัก (Main Content)
         ====================================================================
       */}
-      <main className="max-w-7xl mx-auto p-6 -mt-8 relative z-10">
+      <main className="max-w-7xl mx-auto p-4 sm:p-6 -mt-4 sm:-mt-8 relative z-10">
         {/* ส่วนหัว: หัวข้อและปุ่มสร้างคำขอ */}
-        <div className="flex justify-between items-center mb-6 bg-white rounded-lg shadow-md p-6">
-          <div>
-            <h2 className="text-2xl font-bold text-pink-900">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-4 sm:mb-6 bg-white rounded-lg shadow-md p-4 sm:p-6">
+          <div className="flex-1">
+            <h2 className="text-xl sm:text-2xl font-bold text-pink-900">
               รายการคำขอทั้งหมด
             </h2>
-            <p className="text-pink-600 text-sm mt-1">
+            <p className="text-pink-600 text-xs sm:text-sm mt-1">
               {userRole === 'hr' 
                 ? 'คำขอลงอัตรากำลังพลทั้งหมดในระบบ' 
                 : 'คำขอของคณะที่คุณเลือก'
@@ -441,9 +452,9 @@ const Dashboard = ({ userRole, faculty, onLogout, onCreateRequest }) => {
           {userRole === 'faculty' && (
             <button 
               onClick={onCreateRequest}  // เมื่อกดให้เรียก onCreateRequest เพื่อเปิด Popup Form
-              className="bg-gradient-to-r from-pink-600 to-rose-600 text-white px-6 py-3 rounded-lg hover:from-pink-700 hover:to-rose-700 flex items-center text-sm font-medium shadow-lg transition transform hover:scale-105"
+              className="hidden sm:flex bg-gradient-to-r from-pink-600 to-rose-600 text-white px-4 sm:px-6 py-2 sm:py-3 rounded-lg hover:from-pink-700 hover:to-rose-700 items-center text-xs sm:text-sm font-medium shadow-lg transition transform hover:scale-105 w-full sm:w-auto justify-center"
             >
-              <Plus size={20} className="mr-2" /> 
+              <Plus size={18} className="sm:w-5 sm:h-5 mr-2" /> 
               สร้างคำขอใหม่
             </button>
           )}
@@ -451,21 +462,23 @@ const Dashboard = ({ userRole, faculty, onLogout, onCreateRequest }) => {
 
         {/* 
           ====================================================================
-          ตารางแสดงข้อมูลคำขอ
+          ตารางแสดงข้อมูลคำขอ - Responsive
           ====================================================================
         */}
         <div className="bg-white rounded-xl shadow-lg overflow-hidden border border-pink-200">
-          <table className="w-full text-left border-collapse">
-            {/* ส่วนหัวตาราง */}
-            <thead>
-              <tr className="bg-gray-50 border-b text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                <th className="p-4">วันที่ / คณะ</th>
-                <th className="p-4">ตำแหน่ง</th>
-                <th className="p-4">ประเภท</th>
-                <th className="p-4">สถานะ</th>
-                <th className="p-4 text-right">จัดการ</th>
-              </tr>
-            </thead>
+          {/* Desktop Table */}
+          <div className="hidden lg:block overflow-x-auto">
+            <table className="w-full text-left border-collapse">
+              {/* ส่วนหัวตาราง */}
+              <thead>
+                <tr className="bg-gray-50 border-b text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                  <th className="p-4">วันที่ / คณะ</th>
+                  <th className="p-4">ตำแหน่ง</th>
+                  <th className="p-4">ประเภท</th>
+                  <th className="p-4">สถานะ</th>
+                  <th className="p-4 text-right">จัดการ</th>
+                </tr>
+              </thead>
             {/* ส่วนเนื้อหาตาราง */}
             <tbody className="divide-y divide-gray-100">
               {/* 
@@ -600,6 +613,107 @@ const Dashboard = ({ userRole, faculty, onLogout, onCreateRequest }) => {
               )}
             </tbody>
           </table>
+          </div>
+
+          {/* Mobile/Tablet Card View */}
+          <div className="lg:hidden">
+            {loading ? (
+              <div className="p-8 text-center text-gray-500">
+                กำลังโหลด...
+              </div>
+            ) : requests.length === 0 ? (
+              <div className="p-8 text-center text-gray-500">
+                ไม่พบข้อมูลคำขอ
+              </div>
+            ) : (
+              <div className="divide-y divide-gray-100">
+                {requests.map(request => (
+                  <div key={request.id} className="p-4 hover:bg-gray-50 transition">
+                    {/* Header: วันที่และสถานะ */}
+                    <div className="flex justify-between items-start mb-3">
+                      <div className="flex-1 min-w-0">
+                        <div className="text-xs text-gray-500 mb-1">
+                          {request.createdAt?.seconds 
+                            ? new Date(request.createdAt.seconds * 1000).toLocaleDateString('th-TH')
+                            : '-'
+                          }
+                        </div>
+                        <div className="text-sm font-medium text-gray-700 truncate">
+                          {request.facultyName}
+                        </div>
+                      </div>
+                      <span 
+                        className={`text-xs px-2 py-1 rounded-lg font-medium flex-shrink-0 ml-2 ${getStatusColor(request.status)}`}
+                      >
+                        {getStatusLabel(request.status)}
+                      </span>
+                    </div>
+
+                    {/* ตำแหน่ง */}
+                    <div className="mb-2">
+                      <h3 className="text-base font-bold text-gray-900 mb-1">
+                        {request.position}
+                      </h3>
+                      <p className="text-xs text-gray-600 line-clamp-2">
+                        {request.description}
+                      </p>
+                    </div>
+
+                    {/* ประเภทและ Action */}
+                    <div className="flex justify-between items-center mt-3 pt-3 border-t border-gray-100">
+                      <span 
+                        className={`text-xs px-2 py-1 rounded border ${
+                          request.type === 'new' 
+                            ? 'bg-green-50 border-green-200 text-green-700'
+                            : 'bg-orange-50 border-orange-200 text-orange-700'
+                        }`}
+                      >
+                        {request.type === 'new' ? 'อัตราใหม่' : 'ทดแทน'}
+                      </span>
+                      
+                      {/* ปุ่ม Action สำหรับ HR */}
+                      {userRole === 'hr' && (
+                        <div className="flex gap-2 flex-wrap">
+                          {request.status === 'submitted' && (
+                            <button 
+                              onClick={() => updateStatus(request.id, 'hr_review')}
+                              className="text-xs bg-pink-600 text-white px-3 py-1.5 rounded-lg hover:bg-pink-700 transition shadow-md whitespace-nowrap"
+                            >
+                              รับเรื่อง
+                            </button>
+                          )}
+                          {request.status === 'hr_review' && (
+                            <button 
+                              onClick={() => updateStatus(request.id, 'vp_hr')}
+                              className="text-xs bg-pink-500 text-white px-3 py-1.5 rounded-lg hover:bg-pink-600 transition shadow-md whitespace-nowrap"
+                            >
+                              เสนอ VP
+                            </button>
+                          )}
+                          {request.status === 'vp_hr' && (
+                            <button 
+                              onClick={() => updateStatus(request.id, 'president')}
+                              className="text-xs bg-rose-600 text-white px-3 py-1.5 rounded-lg hover:bg-rose-700 transition shadow-md whitespace-nowrap"
+                            >
+                              เสนออธิการฯ
+                            </button>
+                          )}
+                          {request.status === 'president' && (
+                            <button 
+                              onClick={() => updateStatus(request.id, 'recruiting')}
+                              className="text-xs bg-pink-700 text-white px-3 py-1.5 rounded-lg hover:bg-pink-800 transition shadow-md whitespace-nowrap"
+                            >
+                              ประกาศรับสมัคร
+                            </button>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
         </div>
       </main>
 
@@ -608,9 +722,9 @@ const Dashboard = ({ userRole, faculty, onLogout, onCreateRequest }) => {
         Footer Section - ส่วนท้ายหน้า
         ====================================================================
       */}
-      <footer className="bg-pink-900 text-white py-12 px-6 mt-12">
+      <footer className="bg-pink-900 text-white py-8 sm:py-12 px-4 sm:px-6 mt-8 sm:mt-12">
         <div className="max-w-7xl mx-auto">
-          <div className="grid md:grid-cols-3 gap-8 mb-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8 mb-6 sm:mb-8">
             <div>
               <h4 className="text-xl font-bold mb-4 flex items-center">
                 <div className="bg-pink-700 p-2 rounded-lg mr-3">
