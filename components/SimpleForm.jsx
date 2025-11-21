@@ -203,12 +203,20 @@ const SimpleForm = ({ faculty, onClose, onSubmit, userId }) => {
         );
       } else {
         // ใช้ Local Storage (Demo Mode)
-        console.log('ใช้ Demo Mode: บันทึกข้อมูลลง Local Storage');
-        addLocalRequest(newRequest);
-        
-        // อัปเดต Dashboard โดยการ trigger custom event
-        // Dashboard จะฟัง event นี้และอัปเดตข้อมูลอัตโนมัติ
-        window.dispatchEvent(new Event('localStorageUpdate'));
+        console.log('✅ ใช้ Demo Mode: บันทึกข้อมูลลง Local Storage');
+        try {
+          addLocalRequest(newRequest);
+          console.log('✅ บันทึกข้อมูลสำเร็จใน Local Storage');
+          
+          // อัปเดต Dashboard โดยการ trigger custom event
+          // Dashboard จะฟัง event นี้และอัปเดตข้อมูลอัตโนมัติ
+          window.dispatchEvent(new Event('localStorageUpdate'));
+          console.log('✅ Trigger localStorageUpdate event');
+        } catch (localError) {
+          console.error('❌ Error saving to Local Storage:', localError);
+          setErrorMessage('เกิดข้อผิดพลาดในการบันทึกข้อมูลใน Local Storage: ' + localError.message);
+          return; // หยุดการทำงาน ไม่ปิด Popup
+        }
       }
       
       /**
