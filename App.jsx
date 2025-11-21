@@ -46,10 +46,12 @@ import { auth } from './config/firebase';
 // ============================================================================
 // LoginPage: Component สำหรับหน้าเข้าสู่ระบบ
 // Dashboard: Component สำหรับหน้า Dashboard แสดงรายการคำขอ
+// AdminDashboard: Component สำหรับหน้า Admin Dashboard พร้อม Charts
 // SimpleForm: Component สำหรับ Popup สร้างคำขอใหม่
 // ConfirmationPage: หน้ายืนยันคำขอผ่านอีเมล
 import LoginPage from './components/LoginPage';
 import Dashboard from './components/Dashboard';
+import AdminDashboard from './components/AdminDashboard';
 import SimpleForm from './components/SimpleForm';
 import ConfirmationPage from './components/ConfirmationPage';
 
@@ -251,19 +253,37 @@ export default function App() {
       <Route path="*" element={
         <>
           {/* 
-            Component Dashboard: หน้าแสดงรายการคำขอทั้งหมด
-            Props ที่ส่งไป:
-            - userRole: บทบาทของผู้ใช้ (สำหรับกรองข้อมูลและแสดงปุ่ม)
-            - faculty: ข้อมูลคณะ (สำหรับกรองข้อมูล)
-            - onLogout: ฟังก์ชันสำหรับออกจากระบบ
-            - onCreateRequest: ฟังก์ชันสำหรับเปิด Popup Form
+            Conditional Rendering: แสดง AdminDashboard หรือ Dashboard ตาม useAdminDashboard
+            - ถ้า useAdminDashboard = true และ role = 'hr' → แสดง AdminDashboard
+            - ถ้าไม่ → แสดง Dashboard ปกติ
           */}
-          <Dashboard 
-            userRole={role} 
-            faculty={selectedFaculty} 
-            onLogout={handleLogout}
-            onCreateRequest={() => setShowForm(true)}  // เมื่อกดปุ่มสร้างคำขอ ให้แสดง Form
-          />
+          {useAdminDashboard && role === 'hr' ? (
+            <AdminDashboard 
+              userRole={role} 
+              faculty={selectedFaculty} 
+              onLogout={handleLogout}
+              onCreateRequest={() => setShowForm(true)}
+            />
+          ) : (
+            <>
+              {/* 
+                Component Dashboard: หน้าแสดงรายการคำขอทั้งหมด
+                Props ที่ส่งไป:
+                - userRole: บทบาทของผู้ใช้ (สำหรับกรองข้อมูลและแสดงปุ่ม)
+                - faculty: ข้อมูลคณะ (สำหรับกรองข้อมูล)
+                - onLogout: ฟังก์ชันสำหรับออกจากระบบ
+                - onCreateRequest: ฟังก์ชันสำหรับเปิด Popup Form
+                - onSwitchToAdmin: ฟังก์ชันสำหรับสลับไป Admin Dashboard (สำหรับ HR)
+              */}
+              <Dashboard 
+                userRole={role} 
+                faculty={selectedFaculty} 
+                onLogout={handleLogout}
+                onCreateRequest={() => setShowForm(true)}  // เมื่อกดปุ่มสร้างคำขอ ให้แสดง Form
+                onSwitchToAdmin={role === 'hr' ? () => setUseAdminDashboard(true) : undefined}
+              />
+            </>
+          )}
           
           {/* 
             Conditional Rendering: แสดง SimpleForm เฉพาะเมื่อ showForm = true

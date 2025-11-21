@@ -78,7 +78,7 @@ import { getLocalRequests, updateLocalRequestStatus } from '../utils/localStorag
  * Component Dashboard
  * ============================================================================
  */
-const Dashboard = ({ userRole, faculty, onLogout, onCreateRequest }) => {
+const Dashboard = ({ userRole, faculty, onLogout, onCreateRequest, onSwitchToAdmin }) => {
   // ========================================================================
   // State Management
   // ========================================================================
@@ -415,6 +415,16 @@ const Dashboard = ({ userRole, faculty, onLogout, onCreateRequest }) => {
           </div>
           {/* ส่วนขวา: Navigation และปุ่มออกจากระบบ */}
           <div className="flex items-center space-x-3 sm:space-x-6 w-full sm:w-auto justify-end">
+            {/* ปุ่มสลับไป Admin Dashboard (สำหรับ HR เท่านั้น) */}
+            {userRole === 'hr' && onSwitchToAdmin && (
+              <button 
+                onClick={onSwitchToAdmin}
+                className="hidden sm:block text-sm text-white hover:text-pink-200 transition px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg hover:bg-pink-800"
+                title="Switch to Admin Dashboard"
+              >
+                📊 Admin View
+              </button>
+            )}
             <button 
               onClick={onCreateRequest}
               className="hidden sm:block text-sm text-white hover:text-pink-200 transition px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg hover:bg-pink-800"
