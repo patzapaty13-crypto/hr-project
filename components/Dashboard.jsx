@@ -808,7 +808,7 @@ const Dashboard = ({ userRole, faculty, onLogout, onCreateRequest, onSwitchToAdm
                 </div>
                 SPU PERSONNEL
               </h4>
-              <p className="text-pink-200 text-sm leading-relaxed">
+              <p className="text-pink-800 text-sm leading-relaxed">
                 ระบบจัดการอัตรากำลังพลที่ทันสมัยและมีประสิทธิภาพสำหรับมหาวิทยาลัยศรีปทุม
               </p>
             </div>
@@ -864,7 +864,7 @@ const Dashboard = ({ userRole, faculty, onLogout, onCreateRequest, onSwitchToAdm
               </ul>
             </div>
           </div>
-          <div className="border-t border-pink-800 pt-6 text-center text-sm text-pink-300">
+          <div className="border-t border-pink-400 pt-6 text-center text-sm text-pink-700">
             Copyright 2025 Sripatum University. All Rights Reserved.
           </div>
         </div>
