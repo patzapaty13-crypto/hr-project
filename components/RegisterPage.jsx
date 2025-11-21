@@ -24,6 +24,7 @@ import { doc, setDoc, getDoc, collection, query, where, getDocs } from 'firebase
 import { auth, db, appId } from '../config/firebase';
 import { FACULTIES } from '../constants';
 import SPULogo from './SPULogo';
+import BackgroundSlider from './BackgroundSlider';
 
 const RegisterPage = ({ onBackToLogin, onRegisterSuccess }) => {
   // State Management
@@ -219,8 +220,9 @@ const RegisterPage = ({ onBackToLogin, onRegisterSuccess }) => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-pink-50 via-rose-50 to-pink-100 flex items-center justify-center p-4 sm:p-6">
-      <div className="w-full max-w-md bg-white rounded-2xl shadow-2xl p-6 sm:p-8 border border-pink-200">
+    <BackgroundSlider>
+      <div className="min-h-screen flex items-center justify-center p-4 sm:p-6">
+        <div className="w-full max-w-md bg-white/95 backdrop-blur-md rounded-2xl shadow-2xl p-6 sm:p-8 border border-white/30">
         {/* Logo */}
         <div className="flex justify-center mb-6">
           <SPULogo size="md" />
@@ -398,9 +400,10 @@ const RegisterPage = ({ onBackToLogin, onRegisterSuccess }) => {
           >
             ← กลับไปหน้าเข้าสู่ระบบ
           </button>
+          </div>
         </div>
       </div>
-    </div>
+    </BackgroundSlider>
   );
 };
 

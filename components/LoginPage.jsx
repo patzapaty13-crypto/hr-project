@@ -57,6 +57,7 @@ import { FACULTIES } from '../constants';
 // ============================================================================
 // SPULogo: Component สำหรับแสดง Logo SPU
 import SPULogo from './SPULogo';
+import BackgroundSlider from './BackgroundSlider';
 
 /**
  * ============================================================================
@@ -190,112 +191,109 @@ const LoginPage = ({ onLogin, onShowRegister }) => {
   // ========================================================================
   // Render: ส่วนแสดงผล UI
   // ========================================================================
-  // Container หลัก: ธีมสีชมพูแบบนุ่มนวล สบายตา
+  // Container หลัก: ธีมสีชมพูแบบนุ่มนวล สบายตา พร้อม Background Slide Show
   return (
-    <div className="min-h-screen bg-white">
-      {/* Top Bar - ข้อมูลติดต่อ */}
-      <div className="bg-pink-100 text-gray-700 py-2 px-4 sm:px-6 text-xs sm:text-sm">
+    <BackgroundSlider>
+      <div className="min-h-screen">
+        {/* Top Bar - ข้อมูลติดต่อ - ใส่มากกว่าเดิม */}
+        <div className="bg-white/20 backdrop-blur-sm text-white py-2 px-4 sm:px-6 text-xs sm:text-sm border-b border-white/20">
         <div className="max-w-7xl mx-auto flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 sm:gap-0">
           <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-4">
-            <span className="text-gray-600 whitespace-nowrap">โทร: <a href="tel:025791111" className="text-pink-600 hover:text-pink-700">(02) 579-1111</a></span>
-            <span className="hidden sm:inline text-gray-500">|</span>
-            <span className="text-gray-600 whitespace-nowrap">อีเมล: <a href="mailto:hr@spu.ac.th" className="text-pink-600 hover:text-pink-700 break-all">hr@spu.ac.th</a></span>
+            <span className="text-white whitespace-nowrap">โทร: <a href="tel:025791111" className="text-white hover:text-pink-200 underline">(02) 579-1111</a></span>
+            <span className="hidden sm:inline text-white/60">|</span>
+            <span className="text-white whitespace-nowrap">อีเมล: <a href="mailto:hr@spu.ac.th" className="text-white hover:text-pink-200 underline break-all">hr@spu.ac.th</a></span>
           </div>
-          <div className="hidden md:flex items-center gap-3 text-gray-500">
+          <div className="hidden md:flex items-center gap-3 text-white/80">
             <span className="text-xs">ติดตามเรา</span>
-            <a href="#" className="hover:text-pink-600 transition">f</a>
-            <a href="#" className="hover:text-pink-600 transition">t</a>
-            <a href="#" className="hover:text-pink-600 transition">in</a>
+            <a href="#" className="hover:text-white transition">f</a>
+            <a href="#" className="hover:text-white transition">t</a>
+            <a href="#" className="hover:text-white transition">in</a>
           </div>
         </div>
       </div>
 
-      {/* Main Navigation Header */}
-      <header className="bg-white border-b border-gray-100 shadow-sm sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-3 sm:py-4">
-          <div className="flex justify-between items-center">
-            {/* Logo SPU */}
-            <div className="flex items-center gap-2 sm:gap-4">
-              <div className="bg-white px-2 sm:px-3 py-1 sm:py-1.5 rounded shadow-sm hover:shadow-md transition">
-                <SPULogo 
-                  size="sm" 
-                  onClick={() => window.location.reload()}
-                />
+        {/* Main Navigation Header - ใส่มากกว่าเดิม */}
+        <header className="bg-white/10 backdrop-blur-md border-b border-white/20 shadow-lg sticky top-0 z-50">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 py-3 sm:py-4">
+            <div className="flex justify-between items-center">
+              {/* Logo SPU */}
+              <div className="flex items-center gap-2 sm:gap-4">
+                <div className="bg-white/90 px-2 sm:px-3 py-1 sm:py-1.5 rounded shadow-md hover:shadow-lg transition">
+                  <SPULogo 
+                    size="sm" 
+                    onClick={() => window.location.reload()}
+                  />
+                </div>
+                <span className="hidden sm:block text-white text-xs sm:text-sm font-medium">Personnel System</span>
               </div>
-              <span className="hidden sm:block text-gray-600 text-xs sm:text-sm">Personnel System</span>
+              
+              {/* Navigation Menu - Mobile Menu Button */}
+              <button 
+                className="lg:hidden p-2 text-white hover:text-pink-200 transition"
+                onClick={() => {
+                  alert('เมนู: หน้าหลัก | เกี่ยวกับ | ติดต่อ');
+                }}
+                aria-label="เมนู"
+              >
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+                </svg>
+              </button>
+              
+              {/* Navigation Menu - Desktop */}
+              <nav className="hidden lg:flex items-center space-x-6 text-sm">
+                <button onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} className="text-white font-medium border-b-2 border-white pb-1">หน้าหลัก</button>
+                <button onClick={() => {
+                  alert('ระบบอัตรากำลังพล SPU Personnel System\n\nเวอร์ชัน 1.0.0\nพัฒนาสำหรับมหาวิทยาลัยศรีปทุม');
+                }} className="text-white/80 hover:text-white transition">เกี่ยวกับ</button>
+                <button onClick={() => {
+                  window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+                }} className="text-white/80 hover:text-white transition">ติดต่อ</button>
+              </nav>
             </div>
-            
-            {/* Navigation Menu - Mobile Menu Button */}
-            <button 
-              className="lg:hidden p-2 text-gray-600 hover:text-pink-600 transition"
-              onClick={() => {
-                // Mobile menu toggle (สามารถเพิ่ม state สำหรับ mobile menu ได้)
-                alert('เมนู: หน้าหลัก | เกี่ยวกับ | ติดต่อ');
-              }}
-              aria-label="เมนู"
-            >
-              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-              </svg>
-            </button>
-            
-            {/* Navigation Menu - Desktop */}
-            <nav className="hidden lg:flex items-center space-x-6 text-sm">
-              <button onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} className="text-pink-600 font-medium border-b-2 border-pink-600 pb-1">หน้าหลัก</button>
-              <button onClick={() => {
-                alert('ระบบอัตรากำลังพล SPU Personnel System\n\nเวอร์ชัน 1.0.0\nพัฒนาสำหรับมหาวิทยาลัยศรีปทุม');
-              }} className="text-gray-600 hover:text-pink-600 transition">เกี่ยวกับ</button>
-              <button onClick={() => {
-                window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
-              }} className="text-gray-600 hover:text-pink-600 transition">ติดต่อ</button>
-            </nav>
           </div>
-        </div>
-      </header>
+        </header>
 
-      {/* Hero Section with Background Image */}
-      <section className="relative min-h-[500px] sm:min-h-[600px] flex items-center bg-gradient-to-r from-pink-50 via-white to-pink-50">
-        {/* Background Overlay */}
-        <div className="absolute inset-0 bg-gradient-to-r from-white/80 via-white/60 to-pink-50/80 z-10"></div>
-        
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8 sm:py-12 relative z-20 w-full">
-          <div className="grid lg:grid-cols-2 gap-8 lg:gap-12 items-center">
-            {/* Left Content */}
-            <div className="text-left space-y-4 sm:space-y-6 order-2 lg:order-1">
-              <p className="text-pink-500 text-xs sm:text-sm font-medium uppercase tracking-wider">ยินดีต้อนรับ</p>
-              <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-gray-800 leading-tight">
-                HR SPU
-              </h1>
-              <p className="text-base sm:text-lg text-gray-600 leading-relaxed max-w-xl">
-                ระบบขออนุมัติอัตรากำลังพลออนไลน์ที่ทันสมัยและใช้งานง่าย 
-                สำหรับคณะและหน่วยงาน รวมถึงสำนักงานบุคคล
-              </p>
-              <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 mt-6 sm:mt-8">
-                <button 
-                  onClick={() => {
-                    alert('ระบบ SPU Personnel System\n\nใช้งานง่าย ปลอดภัย และมีประสิทธิภาพ\n\nเหมาะสำหรับการจัดการอัตรากำลังพล');
-                  }}
-                  className="px-5 sm:px-6 py-2.5 sm:py-3 bg-pink-500 text-white rounded-lg hover:bg-pink-600 transition shadow-md font-medium text-sm sm:text-base"
-                >
-                  เรียนรู้เพิ่มเติม
-                </button>
-                <button 
-                  onClick={() => window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' })}
-                  className="px-5 sm:px-6 py-2.5 sm:py-3 bg-white text-pink-600 border-2 border-pink-500 rounded-lg hover:bg-pink-50 transition font-medium text-sm sm:text-base"
-                >
-                  ติดต่อเรา
-                </button>
+        {/* Hero Section with Background Image */}
+        <section className="relative min-h-[500px] sm:min-h-[600px] flex items-center">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8 sm:py-12 w-full">
+            <div className="grid lg:grid-cols-2 gap-8 lg:gap-12 items-center">
+              {/* Left Content */}
+              <div className="text-left space-y-4 sm:space-y-6 order-2 lg:order-1">
+                <p className="text-pink-200 text-xs sm:text-sm font-medium uppercase tracking-wider">ยินดีต้อนรับ</p>
+                <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-white leading-tight drop-shadow-lg">
+                  HR SPU
+                </h1>
+                <p className="text-base sm:text-lg text-white/90 leading-relaxed max-w-xl drop-shadow-md">
+                  ระบบขออนุมัติอัตรากำลังพลออนไลน์ที่ทันสมัยและใช้งานง่าย 
+                  สำหรับคณะและหน่วยงาน รวมถึงสำนักงานบุคคล
+                </p>
+                <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 mt-6 sm:mt-8">
+                  <button 
+                    onClick={() => {
+                      alert('ระบบ SPU Personnel System\n\nใช้งานง่าย ปลอดภัย และมีประสิทธิภาพ\n\nเหมาะสำหรับการจัดการอัตรากำลังพล');
+                    }}
+                    className="px-5 sm:px-6 py-2.5 sm:py-3 bg-white text-pink-600 rounded-lg hover:bg-pink-50 transition shadow-lg font-medium text-sm sm:text-base"
+                  >
+                    เรียนรู้เพิ่มเติม
+                  </button>
+                  <button 
+                    onClick={() => window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' })}
+                    className="px-5 sm:px-6 py-2.5 sm:py-3 bg-white/20 backdrop-blur-sm text-white border-2 border-white rounded-lg hover:bg-white/30 transition font-medium text-sm sm:text-base"
+                  >
+                    ติดต่อเรา
+                  </button>
+                </div>
               </div>
-            </div>
 
-            {/* Right Content - Login Form */}
-            <div className="flex justify-center lg:justify-end order-1 lg:order-2 w-full lg:w-auto">
-              {/* 
-                กล่อง Login: พื้นหลังขาว มีเงาและมุมโค้ง
-                max-w-md: ความกว้างสูงสุด 28rem (448px)
-                responsive: w-full บน mobile, max-w-md บน desktop
-              */}
-              <div className="bg-white shadow-xl rounded-lg w-full max-w-md overflow-hidden border border-gray-100">
+              {/* Right Content - Login Form */}
+              <div className="flex justify-center lg:justify-end order-1 lg:order-2 w-full lg:w-auto">
+                {/* 
+                  กล่อง Login: พื้นหลังขาวใส มีเงาและมุมโค้ง
+                  max-w-md: ความกว้างสูงสุด 28rem (448px)
+                  responsive: w-full บน mobile, max-w-md บน desktop
+                */}
+                <div className="bg-white/95 backdrop-blur-md shadow-2xl rounded-lg w-full max-w-md overflow-hidden border border-white/20">
                 {/* 
                   ====================================================================
                   ส่วนหัวของกล่อง Login - สีชมพูแบบนุ่มนวล
@@ -519,136 +517,137 @@ const LoginPage = ({ onLogin, onShowRegister }) => {
         </div>
       </section>
 
-      {/* Feature Cards Section */}
-      <section className="bg-white py-12 sm:py-16 px-4 sm:px-6">
+        {/* Feature Cards Section */}
+        <section className="bg-white/10 backdrop-blur-sm py-12 sm:py-16 px-4 sm:px-6">
         <div className="max-w-7xl mx-auto">
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
-            {/* Card 1 */}
-            <div className="bg-white border border-gray-100 rounded-lg shadow-md hover:shadow-lg transition overflow-hidden">
-              <div className="h-40 sm:h-48 bg-gradient-to-br from-pink-100 to-rose-100 flex items-center justify-center">
-                <Building size={40} className="sm:w-12 sm:h-12 text-pink-400" />
+              {/* Card 1 */}
+              <div className="bg-white/90 backdrop-blur-sm border border-white/30 rounded-lg shadow-lg hover:shadow-xl transition overflow-hidden">
+                <div className="h-40 sm:h-48 bg-gradient-to-br from-pink-200/80 to-rose-200/80 flex items-center justify-center">
+                  <Building size={40} className="sm:w-12 sm:h-12 text-pink-600" />
+                </div>
+                <div className="p-4 sm:p-6">
+                  <h3 className="text-lg sm:text-xl font-bold text-gray-800 mb-2 sm:mb-3">จัดการคณะ</h3>
+                  <p className="text-gray-700 text-sm mb-3 sm:mb-4 leading-relaxed">
+                    สร้างและจัดการคำขออัตรากำลังพลสำหรับคณะและหน่วยงานของคุณได้อย่างง่ายดาย
+                  </p>
+                  <button 
+                    onClick={() => {
+                      alert('ระบบจัดการคณะ\n\n- สร้างคำขอใหม่\n- ติดตามสถานะ\n- ใช้ AI ช่วยร่าง Job Description');
+                    }}
+                    className="text-pink-600 hover:text-pink-700 font-medium text-sm"
+                  >
+                    อ่านเพิ่มเติม →
+                  </button>
+                </div>
               </div>
-              <div className="p-4 sm:p-6">
-                <h3 className="text-lg sm:text-xl font-bold text-gray-800 mb-2 sm:mb-3">จัดการคณะ</h3>
-                <p className="text-gray-600 text-sm mb-3 sm:mb-4 leading-relaxed">
-                  สร้างและจัดการคำขออัตรากำลังพลสำหรับคณะและหน่วยงานของคุณได้อย่างง่ายดาย
-                </p>
-                <button 
-                  onClick={() => {
-                    alert('ระบบจัดการคณะ\n\n- สร้างคำขอใหม่\n- ติดตามสถานะ\n- ใช้ AI ช่วยร่าง Job Description');
-                  }}
-                  className="text-pink-600 hover:text-pink-700 font-medium text-sm"
-                >
-                  อ่านเพิ่มเติม →
-                </button>
-              </div>
-            </div>
 
-            {/* Card 2 */}
-            <div className="bg-white border border-gray-100 rounded-lg shadow-md hover:shadow-lg transition overflow-hidden">
-              <div className="h-40 sm:h-48 bg-gradient-to-br from-pink-100 to-rose-100 flex items-center justify-center">
-                <Briefcase size={40} className="sm:w-12 sm:h-12 text-pink-400" />
+              {/* Card 2 */}
+              <div className="bg-white/90 backdrop-blur-sm border border-white/30 rounded-lg shadow-lg hover:shadow-xl transition overflow-hidden">
+                <div className="h-40 sm:h-48 bg-gradient-to-br from-pink-200/80 to-rose-200/80 flex items-center justify-center">
+                  <Briefcase size={40} className="sm:w-12 sm:h-12 text-pink-600" />
+                </div>
+                <div className="p-4 sm:p-6">
+                  <h3 className="text-lg sm:text-xl font-bold text-gray-800 mb-2 sm:mb-3">ระบบอนุมัติ</h3>
+                  <p className="text-gray-700 text-sm mb-3 sm:mb-4 leading-relaxed">
+                    ระบบอนุมัติอัตรากำลังพลที่รวดเร็ว มีประสิทธิภาพ และติดตามได้ทุกขั้นตอน
+                  </p>
+                  <button 
+                    onClick={() => {
+                      alert('ระบบอนุมัติ\n\n- รับเรื่องและตรวจสอบ\n- เสนอผู้บริหาร\n- ติดตามสถานะอัตโนมัติ');
+                    }}
+                    className="text-pink-600 hover:text-pink-700 font-medium text-sm"
+                  >
+                    อ่านเพิ่มเติม →
+                  </button>
+                </div>
               </div>
-              <div className="p-4 sm:p-6">
-                <h3 className="text-lg sm:text-xl font-bold text-gray-800 mb-2 sm:mb-3">ระบบอนุมัติ</h3>
-                <p className="text-gray-600 text-sm mb-3 sm:mb-4 leading-relaxed">
-                  ระบบอนุมัติอัตรากำลังพลที่รวดเร็ว มีประสิทธิภาพ และติดตามได้ทุกขั้นตอน
-                </p>
-                <button 
-                  onClick={() => {
-                    alert('ระบบอนุมัติ\n\n- รับเรื่องและตรวจสอบ\n- เสนอผู้บริหาร\n- ติดตามสถานะอัตโนมัติ');
-                  }}
-                  className="text-pink-600 hover:text-pink-700 font-medium text-sm"
-                >
-                  อ่านเพิ่มเติม →
-                </button>
-              </div>
-            </div>
 
-            {/* Card 3 */}
-            <div className="bg-white border border-gray-100 rounded-lg shadow-md hover:shadow-lg transition overflow-hidden sm:col-span-2 lg:col-span-1">
-              <div className="h-40 sm:h-48 bg-gradient-to-br from-pink-100 to-rose-100 flex items-center justify-center">
-                <svg className="w-10 h-10 sm:w-12 sm:h-12 text-pink-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
-                </svg>
+              {/* Card 3 */}
+              <div className="bg-white/90 backdrop-blur-sm border border-white/30 rounded-lg shadow-lg hover:shadow-xl transition overflow-hidden sm:col-span-2 lg:col-span-1">
+                <div className="h-40 sm:h-48 bg-gradient-to-br from-pink-200/80 to-rose-200/80 flex items-center justify-center">
+                  <svg className="w-10 h-10 sm:w-12 sm:h-12 text-pink-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                  </svg>
+                </div>
+                <div className="p-4 sm:p-6">
+                  <h3 className="text-lg sm:text-xl font-bold text-gray-800 mb-2 sm:mb-3">ใช้งานง่าย</h3>
+                  <p className="text-gray-700 text-sm mb-3 sm:mb-4 leading-relaxed">
+                    อินเทอร์เฟซที่ใช้งานง่าย พร้อม AI ช่วยเหลือทำให้การทำงานของคุณรวดเร็วขึ้น
+                  </p>
+                  <button 
+                    onClick={() => {
+                      alert('ใช้งานง่าย\n\n- อินเทอร์เฟซทันสมัย\n- AI ช่วยร่าง Job Description\n- ติดตามสถานะแบบ Real-time');
+                    }}
+                    className="text-pink-600 hover:text-pink-700 font-medium text-sm"
+                  >
+                    อ่านเพิ่มเติม →
+                  </button>
+                </div>
               </div>
-              <div className="p-4 sm:p-6">
-                <h3 className="text-lg sm:text-xl font-bold text-gray-800 mb-2 sm:mb-3">ใช้งานง่าย</h3>
-                <p className="text-gray-600 text-sm mb-3 sm:mb-4 leading-relaxed">
-                  อินเทอร์เฟซที่ใช้งานง่าย พร้อม AI ช่วยเหลือทำให้การทำงานของคุณรวดเร็วขึ้น
-                </p>
-                <button 
-                  onClick={() => {
-                    alert('ใช้งานง่าย\n\n- อินเทอร์เฟซทันสมัย\n- AI ช่วยร่าง Job Description\n- ติดตามสถานะแบบ Real-time');
-                  }}
-                  className="text-pink-600 hover:text-pink-700 font-medium text-sm"
-                >
-                  อ่านเพิ่มเติม →
-                </button>
-              </div>
-            </div>
           </div>
         </div>
       </section>
 
-      {/* Footer Section */}
-      <footer className="bg-gray-50 border-t border-gray-100 text-gray-700 py-8 px-6">
-        <div className="max-w-7xl mx-auto">
-          <div className="grid md:grid-cols-3 gap-8">
-            <div>
-              <h4 className="text-xl font-bold mb-4">SPU PERSONNEL</h4>
-              <p className="text-pink-200 text-sm leading-relaxed">
-                ระบบจัดการอัตรากำลังพลที่ทันสมัยและมีประสิทธิภาพ
-              </p>
+          {/* Footer Section */}
+          <footer className="bg-white/10 backdrop-blur-sm border-t border-white/20 text-white py-8 px-6">
+            <div className="max-w-7xl mx-auto">
+              <div className="grid md:grid-cols-3 gap-8">
+                <div>
+                  <h4 className="text-xl font-bold mb-4 text-white">SPU PERSONNEL</h4>
+                  <p className="text-white/90 text-sm leading-relaxed">
+                    ระบบจัดการอัตรากำลังพลที่ทันสมัยและมีประสิทธิภาพ
+                  </p>
+                </div>
+                <div>
+                  <h4 className="text-lg font-semibold mb-4 text-white">ติดต่อเรา</h4>
+                  <p className="text-white/90 text-sm mb-2">มหาวิทยาลัยศรีปทุม</p>
+                  <p className="text-white/90 text-sm mb-2">โทร: (02) 579-1111</p>
+                  <p className="text-white/90 text-sm">Email: hr@spu.ac.th</p>
+                </div>
+                <div>
+                  <h4 className="text-lg font-semibold mb-4 text-white">ลิงก์ที่เกี่ยวข้อง</h4>
+                  <ul className="space-y-2 text-sm">
+                    <li>
+                      <a 
+                        href="https://www.spu.ac.th" 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className="text-white/90 hover:text-white transition inline-flex items-center"
+                      >
+                        เว็บไซต์หลักมหาวิทยาลัย <span className="ml-1">↗</span>
+                      </a>
+                    </li>
+                    <li>
+                      <button 
+                        onClick={() => alert('ระบบอื่นๆ กำลังอยู่ในระหว่างการพัฒนา')}
+                        className="text-white/90 hover:text-white transition"
+                      >
+                        ระบบอื่นๆ
+                      </button>
+                    </li>
+                    <li>
+                      <button 
+                        onClick={() => {
+                          alert('คู่มือการใช้งาน:\n\n1. เลือกบทบาท (คณะ/HR)\n2. เลือกคณะ (ถ้าเป็นคณะ)\n3. กรอกอีเมลและรหัสผ่าน\n4. กดเข้าสู่ระบบ\n\nสำหรับความช่วยเหลือเพิ่มเติม โปรดติดต่อ hr@spu.ac.th');
+                        }}
+                        className="text-white/90 hover:text-white transition"
+                      >
+                        ความช่วยเหลือ
+                      </button>
+                    </li>
+                  </ul>
+                </div>
+              </div>
+              <div className="border-t border-white/20 mt-8 pt-6 text-center text-sm text-white/80">
+                Copyright 2025 Sripatum University. All Rights Reserved.
+              </div>
             </div>
-            <div>
-              <h4 className="text-lg font-semibold mb-4">ติดต่อเรา</h4>
-              <p className="text-pink-200 text-sm mb-2">มหาวิทยาลัยศรีปทุม</p>
-              <p className="text-pink-200 text-sm mb-2">โทร: (02) 579-1111</p>
-              <p className="text-pink-200 text-sm">Email: hr@spu.ac.th</p>
-            </div>
-            <div>
-              <h4 className="text-lg font-semibold mb-4">ลิงก์ที่เกี่ยวข้อง</h4>
-              <ul className="space-y-2 text-sm">
-                <li>
-                  <a 
-                    href="https://www.spu.ac.th" 
-                    target="_blank" 
-                    rel="noopener noreferrer"
-                    className="text-pink-200 hover:text-white transition inline-flex items-center"
-                  >
-                    เว็บไซต์หลักมหาวิทยาลัย <span className="ml-1">↗</span>
-                  </a>
-                </li>
-                <li>
-                  <button 
-                    onClick={() => alert('ระบบอื่นๆ กำลังอยู่ในระหว่างการพัฒนา')}
-                    className="text-pink-200 hover:text-white transition"
-                  >
-                    ระบบอื่นๆ
-                  </button>
-                </li>
-                <li>
-                  <button 
-                    onClick={() => {
-                      alert('คู่มือการใช้งาน:\n\n1. เลือกบทบาท (คณะ/HR)\n2. เลือกคณะ (ถ้าเป็นคณะ)\n3. กรอกอีเมลและรหัสผ่าน\n4. กดเข้าสู่ระบบ\n\nสำหรับความช่วยเหลือเพิ่มเติม โปรดติดต่อ hr@spu.ac.th');
-                    }}
-                    className="text-pink-200 hover:text-white transition"
-                  >
-                    ความช่วยเหลือ
-                  </button>
-                </li>
-              </ul>
-            </div>
-          </div>
-          <div className="border-t border-pink-800 mt-8 pt-6 text-center text-sm text-pink-300">
-            Copyright 2025 Sripatum University. All Rights Reserved.
-          </div>
+          </footer>
         </div>
-      </footer>
-    </div>
-  );
-};
+      </BackgroundSlider>
+    );
+  };
 
 // ============================================================================
 // Export Component
