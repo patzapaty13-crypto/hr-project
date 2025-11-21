@@ -20,6 +20,17 @@ const EMAILJS_SERVICE_ID = import.meta.env.VITE_EMAILJS_SERVICE_ID || window.__e
 const EMAILJS_TEMPLATE_ID = import.meta.env.VITE_EMAILJS_TEMPLATE_ID || window.__emailjs_template_id || '';
 const EMAILJS_PUBLIC_KEY = import.meta.env.VITE_EMAILJS_PUBLIC_KEY || window.__emailjs_public_key || '';
 
+// Initialize EmailJS with Public Key
+// หมายเหตุ: @emailjs/browser ใช้ emailjs.init() สำหรับ Public Key
+if (EMAILJS_PUBLIC_KEY && typeof window !== 'undefined') {
+  try {
+    emailjs.init(EMAILJS_PUBLIC_KEY);
+    console.log('✅ EmailJS initialized with Public Key');
+  } catch (error) {
+    console.warn('⚠️ Error initializing EmailJS:', error);
+  }
+}
+
 // Email ที่จะส่งไป
 const RECIPIENT_EMAIL = 'hatwst1@gmail.com';
 
@@ -89,15 +100,40 @@ export const sendRequestNotificationEmail = async (requestData, requestId) => {
     console.log('📧 กำลังส่งอีเมล...', {
       serviceId: EMAILJS_SERVICE_ID,
       templateId: EMAILJS_TEMPLATE_ID,
+      publicKey: EMAILJS_PUBLIC_KEY ? '✓' : '✗',
       to: RECIPIENT_EMAIL,
-      requestId: requestId
+      requestId: requestId,
+      templateParams: templateParams
     });
 
+    // ตรวจสอบว่า templateParams มีค่าที่จำเป็น
+    if (!templateParams.to_email || !templateParams.faculty_name || !templateParams.position) {
+      console.error('❌ Template parameters ไม่ครบถ้วน:', templateParams);
+      return { 
+        success: false, 
+        message: 'Template parameters ไม่ครบถ้วน กรุณาตรวจสอบข้อมูลคำขอ' 
+      };
+    }
+
+    // ส่งอีเมลผ่าน EmailJS
+    // หมายเหตุ: @emailjs/browser ใช้ emailjs.send(serviceId, templateId, templateParams)
+    // Public Key จะถูกใช้จาก emailjs.init() ที่เรียกไว้แล้ว
+    
+    // ตรวจสอบ templateParams ก่อนส่ง
+    console.log('📧 Template Parameters:', JSON.stringify(templateParams, null, 2));
+    console.log('📧 EmailJS Config:', {
+      serviceId: EMAILJS_SERVICE_ID,
+      templateId: EMAILJS_TEMPLATE_ID,
+      publicKey: EMAILJS_PUBLIC_KEY ? '✓ Initialized' : '✗ Not initialized'
+    });
+    
+    // ส่งอีเมลผ่าน EmailJS
+    // ใช้ syntax: emailjs.send(serviceId, templateId, templateParams)
+    // ไม่ต้องส่ง publicKey เพราะ init ไว้แล้ว
     const response = await emailjs.send(
       EMAILJS_SERVICE_ID,
       EMAILJS_TEMPLATE_ID,
-      templateParams,
-      EMAILJS_PUBLIC_KEY
+      templateParams
     );
 
     console.log('✅ ส่งอีเมลสำเร็จ:', {
@@ -114,33 +150,61 @@ export const sendRequestNotificationEmail = async (requestData, requestId) => {
       requestId: requestId
     };
   } catch (error) {
+    // Log error อย่างละเอียด
     console.error('❌ Error sending email:', {
       error: error,
       message: error.message,
       status: error.status,
+      statusText: error.statusText,
       text: error.text,
       serviceId: EMAILJS_SERVICE_ID,
       templateId: EMAILJS_TEMPLATE_ID,
-      publicKey: EMAILJS_PUBLIC_KEY ? '✓' : '✗'
+      publicKey: EMAILJS_PUBLIC_KEY ? (EMAILJS_PUBLIC_KEY.substring(0, 10) + '...') : '✗',
+      config: {
+        serviceId: EMAILJS_SERVICE_ID ? '✓' : '✗',
+        templateId: EMAILJS_TEMPLATE_ID ? '✓' : '✗',
+        publicKey: EMAILJS_PUBLIC_KEY ? '✓' : '✗'
+      }
     });
     
     // แสดง error message ที่ละเอียดขึ้น
     let errorMessage = 'เกิดข้อผิดพลาดในการส่งอีเมล';
-    if (error.status) {
+    
+    // ตรวจสอบ error type
+    if (error.status === 400) {
+      errorMessage = 'Bad Request (400) - อาจเกิดจาก:\n';
+      errorMessage += '1. Template ID ไม่ถูกต้อง\n';
+      errorMessage += '2. Template Variables ไม่ตรงกับ Template\n';
+      errorMessage += '3. Public Key ไม่ถูกต้อง\n';
+      errorMessage += '4. Service ID ไม่ถูกต้อง';
+    } else if (error.status === 401) {
+      errorMessage = 'Unauthorized (401) - Public Key ไม่ถูกต้องหรือหมดอายุ';
+    } else if (error.status === 404) {
+      errorMessage = 'Not Found (404) - Service ID หรือ Template ID ไม่พบ';
+    } else if (error.status) {
       errorMessage += ` (Status: ${error.status})`;
     }
+    
+    // เพิ่ม error text หรือ message
     if (error.text) {
-      errorMessage += ` - ${error.text}`;
+      errorMessage += `\n\nError Text: ${error.text}`;
     }
-    if (error.message) {
-      errorMessage += ` - ${error.message}`;
+    if (error.message && error.message !== error.text) {
+      errorMessage += `\nError Message: ${error.message}`;
     }
+    
+    // เพิ่มคำแนะนำ
+    errorMessage += '\n\nกรุณาตรวจสอบ:\n';
+    errorMessage += '1. EmailJS Config ใน index.html\n';
+    errorMessage += '2. Template Variables ใน EmailJS Dashboard\n';
+    errorMessage += '3. Console Logs สำหรับรายละเอียดเพิ่มเติม';
     
     return { 
       success: false, 
       message: errorMessage, 
       error: error,
       status: error.status,
+      statusText: error.statusText,
       text: error.text
     };
   }
