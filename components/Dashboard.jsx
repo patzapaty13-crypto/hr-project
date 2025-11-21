@@ -798,7 +798,7 @@ const Dashboard = ({ userRole, faculty, onLogout, onCreateRequest, onSwitchToAdm
         Footer Section - ส่วนท้ายหน้า
         ====================================================================
       */}
-      <footer className="bg-pink-900 text-white py-8 sm:py-12 px-4 sm:px-6 mt-8 sm:mt-12">
+      <footer className="bg-pink-300 text-pink-900 py-8 sm:py-12 px-4 sm:px-6 mt-8 sm:mt-12">
         <div className="max-w-7xl mx-auto">
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8 mb-6 sm:mb-8">
             <div>
@@ -814,11 +814,11 @@ const Dashboard = ({ userRole, faculty, onLogout, onCreateRequest, onSwitchToAdm
             </div>
             <div>
               <h4 className="text-lg font-semibold mb-4">ติดต่อเรา</h4>
-              <p className="text-pink-200 text-sm mb-2">มหาวิทยาลัยศรีปทุม</p>
-              <p className="text-pink-200 text-sm mb-2">2410/2 ถนนพหลโยธิน</p>
-              <p className="text-pink-200 text-sm mb-2">แขวงเสนานิคม เขตจตุจักร กรุงเทพฯ 10900</p>
-              <p className="text-pink-200 text-sm mb-2">โทร: (02) 579-1111</p>
-              <p className="text-pink-200 text-sm">Email: hr@spu.ac.th</p>
+              <p className="text-pink-800 text-sm mb-2">มหาวิทยาลัยศรีปทุม</p>
+              <p className="text-pink-800 text-sm mb-2">2410/2 ถนนพหลโยธิน</p>
+              <p className="text-pink-800 text-sm mb-2">แขวงเสนานิคม เขตจตุจักร กรุงเทพฯ 10900</p>
+              <p className="text-pink-800 text-sm mb-2">โทร: (02) 579-1111</p>
+              <p className="text-pink-800 text-sm">Email: hr@spu.ac.th</p>
             </div>
             <div>
               <h4 className="text-lg font-semibold mb-4">ลิงก์ที่เกี่ยวข้อง</h4>
