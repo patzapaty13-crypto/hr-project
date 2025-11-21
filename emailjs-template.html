@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <style>
+    body { 
+      font-family: Arial, sans-serif; 
+      line-height: 1.6; 
+      color: #333; 
+      margin: 0;
+      padding: 0;
+      background-color: #f5f5f5;
+    }
+    .container { 
+      max-width: 600px; 
+      margin: 0 auto; 
+      padding: 20px; 
+      background-color: white;
+    }
+    .header { 
+      background: linear-gradient(135deg, #ec4899 0%, #f43f5e 100%); 
+      color: white; 
+      padding: 30px 20px; 
+      border-radius: 8px 8px 0 0; 
+      text-align: center;
+    }
+    .header h2 {
+      margin: 0;
+      font-size: 24px;
+    }
+    .header p {
+      margin: 10px 0 0 0;
+      font-size: 14px;
+      opacity: 0.9;
+    }
+    .content { 
+      background: #f9fafb; 
+      padding: 30px 20px; 
+      border: 1px solid #e5e7eb; 
+      border-top: none;
+    }
+    .greeting {
+      font-size: 16px;
+      margin-bottom: 20px;
+      color: #111827;
+    }
+    .info-box { 
+      background: white; 
+      border-left: 4px solid #ec4899; 
+      padding: 20px; 
+      margin: 20px 0; 
+      border-radius: 4px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+    .info-row {
+      display: flex;
+      padding: 8px 0;
+      border-bottom: 1px solid #f3f4f6;
+    }
+    .info-row:last-child {
+      border-bottom: none;
+    }
+    .label { 
+      font-weight: bold; 
+      color: #6b7280; 
+      width: 120px;
+      flex-shrink: 0;
+    }
+    .value { 
+      color: #111827; 
+      flex: 1;
+    }
+    .description-box {
+      background: white;
+      border: 1px solid #e5e7eb;
+      border-radius: 4px;
+      padding: 15px;
+      margin: 20px 0;
+      color: #374151;
+      white-space: pre-wrap;
+    }
+    .button-container {
+      text-align: center; 
+      margin: 30px 0;
+    }
+    .button { 
+      display: inline-block; 
+      background: #ec4899; 
+      color: white; 
+      padding: 14px 28px; 
+      text-decoration: none; 
+      border-radius: 6px; 
+      font-weight: bold;
+      font-size: 16px;
+      box-shadow: 0 2px 4px rgba(236, 72, 153, 0.3);
+      transition: background 0.3s;
+    }
+    .button:hover {
+      background: #db2777;
+    }
+    .link-text {
+      font-size: 12px; 
+      color: #6b7280; 
+      margin-top: 15px;
+      word-break: break-all;
+    }
+    .link-text a {
+      color: #ec4899;
+      text-decoration: none;
+    }
+    .footer { 
+      background: #f3f4f6; 
+      padding: 20px; 
+      text-align: center; 
+      font-size: 12px; 
+      color: #6b7280; 
+      border-radius: 0 0 8px 8px; 
+      border: 1px solid #e5e7eb;
+      border-top: none;
+    }
+    .footer p {
+      margin: 5px 0;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h2>📋 คำขออัตรากำลังพลใหม่</h2>
+      <p>SPU Personnel System</p>
+    </div>
+    
+    <div class="content">
+      <p class="greeting">สวัสดีครับ/ค่ะ,</p>
+      
+      <p>มีคำขออัตรากำลังพลใหม่จาก <strong>{{faculty_name}}</strong></p>
+      
+      <div class="info-box">
+        <div class="info-row">
+          <span class="label">Request ID:</span>
+          <span class="value">{{request_id}}</span>
+        </div>
+        <div class="info-row">
+          <span class="label">คณะ:</span>
+          <span class="value">{{faculty_name}}</span>
+        </div>
+        <div class="info-row">
+          <span class="label">ตำแหน่ง:</span>
+          <span class="value">{{position}}</span>
+        </div>
+        <div class="info-row">
+          <span class="label">ประเภท:</span>
+          <span class="value">{{type}}</span>
+        </div>
+        <div class="info-row">
+          <span class="label">จำนวน:</span>
+          <span class="value">{{amount}} ตำแหน่ง</span>
+        </div>
+        <div class="info-row">
+          <span class="label">สถานะ:</span>
+          <span class="value">{{status}}</span>
+        </div>
+        <div class="info-row">
+          <span class="label">วันที่:</span>
+          <span class="value">{{date}}</span>
+        </div>
+      </div>
+      
+      <div class="description-box">
+        <strong style="color: #6b7280; font-size: 14px;">รายละเอียด:</strong>
+        <div style="margin-top: 10px; color: #374151;">{{description}}</div>
+      </div>
+      
+      <div class="button-container">
+        <a href="{{confirmation_link}}" class="button">✅ ยืนยันคำขอ</a>
+        <p class="link-text">
+          หรือคัดลอกลิงก์นี้ไปวางในเบราว์เซอร์:<br>
+          <a href="{{confirmation_link}}">{{confirmation_link}}</a>
+        </p>
+      </div>
+    </div>
+    
+    <div class="footer">
+      <p><strong>© 2025 Sripatum University.</strong> All rights reserved.</p>
+      <p>ระบบอัตรากำลังพล SPU Personnel System</p>
+    </div>
+  </div>
+</body>
+</html>
+
