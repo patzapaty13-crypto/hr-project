@@ -374,7 +374,7 @@ const Dashboard = ({ userRole, faculty, onLogout, onCreateRequest, onSwitchToAdm
         - แสดงบทบาทหรือชื่อคณะ
         - ปุ่มออกจากระบบ
       */}
-      <nav className="bg-blue-600 text-white shadow-lg px-4 sm:px-6 py-3 sm:py-4">
+      <nav className="bg-pink-500 text-white shadow-lg px-4 sm:px-6 py-3 sm:py-4">
         <div className="max-w-7xl mx-auto flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-0">
           {/* ส่วนซ้าย: Logo SPU และข้อมูลผู้ใช้ */}
           <div className="flex items-center space-x-2 sm:space-x-4 w-full sm:w-auto">
@@ -384,7 +384,7 @@ const Dashboard = ({ userRole, faculty, onLogout, onCreateRequest, onSwitchToAdm
             </div>
             
             {/* แถบแนวตั้งแยก */}
-            <div className="hidden sm:block h-10 w-px bg-blue-400"></div>
+            <div className="hidden sm:block h-10 w-px bg-pink-300"></div>
             
             {/* ข้อความ: บทบาท/คณะ */}
             <div className="min-w-0 flex-1 sm:flex-none">
@@ -394,7 +394,7 @@ const Dashboard = ({ userRole, faculty, onLogout, onCreateRequest, onSwitchToAdm
                   - HR: Briefcase (กระเป๋า)
                   - Faculty: Building (อาคาร)
                 */}
-                <div className="bg-blue-500 p-1 sm:p-1.5 rounded shadow-sm flex-shrink-0">
+                <div className="bg-pink-400 p-1 sm:p-1.5 rounded shadow-sm flex-shrink-0">
                   {userRole === 'hr' ? (
                     <Briefcase size={16} className="sm:w-[18px] sm:h-[18px] text-white" />
                   ) : (
@@ -408,7 +408,7 @@ const Dashboard = ({ userRole, faculty, onLogout, onCreateRequest, onSwitchToAdm
                   }
                 </p>
               </div>
-              <p className="text-[10px] sm:text-xs text-blue-200 mt-0.5 hidden sm:block">
+              <p className="text-[10px] sm:text-xs text-pink-100 mt-0.5 hidden sm:block">
                 Personnel System
               </p>
             </div>
@@ -419,7 +419,7 @@ const Dashboard = ({ userRole, faculty, onLogout, onCreateRequest, onSwitchToAdm
             {userRole === 'hr' && onSwitchToAdmin && (
               <button 
                 onClick={onSwitchToAdmin}
-                className="hidden sm:block text-sm text-white hover:text-blue-200 transition px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg hover:bg-blue-500"
+                className="hidden sm:block text-sm text-white hover:text-pink-100 transition px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg hover:bg-pink-400"
                 title="Switch to Admin Dashboard"
               >
                 📊 Admin View
@@ -435,7 +435,7 @@ const Dashboard = ({ userRole, faculty, onLogout, onCreateRequest, onSwitchToAdm
             {userRole === 'faculty' && (
               <button 
                 onClick={onCreateRequest}
-                className="sm:hidden fixed bottom-6 right-6 bg-blue-600 hover:bg-blue-700 text-white p-4 rounded-full shadow-lg z-50 transition"
+                className="sm:hidden fixed bottom-6 right-6 bg-pink-500 hover:bg-pink-600 text-white p-4 rounded-full shadow-lg z-50 transition"
                 aria-label="สร้างคำขอใหม่"
               >
                 <Plus size={24} />
@@ -443,7 +443,7 @@ const Dashboard = ({ userRole, faculty, onLogout, onCreateRequest, onSwitchToAdm
             )}
             <button 
               onClick={onLogout} 
-                className="text-xs sm:text-sm bg-blue-500 hover:bg-blue-700 text-white px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg flex items-center transition shadow-md"
+                className="text-xs sm:text-sm bg-pink-400 hover:bg-pink-600 text-white px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg flex items-center transition shadow-md"
             >
               <LogOut size={14} className="sm:w-4 sm:h-4 mr-1 sm:mr-2" /> 
               <span className="hidden sm:inline">ออกจากระบบ</span>
