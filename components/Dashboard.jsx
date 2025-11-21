@@ -693,7 +693,7 @@ const Dashboard = ({ userRole, faculty, onLogout, onCreateRequest, onSwitchToAdm
                           {request.status === 'vp_hr' && (
                             <button 
                               onClick={() => updateStatus(request.id, 'president')}
-                              className="text-xs bg-rose-600 text-white px-3 py-1.5 rounded-lg hover:bg-rose-700 transition shadow-md whitespace-nowrap"
+                              className="text-xs bg-indigo-600 text-white px-3 py-1.5 rounded-lg hover:bg-indigo-700 transition shadow-md whitespace-nowrap"
                             >
                               เสนออธิการฯ
                             </button>
@@ -798,7 +798,7 @@ const Dashboard = ({ userRole, faculty, onLogout, onCreateRequest, onSwitchToAdm
                           {request.status === 'vp_hr' && (
                             <button 
                               onClick={() => updateStatus(request.id, 'president')}
-                              className="text-xs bg-rose-600 text-white px-3 py-1.5 rounded-lg hover:bg-rose-700 transition shadow-md whitespace-nowrap"
+                              className="text-xs bg-indigo-600 text-white px-3 py-1.5 rounded-lg hover:bg-indigo-700 transition shadow-md whitespace-nowrap"
                             >
                               เสนออธิการฯ
                             </button>
@@ -843,11 +843,11 @@ const Dashboard = ({ userRole, faculty, onLogout, onCreateRequest, onSwitchToAdm
             </div>
             <div>
               <h4 className="text-lg font-semibold mb-4">ติดต่อเรา</h4>
-              <p className="text-pink-800 text-sm mb-2">มหาวิทยาลัยศรีปทุม</p>
-              <p className="text-pink-800 text-sm mb-2">2410/2 ถนนพหลโยธิน</p>
-              <p className="text-pink-800 text-sm mb-2">แขวงเสนานิคม เขตจตุจักร กรุงเทพฯ 10900</p>
-              <p className="text-pink-800 text-sm mb-2">โทร: (02) 579-1111</p>
-              <p className="text-pink-800 text-sm">Email: hr@spu.ac.th</p>
+              <p className="text-gray-700 text-sm mb-2">มหาวิทยาลัยศรีปทุม</p>
+              <p className="text-gray-700 text-sm mb-2">2410/2 ถนนพหลโยธิน</p>
+              <p className="text-gray-700 text-sm mb-2">แขวงเสนานิคม เขตจตุจักร กรุงเทพฯ 10900</p>
+              <p className="text-gray-700 text-sm mb-2">โทร: (02) 579-1111</p>
+              <p className="text-gray-700 text-sm">Email: hr@spu.ac.th</p>
             </div>
             <div>
               <h4 className="text-lg font-semibold mb-4">ลิงก์ที่เกี่ยวข้อง</h4>
