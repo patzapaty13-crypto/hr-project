@@ -365,7 +365,7 @@ const Dashboard = ({ userRole, faculty, onLogout, onCreateRequest, onSwitchToAdm
   // Render: ส่วนแสดงผล UI
   // ========================================================================
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-slate-50 to-gray-100">
+    <div className="min-h-screen bg-white">
       {/* 
         ====================================================================
         แถบเมนูด้านบน (Navbar) - สีชมพูเข้มสวยงาม
@@ -458,13 +458,13 @@ const Dashboard = ({ userRole, faculty, onLogout, onCreateRequest, onSwitchToAdm
         Hero Section - พื้นที่แสดงข้อมูลสรุป
         ====================================================================
       */}
-      <section className="bg-gradient-to-r from-blue-600 via-indigo-600 to-blue-700 text-white py-8 sm:py-12 px-4 sm:px-6">
+      <section className="bg-white py-8 sm:py-12 px-4 sm:px-6">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-6 sm:mb-8">
-            <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold mb-3 sm:mb-4">
+            <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold mb-3 sm:mb-4 text-gray-900">
               {userRole === 'hr' ? 'จัดการคำขอทั้งหมด' : 'คำขอของฉัน'}
             </h1>
-                <p className="text-base sm:text-lg lg:text-xl text-blue-100 px-4">
+                <p className="text-base sm:text-lg lg:text-xl text-gray-600 px-4">
               {userRole === 'hr' 
                 ? 'ดูและจัดการคำขอลงอัตรากำลังพลทั้งหมดจากคณะและหน่วยงานต่างๆ' 
                 : 'ดูและติดตามสถานะคำขอของคณะคุณ'

@@ -138,7 +138,7 @@ const AdminDashboard = ({ userRole, faculty, onLogout, onCreateRequest, onSwitch
   // Render
   // ========================================================================
   return (
-    <div className="min-h-screen bg-gradient-to-br from-pink-50 via-rose-50 to-pink-100">
+    <div className="min-h-screen bg-white">
       {/* Header */}
       <header className="bg-pink-500 text-white border-b border-pink-600 shadow-lg">
         <div className="px-6 py-4 flex justify-between items-center">
