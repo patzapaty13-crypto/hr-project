@@ -157,6 +157,9 @@ const SimpleForm = ({ faculty, onClose, onSubmit, userId }) => {
       return;
     }
 
+    // Debug: ตรวจสอบสถานะ db
+    console.log('🔍 Debug: db status:', db ? 'Available' : 'Not Available (Demo Mode)');
+
     try {
       /**
        * สร้าง Object ข้อมูลคำขอใหม่
