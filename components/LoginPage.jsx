@@ -195,13 +195,13 @@ const LoginPage = ({ onLogin, onShowRegister }) => {
   return (
     <BackgroundSlider>
       <div className="min-h-screen">
-        {/* Top Bar - ข้อมูลติดต่อ - ใส่มากกว่าเดิม */}
-        <div className="bg-white/20 backdrop-blur-sm text-white py-2 px-4 sm:px-6 text-xs sm:text-sm border-b border-white/20">
+        {/* Top Bar - ข้อมูลติดต่อ - สีชมพู */}
+        <div className="bg-pink-600 text-white py-2 px-4 sm:px-6 text-xs sm:text-sm border-b border-pink-700">
         <div className="max-w-7xl mx-auto flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 sm:gap-0">
           <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-4">
-            <span className="text-white whitespace-nowrap">โทร: <a href="tel:025791111" className="text-white hover:text-blue-200 underline">(02) 579-1111</a></span>
+            <span className="text-white whitespace-nowrap">โทร: <a href="tel:025791111" className="text-white hover:text-pink-200 underline">(02) 579-1111</a></span>
             <span className="hidden sm:inline text-white/60">|</span>
-            <span className="text-white whitespace-nowrap">อีเมล: <a href="mailto:hr@spu.ac.th" className="text-white hover:text-blue-200 underline break-all">hr@spu.ac.th</a></span>
+            <span className="text-white whitespace-nowrap">อีเมล: <a href="mailto:hr@spu.ac.th" className="text-white hover:text-pink-200 underline break-all">hr@spu.ac.th</a></span>
           </div>
           <div className="hidden md:flex items-center gap-3 text-white/80">
             <span className="text-xs">ติดตามเรา</span>
@@ -212,24 +212,22 @@ const LoginPage = ({ onLogin, onShowRegister }) => {
         </div>
       </div>
 
-        {/* Main Navigation Header - ใส่มากกว่าเดิม */}
-        <header className="bg-white/10 backdrop-blur-md border-b border-white/20 shadow-lg sticky top-0 z-50">
+        {/* Main Navigation Header - สีชมพู */}
+        <header className="bg-pink-500 text-white border-b border-pink-600 sticky top-0 z-50">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 py-3 sm:py-4">
             <div className="flex justify-between items-center">
-              {/* Logo SPU */}
+              {/* Logo SPU - ไม่ลอย */}
               <div className="flex items-center gap-2 sm:gap-4">
-                <div className="bg-white/90 px-2 sm:px-3 py-1 sm:py-1.5 rounded shadow-md hover:shadow-lg transition">
-                  <SPULogo 
-                    size="sm" 
-                    onClick={() => window.location.reload()}
-                  />
-                </div>
+                <SPULogo 
+                  size="sm" 
+                  onClick={() => window.location.reload()}
+                />
                 <span className="hidden sm:block text-white text-xs sm:text-sm font-medium">Personnel System</span>
               </div>
               
               {/* Navigation Menu - Mobile Menu Button */}
               <button 
-                className="lg:hidden p-2 text-white hover:text-blue-200 transition"
+                className="lg:hidden p-2 text-white hover:text-pink-200 transition"
                 onClick={() => {
                   alert('เมนู: หน้าหลัก | เกี่ยวกับ | ติดต่อ');
                 }}
