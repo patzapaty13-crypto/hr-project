@@ -74,6 +74,9 @@ export default function App() {
   
   // showForm: ควบคุมการแสดง/ซ่อน Popup Form สร้างคำขอใหม่ (true = แสดง, false = ซ่อน)
   const [showForm, setShowForm] = useState(false);
+  
+  // useAdminDashboard: ควบคุมการแสดง Admin Dashboard หรือ Dashboard ปกติ (true = Admin Dashboard, false = Dashboard ปกติ)
+  const [useAdminDashboard, setUseAdminDashboard] = useState(false);
 
   // ========================================================================
   // useEffect Hook: จัดการ Authentication เมื่อ Component โหลด
