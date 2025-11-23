@@ -29,22 +29,26 @@ const SPULogo = ({ size = 'md', className = '', onClick }) => {
   // State สำหรับเก็บตำแหน่งและความกว้างของแถบ
   const [barPosition, setBarPosition] = useState({ left: 0, width: 0 });
   const spuRef = useRef(null);
+  const spRef = useRef(null);
+  const uRef = useRef(null);
   const resizeObserverRef = useRef(null);
 
   // ฟังก์ชันคำนวณตำแหน่งและความกว้างของแถบใต้ตัว U
   const calculateBarPosition = () => {
-    if (spuRef.current && spuRef.current.offsetWidth > 0) {
+    if (spRef.current && uRef.current) {
       try {
-        // หาตำแหน่งของตัว U โดยประมาณ (S + P + spacing)
-        const spuWidth = spuRef.current.offsetWidth;
-        if (spuWidth > 0) {
-          const letterWidth = spuWidth / 3; // ประมาณความกว้างของแต่ละตัวอักษร
-          const leftPosition = letterWidth * 2; // ตำแหน่งเริ่มต้นของตัว U
-          const barWidth = letterWidth * 0.8; // ความกว้างของแถบประมาณ 80% ของตัวอักษร
+        const spWidth = spRef.current.offsetWidth;
+        const uWidth = uRef.current.offsetWidth;
+        
+        if (spWidth > 0 && uWidth > 0) {
+          // ตำแหน่งเริ่มต้นของตัว U = ความกว้างของ SP + letter spacing
+          const leftPosition = spWidth;
+          // ความกว้างของแถบ = ความกว้างของตัว U
+          const barWidth = uWidth;
           
           setBarPosition({
-            left: Math.max(0, leftPosition),
-            width: Math.max(10, barWidth)
+            left: leftPosition,
+            width: barWidth
           });
         }
       } catch (error) {
@@ -55,13 +59,11 @@ const SPULogo = ({ size = 'md', className = '', onClick }) => {
     }
   };
 
-  // Callback ref สำหรับคำนวณตำแหน่งทันทีเมื่อ element mount
-  const setSpuRefCallback = (node) => {
-    spuRef.current = node;
-    
-    if (node) {
+  // Callback ref สำหรับ SP และ U
+  const setupRefs = () => {
+    if (spRef.current && uRef.current) {
       try {
-        // คำนวณตำแหน่งทันทีเมื่อ element mount - ใช้ setTimeout เพื่อให้แน่ใจว่า DOM render เสร็จแล้ว
+        // คำนวณตำแหน่งทันทีเมื่อ element mount
         setTimeout(() => {
           calculateBarPosition();
         }, 0);
@@ -90,18 +92,18 @@ const SPULogo = ({ size = 'md', className = '', onClick }) => {
           }
         });
 
-        resizeObserverRef.current.observe(node);
+        resizeObserverRef.current.observe(spRef.current);
+        resizeObserverRef.current.observe(uRef.current);
       } catch (error) {
-        console.warn('Error setting up SPU ref:', error);
-      }
-    } else {
-      // Cleanup เมื่อ element unmount
-      if (resizeObserverRef.current) {
-        resizeObserverRef.current.disconnect();
-        resizeObserverRef.current = null;
+        console.warn('Error setting up refs:', error);
       }
     }
   };
+
+  // ใช้ useEffect สำหรับ setup refs เมื่อ component mount
+  useEffect(() => {
+    setupRefs();
+  }, []);
 
   // ใช้ useEffect สำหรับ resize listener และ cleanup
   useEffect(() => {
@@ -115,14 +117,8 @@ const SPULogo = ({ size = 'md', className = '', onClick }) => {
 
     window.addEventListener('resize', handleResize);
     
-    // รีเฟรชเมื่อ size เปลี่ยน - ใช้ setTimeout เพื่อให้แน่ใจว่า DOM render เสร็จแล้ว
-    setTimeout(() => {
-      try {
-        calculateBarPosition();
-      } catch (error) {
-        console.warn('Error calculating bar position on mount:', error);
-      }
-    }, 0);
+    // รีเฟรชเมื่อ size เปลี่ยน
+    setupRefs();
 
     return () => {
       window.removeEventListener('resize', handleResize);
@@ -178,8 +174,7 @@ const SPULogo = ({ size = 'md', className = '', onClick }) => {
       {/* Top Section: SPU (สีดำ, ตัวใหญ่อ้วน, tracking แน่นมาก) พร้อมแถบใต้ตัว U */}
       <div className="relative">
         <div 
-          ref={setSpuRefCallback}
-          className={`font-black ${sizes.spu} leading-none mb-1 sm:mb-1.5 tracking-tighter text-left`} 
+          className={`font-black ${sizes.spu} leading-none mb-1 sm:mb-1.5 tracking-tighter text-left inline-block`} 
           style={{ 
             color: spuColor,
             fontFamily: 'sans-serif', 
@@ -187,7 +182,8 @@ const SPULogo = ({ size = 'md', className = '', onClick }) => {
             letterSpacing: '-0.02em' // tracking แน่นมาก
           }}
         >
-          SPU
+          <span ref={spRef} className="inline-block">SP</span>
+          <span ref={uRef} className="inline-block">U</span>
         </div>
         {/* แถบสี hot pink/magenta แนวนอน - อยู่ใต้ตัว U */}
         {barPosition.width > 0 && (
