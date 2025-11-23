@@ -33,8 +33,6 @@ import {
   Briefcase, 
   Plus,
   LayoutDashboard,
-  FileText,
-  FolderKanban,
   Users,
   Mail,
   FileCheck,
@@ -46,12 +44,15 @@ import SPULogo from './SPULogo';
 import { getLocalRequests } from '../utils/localStorage';
 import { db, appId } from '../config/firebase';
 import { collection, query, onSnapshot } from 'firebase/firestore';
+import { FACULTIES } from '../constants';
 
 const AdminDashboard = ({ userRole, faculty, onLogout, onCreateRequest, onSwitchToStandard }) => {
   const [requests, setRequests] = useState([]);
   const [loading, setLoading] = useState(true);
   const [activeMenu, setActiveMenu] = useState('dashboard');
   const [isMenuOpen, setIsMenuOpen] = useState(false); // สำหรับควบคุมการแสดง/ซ่อนเมนูบนมือถือ
+  const [users, setUsers] = useState([]);
+  const [emailLogs, setEmailLogs] = useState([]);
 
   // ========================================================================
   // useEffect Hook: ดึงข้อมูลคำขอ
@@ -98,6 +99,60 @@ const AdminDashboard = ({ userRole, faculty, onLogout, onCreateRequest, onSwitch
       return () => unsubscribe();
     }
   }, [userRole, faculty, db]);
+
+  // ดึงข้อมูลผู้ใช้
+  useEffect(() => {
+    const fetchUsers = async () => {
+      if (!db) {
+        // Demo Mode: อ่านจาก localStorage
+        const localUsers = JSON.parse(localStorage.getItem('spu_hr_users') || '[]');
+        setUsers(localUsers);
+        return;
+      }
+
+      try {
+        const usersRef = collection(db, 'artifacts', appId, 'public', 'data', 'users');
+        const unsubscribe = onSnapshot(usersRef, (snapshot) => {
+          const data = snapshot.docs.map(doc => ({ uid: doc.id, ...doc.data() }));
+          setUsers(data);
+        });
+        return () => unsubscribe();
+      } catch (error) {
+        console.error('Error fetching users:', error);
+      }
+    };
+
+    if (activeMenu === 'user-management') {
+      fetchUsers();
+    }
+  }, [activeMenu, db]);
+
+  // ดึงข้อมูล Email Logs
+  useEffect(() => {
+    const fetchEmailLogs = () => {
+      if (!db) {
+        // Demo Mode: อ่านจาก localStorage
+        const logs = JSON.parse(localStorage.getItem('spu_hr_email_logs') || '[]');
+        setEmailLogs(logs.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0)));
+        return;
+      }
+
+      try {
+        const logsRef = collection(db, 'artifacts', appId, 'public', 'data', 'email_logs');
+        const unsubscribe = onSnapshot(logsRef, (snapshot) => {
+          const data = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+          setEmailLogs(data.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0)));
+        });
+        return () => unsubscribe();
+      } catch (error) {
+        console.error('Error fetching email logs:', error);
+      }
+    };
+
+    if (activeMenu === 'email-logs') {
+      fetchEmailLogs();
+    }
+  }, [activeMenu, db]);
 
   // ========================================================================
   // คำนวณสถิติ
@@ -195,8 +250,6 @@ const AdminDashboard = ({ userRole, faculty, onLogout, onCreateRequest, onSwitch
             </button>
             <span className="text-sm font-medium text-gray-700">
               {activeMenu === 'dashboard' && 'Dashboard'}
-              {activeMenu === 'applications' && 'Applications'}
-              {activeMenu === 'projects' && 'Projects'}
               {activeMenu === 'positions' && 'Positions'}
               {activeMenu === 'email-templates' && 'Email Templates'}
               {activeMenu === 'email-logs' && 'Email Logs'}
@@ -216,28 +269,6 @@ const AdminDashboard = ({ userRole, faculty, onLogout, onCreateRequest, onSwitch
             >
               <LayoutDashboard size={18} />
               <span>Dashboard</span>
-            </button>
-            <button
-              onClick={() => setActiveMenu('applications')}
-              className={`flex items-center space-x-2 px-4 py-3 rounded-lg transition whitespace-nowrap ${
-                activeMenu === 'applications'
-                  ? 'bg-pink-200 text-pink-800 font-medium'
-                  : 'text-gray-700 hover:bg-pink-50'
-              }`}
-            >
-              <FileText size={18} />
-              <span>Applications</span>
-            </button>
-            <button
-              onClick={() => setActiveMenu('projects')}
-              className={`flex items-center space-x-2 px-4 py-3 rounded-lg transition whitespace-nowrap ${
-                activeMenu === 'projects'
-                  ? 'bg-pink-200 text-pink-800 font-medium'
-                  : 'text-gray-700 hover:bg-pink-50'
-              }`}
-            >
-              <FolderKanban size={18} />
-              <span>Projects</span>
             </button>
             <button
               onClick={() => setActiveMenu('positions')}
@@ -305,34 +336,6 @@ const AdminDashboard = ({ userRole, faculty, onLogout, onCreateRequest, onSwitch
               >
                 <LayoutDashboard size={20} />
                 <span>Dashboard</span>
-              </button>
-              <button
-                onClick={() => {
-                  setActiveMenu('applications');
-                  setIsMenuOpen(false);
-                }}
-                className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg transition ${
-                  activeMenu === 'applications'
-                    ? 'bg-pink-100 text-pink-700 font-medium'
-                    : 'text-gray-700 hover:bg-gray-100'
-                }`}
-              >
-                <FileText size={20} />
-                <span>Applications</span>
-              </button>
-              <button
-                onClick={() => {
-                  setActiveMenu('projects');
-                  setIsMenuOpen(false);
-                }}
-                className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg transition ${
-                  activeMenu === 'projects'
-                    ? 'bg-pink-100 text-pink-700 font-medium'
-                    : 'text-gray-700 hover:bg-gray-100'
-                }`}
-              >
-                <FolderKanban size={20} />
-                <span>Projects</span>
               </button>
               <button
                 onClick={() => {
@@ -546,21 +549,262 @@ const AdminDashboard = ({ userRole, faculty, onLogout, onCreateRequest, onSwitch
             </>
         )}
 
-        {/* Other Menu Views */}
-        {activeMenu !== 'dashboard' && (
-            <div className="bg-white rounded-lg shadow p-12 text-center border border-gray-200">
-              <h2 className="text-2xl font-bold text-gray-800 mb-4">
-                {activeMenu === 'applications' && 'Applications'}
-                {activeMenu === 'projects' && 'Projects'}
-                {activeMenu === 'positions' && 'Positions'}
-                {activeMenu === 'email-templates' && 'Email Templates'}
-                {activeMenu === 'email-logs' && 'Email Logs'}
-                {activeMenu === 'user-management' && 'User Management'}
-              </h2>
-              <p className="text-gray-600">
-                This feature is coming soon...
-              </p>
+        {/* Positions View */}
+        {activeMenu === 'positions' && (
+          <div className="space-y-6">
+            <div className="bg-white rounded-lg shadow border border-gray-200">
+              <div className="p-6 border-b border-gray-200">
+                <h2 className="text-2xl font-bold text-gray-800">ตำแหน่งทั้งหมด</h2>
+                <p className="text-sm text-gray-600 mt-1">รายการตำแหน่งที่เปิดรับสมัครทั้งหมด</p>
+              </div>
+              <div className="overflow-x-auto">
+                <table className="w-full">
+                  <thead className="bg-gray-50">
+                    <tr>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">ตำแหน่ง</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">คณะ</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">ประเภท</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">จำนวน</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">สถานะ</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">วันที่สร้าง</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-gray-200">
+                    {loading ? (
+                      <tr>
+                        <td colSpan="6" className="px-6 py-4 text-center text-gray-500">Loading...</td>
+                      </tr>
+                    ) : requests.length === 0 ? (
+                      <tr>
+                        <td colSpan="6" className="px-6 py-4 text-center text-gray-500">ไม่พบข้อมูลตำแหน่ง</td>
+                      </tr>
+                    ) : (
+                      requests.map((request) => (
+                        <tr key={request.id} className="hover:bg-gray-50">
+                          <td className="px-6 py-4 text-sm font-medium text-gray-900">{request.position}</td>
+                          <td className="px-6 py-4 text-sm text-gray-700">{request.facultyName}</td>
+                          <td className="px-6 py-4 text-sm text-gray-700">
+                            {request.type === 'new' ? 'อัตราใหม่' : 'ทดแทน'}
+                          </td>
+                          <td className="px-6 py-4 text-sm text-gray-700">{request.amount} ตำแหน่ง</td>
+                          <td className="px-6 py-4">
+                            <span className={`px-2 py-1 text-xs rounded ${
+                              request.status === 'submitted' || request.status === 'hr_review'
+                                ? 'bg-yellow-100 text-yellow-800'
+                                : request.status === 'vp_hr' || request.status === 'president'
+                                ? 'bg-blue-100 text-blue-800'
+                                : request.status === 'recruiting' || request.status === 'confirmed'
+                                ? 'bg-green-100 text-green-800'
+                                : 'bg-red-100 text-red-800'
+                            }`}>
+                              {request.status === 'submitted' ? 'รอตรวจสอบ' :
+                               request.status === 'hr_review' ? 'กำลังตรวจสอบ' :
+                               request.status === 'vp_hr' ? 'รอ VP พิจารณา' :
+                               request.status === 'president' ? 'รออธิการบดีพิจารณา' :
+                               request.status === 'recruiting' ? 'ประกาศรับสมัคร' :
+                               request.status === 'confirmed' ? 'ยืนยันแล้ว' :
+                               'ปฏิเสธ'}
+                            </span>
+                          </td>
+                          <td className="px-6 py-4 text-sm text-gray-700">
+                            {request.createdAt?.seconds
+                              ? new Date(request.createdAt.seconds * 1000).toLocaleDateString('th-TH')
+                              : '-'}
+                          </td>
+                        </tr>
+                      ))
+                    )}
+                  </tbody>
+                </table>
+              </div>
             </div>
+          </div>
+        )}
+
+        {/* Email Templates View */}
+        {activeMenu === 'email-templates' && (
+          <div className="space-y-6">
+            <div className="bg-white rounded-lg shadow border border-gray-200">
+              <div className="p-6 border-b border-gray-200 flex justify-between items-center">
+                <div>
+                  <h2 className="text-2xl font-bold text-gray-800">Email Templates</h2>
+                  <p className="text-sm text-gray-600 mt-1">จัดการเทมเพลตอีเมลสำหรับระบบ</p>
+                </div>
+                <button className="px-4 py-2 bg-pink-500 text-white rounded-lg hover:bg-pink-600 transition font-semibold">
+                  + สร้าง Template ใหม่
+                </button>
+              </div>
+              <div className="p-6 space-y-4">
+                <div className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition">
+                  <div className="flex justify-between items-start mb-2">
+                    <h3 className="text-lg font-semibold text-gray-800">แจ้งเตือนคำขอใหม่</h3>
+                    <span className="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded">Active</span>
+                  </div>
+                  <p className="text-sm text-gray-600 mb-3">ส่งเมื่อมีการสร้างคำขอใหม่</p>
+                  <div className="flex gap-2">
+                    <button className="px-3 py-1 text-sm bg-gray-100 hover:bg-gray-200 rounded transition">แก้ไข</button>
+                    <button className="px-3 py-1 text-sm bg-gray-100 hover:bg-gray-200 rounded transition">ดูตัวอย่าง</button>
+                  </div>
+                </div>
+                <div className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition">
+                  <div className="flex justify-between items-start mb-2">
+                    <h3 className="text-lg font-semibold text-gray-800">ยืนยันคำขอ</h3>
+                    <span className="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded">Active</span>
+                  </div>
+                  <p className="text-sm text-gray-600 mb-3">ส่งพร้อม confirmation link สำหรับยืนยันคำขอ</p>
+                  <div className="flex gap-2">
+                    <button className="px-3 py-1 text-sm bg-gray-100 hover:bg-gray-200 rounded transition">แก้ไข</button>
+                    <button className="px-3 py-1 text-sm bg-gray-100 hover:bg-gray-200 rounded transition">ดูตัวอย่าง</button>
+                  </div>
+                </div>
+                <div className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition">
+                  <div className="flex justify-between items-start mb-2">
+                    <h3 className="text-lg font-semibold text-gray-800">อัปเดตสถานะ</h3>
+                    <span className="px-2 py-1 bg-gray-100 text-gray-600 text-xs rounded">Inactive</span>
+                  </div>
+                  <p className="text-sm text-gray-600 mb-3">แจ้งเตือนเมื่อสถานะคำขอเปลี่ยนแปลง</p>
+                  <div className="flex gap-2">
+                    <button className="px-3 py-1 text-sm bg-gray-100 hover:bg-gray-200 rounded transition">แก้ไข</button>
+                    <button className="px-3 py-1 text-sm bg-gray-100 hover:bg-gray-200 rounded transition">ดูตัวอย่าง</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Email Logs View */}
+        {activeMenu === 'email-logs' && (
+          <div className="space-y-6">
+            <div className="bg-white rounded-lg shadow border border-gray-200">
+              <div className="p-6 border-b border-gray-200">
+                <h2 className="text-2xl font-bold text-gray-800">Email Logs</h2>
+                <p className="text-sm text-gray-600 mt-1">ประวัติการส่งอีเมลทั้งหมด</p>
+              </div>
+              <div className="overflow-x-auto">
+                <table className="w-full">
+                  <thead className="bg-gray-50">
+                    <tr>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">วันที่ส่ง</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">ผู้รับ</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">ประเภท</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">หัวข้อ</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">สถานะ</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-gray-200">
+                    {emailLogs.length === 0 ? (
+                      <tr>
+                        <td colSpan="5" className="px-6 py-4 text-center text-gray-500">
+                          <div className="py-8">
+                            <Mail size={48} className="mx-auto text-gray-400 mb-4" />
+                            <p className="text-gray-600">ยังไม่มีประวัติการส่งอีเมล</p>
+                            <p className="text-sm text-gray-500 mt-2">ประวัติการส่งอีเมลจะแสดงที่นี่เมื่อมีการส่งอีเมล</p>
+                          </div>
+                        </td>
+                      </tr>
+                    ) : (
+                      emailLogs.map((log, index) => (
+                        <tr key={log.id || index} className="hover:bg-gray-50">
+                          <td className="px-6 py-4 text-sm text-gray-900">
+                            {log.timestamp 
+                              ? new Date(log.timestamp).toLocaleString('th-TH')
+                              : log.createdAt?.seconds
+                              ? new Date(log.createdAt.seconds * 1000).toLocaleString('th-TH')
+                              : '-'}
+                          </td>
+                          <td className="px-6 py-4 text-sm text-gray-700">{log.recipient || log.to || '-'}</td>
+                          <td className="px-6 py-4 text-sm text-gray-700">{log.type || log.template || 'Notification'}</td>
+                          <td className="px-6 py-4 text-sm text-gray-700">{log.subject || '-'}</td>
+                          <td className="px-6 py-4">
+                            <span className={`px-2 py-1 text-xs rounded ${
+                              log.status === 'success' || log.success
+                                ? 'bg-green-100 text-green-800'
+                                : 'bg-red-100 text-red-800'
+                            }`}>
+                              {log.status === 'success' || log.success ? 'สำเร็จ' : 'ล้มเหลว'}
+                            </span>
+                          </td>
+                        </tr>
+                      ))
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* User Management View */}
+        {activeMenu === 'user-management' && (
+          <div className="space-y-6">
+            <div className="bg-white rounded-lg shadow border border-gray-200">
+              <div className="p-6 border-b border-gray-200 flex justify-between items-center">
+                <div>
+                  <h2 className="text-2xl font-bold text-gray-800">User Management</h2>
+                  <p className="text-sm text-gray-600 mt-1">จัดการผู้ใช้และสิทธิ์การเข้าถึง</p>
+                </div>
+                <button className="px-4 py-2 bg-pink-500 text-white rounded-lg hover:bg-pink-600 transition font-semibold">
+                  + เพิ่มผู้ใช้
+                </button>
+              </div>
+              <div className="overflow-x-auto">
+                <table className="w-full">
+                  <thead className="bg-gray-50">
+                    <tr>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">อีเมล</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">บทบาท</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">คณะ/หน่วยงาน</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">สถานะ</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">การจัดการ</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-gray-200">
+                    {users.length === 0 ? (
+                      <tr>
+                        <td colSpan="5" className="px-6 py-4 text-center text-gray-500">
+                          <div className="py-8">
+                            <UserCog size={48} className="mx-auto text-gray-400 mb-4" />
+                            <p className="text-gray-600">ยังไม่มีข้อมูลผู้ใช้</p>
+                            <p className="text-sm text-gray-500 mt-2">ผู้ใช้ที่ลงทะเบียนจะแสดงที่นี่</p>
+                          </div>
+                        </td>
+                      </tr>
+                    ) : (
+                      users.map((user) => {
+                        const roleLabels = {
+                          'hr': 'เจ้าหน้าที่ฝ่ายบุคคล',
+                          'vp_hr': 'รองอธิการบดี',
+                          'president': 'อธิการบดี',
+                          'faculty': 'คณะ/หน่วยงาน'
+                        };
+                        const facultyName = user.facultyId 
+                          ? (FACULTIES.find(f => f.id === user.facultyId)?.name || user.facultyId)
+                          : '-';
+                        
+                        return (
+                          <tr key={user.uid} className="hover:bg-gray-50">
+                            <td className="px-6 py-4 text-sm font-medium text-gray-900">{user.email || '-'}</td>
+                            <td className="px-6 py-4 text-sm text-gray-700">{roleLabels[user.role] || user.role}</td>
+                            <td className="px-6 py-4 text-sm text-gray-700">{facultyName}</td>
+                            <td className="px-6 py-4">
+                              <span className="px-2 py-1 text-xs rounded bg-green-100 text-green-800">Active</span>
+                            </td>
+                            <td className="px-6 py-4">
+                              <div className="flex gap-2">
+                                <button className="px-3 py-1 text-xs bg-gray-100 hover:bg-gray-200 rounded transition">แก้ไข</button>
+                                <button className="px-3 py-1 text-xs bg-red-100 hover:bg-red-200 text-red-700 rounded transition">ลบ</button>
+                              </div>
+                            </td>
+                          </tr>
+                        );
+                      })
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
         )}
       </main>
     </div>
