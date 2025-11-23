@@ -46,17 +46,15 @@ import { auth } from './config/firebase';
 // ============================================================================
 // LoginPage: Component สำหรับหน้าเข้าสู่ระบบ
 // Dashboard: Component สำหรับหน้า Dashboard แสดงรายการคำขอ
-// AdminDashboard: Component สำหรับหน้า Admin Dashboard พร้อม Charts (ใช้ dynamic import เพื่อลด bundle size)
+// AdminDashboard: Component สำหรับหน้า Admin Dashboard พร้อม Charts
 // SimpleForm: Component สำหรับ Popup สร้างคำขอใหม่
 // ConfirmationPage: หน้ายืนยันคำขอผ่านอีเมล
 import LoginPage from './components/LoginPage';
 import RegisterPage from './components/RegisterPage';
 import Dashboard from './components/Dashboard';
+import AdminDashboard from './components/AdminDashboard';
 import SimpleForm from './components/SimpleForm';
 import ConfirmationPage from './components/ConfirmationPage';
-
-// Dynamic import สำหรับ AdminDashboard เพื่อลด initial bundle size
-const AdminDashboard = React.lazy(() => import('./components/AdminDashboard'));
 
 // ============================================================================
 // Component หลักของแอปพลิเคชัน
@@ -81,9 +79,6 @@ export default function App() {
   // showRegister: ควบคุมการแสดงหน้า Register (true = แสดง Register, false = แสดง Login)
   const [showRegister, setShowRegister] = useState(false);
   
-  // isLoading: ควบคุมการแสดง loading state
-  const [isLoading, setIsLoading] = useState(true);
-  
   // useAdminDashboard: ควบคุมการแสดง Admin Dashboard หรือ Dashboard ปกติ (true = Admin Dashboard, false = Dashboard ปกติ)
   // เก็บค่าใน localStorage เพื่อให้คงอยู่หลัง refresh
   const [useAdminDashboard, setUseAdminDashboard] = useState(() => {
@@ -105,28 +100,19 @@ export default function App() {
      * ตรวจสอบว่ามี Custom Token หรือไม่ ถ้ามีก็ Login อัตโนมัติ
      */
     const initAuth = async () => {
-      try {
-        // ตรวจสอบว่าอยู่ใน Browser และมี Token พิเศษหรือไม่
-        // window.__initial_auth_token: Token ที่ตั้งค่าไว้ใน index.html (ถ้ามี)
-        if (typeof window !== 'undefined' && window.__initial_auth_token && auth) {
-          // Login ด้วย Custom Token (สำหรับกรณีพิเศษ) - เพิ่ม timeout
-          const authPromise = signInWithCustomToken(auth, window.__initial_auth_token);
-          const timeoutPromise = new Promise((_, reject) => 
-            setTimeout(() => reject(new Error('Authentication timeout')), 10000)
-          );
-          await Promise.race([authPromise, timeoutPromise]);
-        } else {
-          // ถ้าไม่มี Token ก็รอให้ผู้ใช้กด Login เองในหน้า LoginPage
-          // ไม่ต้องทำอะไร เพียงรอให้ผู้ใช้เลือกบทบาทและกด Login
-        }
-      } catch (error) {
-        console.warn('Error in initAuth:', error);
-        // ไม่ throw error เพื่อให้แอปทำงานต่อได้
+      // ตรวจสอบว่าอยู่ใน Browser และมี Token พิเศษหรือไม่
+      // window.__initial_auth_token: Token ที่ตั้งค่าไว้ใน index.html (ถ้ามี)
+      if (typeof window !== 'undefined' && window.__initial_auth_token) {
+        // Login ด้วย Custom Token (สำหรับกรณีพิเศษ)
+        await signInWithCustomToken(auth, window.__initial_auth_token);
+      } else {
+        // ถ้าไม่มี Token ก็รอให้ผู้ใช้กด Login เองในหน้า LoginPage
+        // ไม่ต้องทำอะไร เพียงรอให้ผู้ใช้เลือกบทบาทและกด Login
       }
     };
     
-    // เรียกใช้ฟังก์ชันเริ่มต้น Authentication (ไม่ await เพื่อไม่ให้ block)
-    initAuth().catch(console.error);
+    // เรียกใช้ฟังก์ชันเริ่มต้น Authentication
+    initAuth();
     
     /**
      * ตั้ง Listener สำหรับตรวจจับการเปลี่ยนแปลงสถานะ Login
@@ -136,25 +122,11 @@ export default function App() {
      * - Token หมดอายุ
      */
     let unsub = null;
-    let authStateTimeout = null;
-    
     if (auth) {
       try {
-        // เพิ่ม timeout สำหรับ auth state change
-        authStateTimeout = setTimeout(() => {
-          setIsLoading(false);
-        }, 5000); // ถ้า 5 วินาทียังไม่ตอบกลับ ให้ปิด loading
-        
         unsub = onAuthStateChanged(auth, (currentUser) => {
-          // Clear timeout เมื่อได้รับ response
-          if (authStateTimeout) {
-            clearTimeout(authStateTimeout);
-            authStateTimeout = null;
-          }
-          
           // currentUser: Object ของผู้ใช้ที่ Login (null ถ้า Logout)
           setUser(currentUser);
-          setIsLoading(false);
           
           // ถ้าผู้ใช้ Logout ให้เคลียร์ State ทั้งหมด
           if (!currentUser) {
@@ -163,52 +135,13 @@ export default function App() {
             setUseAdminDashboard(false);
             // ลบค่า useAdminDashboard จาก localStorage เมื่อ Logout
             if (typeof window !== 'undefined') {
-              try {
-                localStorage.removeItem('spu_hr_useAdminDashboard');
-              } catch (e) {
-                console.warn('Error removing from localStorage:', e);
-              }
-            }
-          } else {
-            // ถ้ามี user ให้ลองโหลดข้อมูลจาก localStorage
-            if (typeof window !== 'undefined') {
-              try {
-                const savedRole = localStorage.getItem('spu_hr_role');
-                const savedFaculty = localStorage.getItem('spu_hr_faculty');
-                if (savedRole) {
-                  setRole(savedRole);
-                }
-                if (savedFaculty) {
-                  try {
-                    setSelectedFaculty(JSON.parse(savedFaculty));
-                  } catch (e) {
-                    console.warn('Error parsing saved faculty:', e);
-                  }
-                }
-              } catch (e) {
-                console.warn('Error reading from localStorage:', e);
-              }
+              localStorage.removeItem('spu_hr_useAdminDashboard');
             }
           }
-        }, (error) => {
-          // Error callback
-          if (authStateTimeout) {
-            clearTimeout(authStateTimeout);
-            authStateTimeout = null;
-          }
-          console.warn('Auth state change error:', error);
-          setIsLoading(false);
         });
       } catch (error) {
-        if (authStateTimeout) {
-          clearTimeout(authStateTimeout);
-        }
         console.warn('ไม่สามารถตั้งค่า Auth State Listener ได้:', error);
-        setIsLoading(false);
       }
-    } else {
-      // ถ้าไม่มี auth ให้ปิด loading ทันที
-      setIsLoading(false);
     }
     
     /**
@@ -217,15 +150,8 @@ export default function App() {
      * ป้องกัน Memory Leak
      */
     return () => {
-      if (authStateTimeout) {
-        clearTimeout(authStateTimeout);
-      }
       if (unsub) {
-        try {
-          unsub();
-        } catch (error) {
-          console.warn('Error unsubscribing auth state:', error);
-        }
+        unsub();
       }
     };
   }, []); // [] = รันเพียงครั้งเดียวเมื่อ Component โหลด
@@ -252,27 +178,18 @@ export default function App() {
           setUser({ uid: 'local-user-' + Date.now(), isAnonymous: true });
         } else {
           // ตรวจสอบว่ามี Firebase config หรือไม่
-          try {
-            const firebaseConfig = JSON.parse(window.__firebase_config || '{}');
-            if (!firebaseConfig.apiKey || firebaseConfig.apiKey === 'YOUR_API_KEY') {
-              console.warn('Firebase config ไม่ถูกต้อง ใช้การ Login แบบ Local State');
-              setUser({ uid: 'local-user-' + Date.now(), isAnonymous: true });
-            } else {
-              // ใช้ Anonymous Authentication เป็น fallback (เพิ่ม timeout)
-              try {
-                const authPromise = signInAnonymously(auth);
-                const timeoutPromise = new Promise((_, reject) => 
-                  setTimeout(() => reject(new Error('Authentication timeout')), 10000)
-                );
-                await Promise.race([authPromise, timeoutPromise]);
-              } catch (authError) {
-                console.warn('Firebase Authentication ล้มเหลว ใช้การ Login แบบ Local State:', authError);
-                setUser({ uid: 'local-user-' + Date.now(), isAnonymous: true });
-              }
-            }
-          } catch (configError) {
-            console.warn('Error parsing Firebase config:', configError);
+          const firebaseConfig = JSON.parse(window.__firebase_config || '{}');
+          if (!firebaseConfig.apiKey || firebaseConfig.apiKey === 'YOUR_API_KEY') {
+            console.warn('Firebase config ไม่ถูกต้อง ใช้การ Login แบบ Local State');
             setUser({ uid: 'local-user-' + Date.now(), isAnonymous: true });
+          } else {
+            // ใช้ Anonymous Authentication เป็น fallback
+            try {
+              await signInAnonymously(auth);
+            } catch (authError) {
+              console.warn('Firebase Authentication ล้มเหลว ใช้การ Login แบบ Local State:', authError);
+              setUser({ uid: 'local-user-' + Date.now(), isAnonymous: true });
+            }
           }
         }
       }
@@ -283,13 +200,9 @@ export default function App() {
       
       // เก็บข้อมูล Login ใน localStorage
       if (typeof window !== 'undefined') {
-        try {
-          localStorage.setItem('spu_hr_role', userRole);
-          if (faculty) {
-            localStorage.setItem('spu_hr_faculty', JSON.stringify(faculty));
-          }
-        } catch (storageError) {
-          console.warn('Error saving to localStorage:', storageError);
+        localStorage.setItem('spu_hr_role', userRole);
+        if (faculty) {
+          localStorage.setItem('spu_hr_faculty', JSON.stringify(faculty));
         }
       }
     } catch (error) {
@@ -302,13 +215,9 @@ export default function App() {
       
       // เก็บข้อมูล Login ใน localStorage
       if (typeof window !== 'undefined') {
-        try {
-          localStorage.setItem('spu_hr_role', userRole);
-          if (faculty) {
-            localStorage.setItem('spu_hr_faculty', JSON.stringify(faculty));
-          }
-        } catch (storageError) {
-          console.warn('Error saving to localStorage:', storageError);
+        localStorage.setItem('spu_hr_role', userRole);
+        if (faculty) {
+          localStorage.setItem('spu_hr_faculty', JSON.stringify(faculty));
         }
       }
     }
@@ -352,18 +261,6 @@ export default function App() {
   // ========================================================================
   // Conditional Rendering: แสดงหน้า Login หรือ Dashboard
   // ========================================================================
-  
-  // แสดง loading state ขณะกำลังตรวจสอบ authentication
-  if (isLoading) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-pink-50 via-rose-50 to-pink-100 flex items-center justify-center">
-        <div className="text-center">
-          <div className="w-16 h-16 border-4 border-pink-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-          <p className="text-gray-700 font-medium">กำลังโหลด...</p>
-        </div>
-      </div>
-    );
-  }
   
   /**
    * ถ้ายังไม่ Login หรือไม่มีบทบาท ให้แสดงหน้า LoginPage หรือ RegisterPage
@@ -409,27 +306,18 @@ export default function App() {
             - ถ้าไม่ → แสดง Dashboard ปกติ
           */}
           {useAdminDashboard && role === 'hr' ? (
-            <React.Suspense fallback={
-              <div className="min-h-screen bg-gradient-to-br from-pink-50 via-rose-50 to-pink-100 flex items-center justify-center">
-                <div className="text-center">
-                  <div className="w-16 h-16 border-4 border-pink-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-                  <p className="text-gray-700 font-medium">กำลังโหลด Dashboard...</p>
-                </div>
-              </div>
-            }>
-              <AdminDashboard 
-                userRole={role} 
-                faculty={selectedFaculty} 
-                onLogout={handleLogout}
-                onCreateRequest={() => setShowForm(true)}
-                onSwitchToStandard={() => {
-                  setUseAdminDashboard(false);
-                  if (typeof window !== 'undefined') {
-                    localStorage.removeItem('spu_hr_useAdminDashboard');
-                  }
-                }}
-              />
-            </React.Suspense>
+            <AdminDashboard 
+              userRole={role} 
+              faculty={selectedFaculty} 
+              onLogout={handleLogout}
+              onCreateRequest={() => setShowForm(true)}
+              onSwitchToStandard={() => {
+                setUseAdminDashboard(false);
+                if (typeof window !== 'undefined') {
+                  localStorage.removeItem('spu_hr_useAdminDashboard');
+                }
+              }}
+            />
           ) : (
             <>
               {/* 

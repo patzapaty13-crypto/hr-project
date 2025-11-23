@@ -43,11 +43,6 @@ import { BrowserRouter } from 'react-router-dom';
 import App from '../App.jsx';
 
 // ============================================================================
-// นำเข้า Error Boundary
-// ============================================================================
-import ErrorBoundary from '../components/ErrorBoundary';
-
-// ============================================================================
 // Render แอปพลิเคชัน
 // ============================================================================
 /**
@@ -64,23 +59,12 @@ import ErrorBoundary from '../components/ErrorBoundary';
  * - ตรวจสอบ Components ที่ใช้ Deprecated APIs
  * - ตรวจสอบ Side Effects และ Potential Issues
  * - ไม่มีผลกระทบใน Production Build
- * 
- * ErrorBoundary:
- * - จับ Error ที่เกิดขึ้นใน Component Tree
- * - แสดง Error UI แทนที่จะให้แอป crash
  */
-const rootElement = document.getElementById('root');
-if (!rootElement) {
-  throw new Error('Root element not found. Make sure index.html has a div with id="root"');
-}
-
-ReactDOM.createRoot(rootElement).render(
+ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
-    <ErrorBoundary>
-      <BrowserRouter>
-        <App />
-      </BrowserRouter>
-    </ErrorBoundary>
+    <BrowserRouter>
+      <App />
+    </BrowserRouter>
   </React.StrictMode>,
 );
 

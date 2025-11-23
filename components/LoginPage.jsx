@@ -25,7 +25,7 @@
  * ============================================================================
  */
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
 // ============================================================================
 // นำเข้า Icons จาก lucide-react
@@ -90,6 +90,20 @@ const LoginPage = ({ onLogin, onShowRegister }) => {
   // State สำหรับจัดการ Loading และ Error
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
+  
+  // State สำหรับ navbar scroll effect
+  const [scrolled, setScrolled] = useState(false);
+  
+  // ตรวจจับการ scroll สำหรับ navbar effect
+  useEffect(() => {
+    const handleScroll = () => {
+      const isScrolled = window.scrollY > 50;
+      setScrolled(isScrolled);
+    };
+    
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   /**
    * handleSubmit: ฟังก์ชันที่ถูกเรียกเมื่อกดปุ่ม "เข้าสู่ระบบ"
@@ -104,23 +118,15 @@ const LoginPage = ({ onLogin, onShowRegister }) => {
     setError('');
     setIsLoading(true);
 
-    // Timeout protection - ถ้าใช้เวลานานกว่า 30 วินาที ให้หยุด
-    const timeoutId = setTimeout(() => {
-      setIsLoading(false);
-      setError('การเข้าสู่ระบบใช้เวลานานเกินไป กรุณาลองใหม่อีกครั้ง');
-    }, 30000);
-
     try {
       // Validation
       if (!email || !password) {
-        clearTimeout(timeoutId);
         setError('กรุณากรอกอีเมลและรหัสผ่าน');
         setIsLoading(false);
         return;
       }
 
       if (role === 'faculty' && !facultyId) {
-        clearTimeout(timeoutId);
         setError('กรุณาเลือกคณะ/หน่วยงาน');
         setIsLoading(false);
         return;
@@ -128,21 +134,10 @@ const LoginPage = ({ onLogin, onShowRegister }) => {
 
       // Login ด้วย Email/Password
       let userCredential;
-      
-      // ตรวจสอบว่าเป็น Demo Mode หรือไม่
-      const isDemoMode = !auth || !db;
-      
-      if (auth && !isDemoMode) {
+      if (auth) {
         try {
-          // เพิ่ม timeout สำหรับ Firebase auth
-          const authPromise = signInWithEmailAndPassword(auth, email.toLowerCase(), password);
-          const timeoutPromise = new Promise((_, reject) => 
-            setTimeout(() => reject(new Error('การเข้าสู่ระบบใช้เวลานานเกินไป')), 15000)
-          );
-          
-          userCredential = await Promise.race([authPromise, timeoutPromise]);
+          userCredential = await signInWithEmailAndPassword(auth, email.toLowerCase(), password);
         } catch (authError) {
-          clearTimeout(timeoutId);
           if (authError.code === 'auth/user-not-found') {
             setError('ไม่พบผู้ใช้ในระบบ กรุณาลงทะเบียนก่อน');
             setIsLoading(false);
@@ -155,34 +150,8 @@ const LoginPage = ({ onLogin, onShowRegister }) => {
             setError('รูปแบบอีเมลไม่ถูกต้อง');
             setIsLoading(false);
             return;
-          } else if (authError.code === 'auth/network-request-failed') {
-            // ถ้า network error ให้ใช้ Demo Mode แทน
-            console.warn('Network error, switching to Demo Mode');
-            userCredential = {
-              user: {
-                uid: 'demo-user-' + Date.now(),
-                email: email.toLowerCase()
-              }
-            };
-          } else if (authError.message && authError.message.includes('timeout')) {
-            // ถ้า timeout ให้ใช้ Demo Mode แทน
-            console.warn('Auth timeout, switching to Demo Mode');
-            userCredential = {
-              user: {
-                uid: 'demo-user-' + Date.now(),
-                email: email.toLowerCase()
-              }
-            };
-          } else {
-            // Error อื่นๆ ให้ใช้ Demo Mode แทน
-            console.warn('Auth error, switching to Demo Mode:', authError);
-            userCredential = {
-              user: {
-                uid: 'demo-user-' + Date.now(),
-                email: email.toLowerCase()
-              }
-            };
           }
+          throw authError;
         }
       } else {
         // Demo Mode: สร้าง mock user
@@ -194,61 +163,22 @@ const LoginPage = ({ onLogin, onShowRegister }) => {
         };
       }
 
-      // ดึงข้อมูลผู้ใช้จาก Database (เพิ่ม timeout)
-      let userData;
-      try {
-        const userDataPromise = getUserByEmail(email.toLowerCase());
-        const userDataTimeout = new Promise((_, reject) => 
-          setTimeout(() => reject(new Error('การดึงข้อมูลผู้ใช้ใช้เวลานานเกินไป')), 10000)
-        );
-        userData = await Promise.race([userDataPromise, userDataTimeout]);
-      } catch (userDataError) {
-        clearTimeout(timeoutId);
-        console.error('Error getting user data:', userDataError);
-        
-        // ใน Demo Mode ถ้าไม่มี userData ให้สร้างใหม่
-        if (!auth || !db) {
-          console.log('Demo Mode: สร้าง userData อัตโนมัติ');
-          userData = {
-            email: email.toLowerCase(),
-            role: role,
-            facultyId: role === 'faculty' ? facultyId : null
-          };
-        } else {
-          setError('ไม่สามารถดึงข้อมูลผู้ใช้ได้ กรุณาลองใหม่อีกครั้ง');
-          setIsLoading(false);
-          return;
-        }
-      }
+      // ดึงข้อมูลผู้ใช้จาก Database
+      const userData = await getUserByEmail(email.toLowerCase());
 
-      // ถ้าไม่มี userData และอยู่ใน Demo Mode ให้สร้างใหม่
-      if (!userData && (!auth || !db)) {
-        console.log('Demo Mode: สร้าง userData อัตโนมัติ');
-        userData = {
-          email: email.toLowerCase(),
-          role: role,
-          facultyId: role === 'faculty' ? facultyId : null
-        };
-      }
-
-      // ถ้ายังไม่มี userData และไม่ใช่ Demo Mode
       if (!userData) {
-        clearTimeout(timeoutId);
         setError('ไม่พบข้อมูลผู้ใช้ในระบบ กรุณาลงทะเบียนก่อน');
         setIsLoading(false);
         return;
       }
 
-      // ตรวจสอบสิทธิ์การเข้าถึง (ข้ามใน Demo Mode ถ้าไม่มี userData เดิม)
-      if (auth && db) {
-        const accessCheck = checkAccess(userData, role, role === 'faculty' ? facultyId : null);
-        
-        if (!accessCheck.allowed) {
-          clearTimeout(timeoutId);
-          setError(accessCheck.message);
-          setIsLoading(false);
-          return;
-        }
+      // ตรวจสอบสิทธิ์การเข้าถึง
+      const accessCheck = checkAccess(userData, role, role === 'faculty' ? facultyId : null);
+      
+      if (!accessCheck.allowed) {
+        setError(accessCheck.message);
+        setIsLoading(false);
+        return;
       }
 
       // หาข้อมูลคณะ (ถ้าเป็น faculty)
@@ -256,32 +186,18 @@ const LoginPage = ({ onLogin, onShowRegister }) => {
       if (role === 'faculty') {
         selectedFaculty = FACULTIES.find(f => f.id === facultyId);
         if (!selectedFaculty) {
-          clearTimeout(timeoutId);
           setError('ไม่พบข้อมูลคณะที่เลือก');
           setIsLoading(false);
           return;
         }
       }
 
-      // เรียก onLogin พร้อมส่งข้อมูล (เพิ่ม timeout)
-      try {
-        const loginPromise = onLogin(role, selectedFaculty, userCredential.user);
-        const loginTimeout = new Promise((_, reject) => 
-          setTimeout(() => reject(new Error('การเข้าสู่ระบบใช้เวลานานเกินไป')), 10000)
-        );
-        await Promise.race([loginPromise, loginTimeout]);
-        clearTimeout(timeoutId);
-      } catch (loginError) {
-        clearTimeout(timeoutId);
-        console.error('Error in onLogin:', loginError);
-        setError('เกิดข้อผิดพลาดในการเข้าสู่ระบบ กรุณาลองใหม่อีกครั้ง');
-        setIsLoading(false);
-        return;
-      }
+      // เรียก onLogin พร้อมส่งข้อมูล
+      await onLogin(role, selectedFaculty, userCredential.user);
     } catch (err) {
-      clearTimeout(timeoutId);
       console.error('Login error:', err);
       setError(err.message || 'เกิดข้อผิดพลาดในการเข้าสู่ระบบ กรุณาลองใหม่อีกครั้ง');
+    } finally {
       setIsLoading(false);
     }
   };
@@ -310,22 +226,33 @@ const LoginPage = ({ onLogin, onShowRegister }) => {
         </div>
       </div>
 
-        {/* Main Navigation Header - สีขาว */}
-        <header className="bg-white text-gray-900 border-b border-gray-200 sticky top-0 z-50 shadow-sm">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 py-3 sm:py-4">
-            <div className="flex justify-between items-center">
-              {/* Logo SPU - Horizontal Layout */}
-              <div className="flex items-center gap-3 sm:gap-4">
+        {/* Main Navigation Header - Glassmorphism with slide effect */}
+        <header 
+          className={`sticky top-0 z-50 transition-all duration-500 ease-in-out ${
+            scrolled 
+              ? 'bg-white/95 backdrop-blur-xl shadow-lg border-b border-white/20' 
+              : 'bg-white/80 backdrop-blur-md shadow-sm border-b border-white/10'
+          }`}
+        >
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 transition-all duration-500">
+            <div className={`flex justify-between items-center transition-all duration-500 ${
+              scrolled ? 'py-3' : 'py-4 sm:py-5'
+            }`}>
+              {/* Logo SPU - Horizontal Layout with animation */}
+              <div className="flex items-center gap-3 sm:gap-4 transform transition-all duration-300 hover:scale-105">
                 <SPULogo 
                   size="sm" 
                   onClick={() => window.location.reload()}
+                  className="cursor-pointer"
                 />
-                <span className="hidden sm:block text-gray-900 text-base sm:text-lg font-bold tracking-wide">Personnel System</span>
+                <span className="hidden sm:block text-gray-900 text-base sm:text-lg font-bold tracking-wide transition-colors duration-200">
+                  Personnel System
+                </span>
               </div>
               
               {/* Navigation Menu - Mobile Menu Button */}
               <button 
-                className="lg:hidden p-2 text-gray-700 hover:text-gray-900 transition"
+                className="lg:hidden p-2 text-gray-700 hover:text-gray-900 transition-all duration-200 hover:bg-gray-100 rounded-lg"
                 onClick={() => {
                   alert('เมนู: หน้าหลัก | เกี่ยวกับ | ติดต่อ');
                 }}
@@ -336,15 +263,33 @@ const LoginPage = ({ onLogin, onShowRegister }) => {
                 </svg>
               </button>
               
-              {/* Navigation Menu - Desktop */}
-              <nav className="hidden lg:flex items-center space-x-4 text-sm">
-                <button onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} className="text-gray-900 font-bold border-b-2 border-gray-900 pb-1 px-2 cursor-pointer transition-all duration-200 hover:scale-105">หน้าหลัก</button>
-                <button onClick={() => {
-                  alert('ระบบอัตรากำลังพล SPU Personnel System\n\nเวอร์ชัน 1.0.0\nพัฒนาสำหรับมหาวิทยาลัยศรีปทุม');
-                }} className="text-gray-700 hover:text-gray-900 transition-all duration-200 hover:scale-105 cursor-pointer px-2 py-1 rounded hover:bg-gray-100 font-semibold">เกี่ยวกับ</button>
-                <button onClick={() => {
-                  window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
-                }} className="text-gray-700 hover:text-gray-900 transition-all duration-200 hover:scale-105 cursor-pointer px-2 py-1 rounded hover:bg-gray-100 font-semibold">ติดต่อ</button>
+              {/* Navigation Menu - Desktop with slide effect */}
+              <nav className="hidden lg:flex items-center space-x-2 text-sm">
+                <button 
+                  onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} 
+                  className="relative px-4 py-2 text-gray-700 font-semibold rounded-lg transition-all duration-300 hover:text-pink-600 hover:bg-pink-50 group overflow-hidden"
+                >
+                  <span className="relative z-10">หน้าหลัก</span>
+                  <span className="absolute inset-0 bg-gradient-to-r from-pink-500/0 via-pink-500/10 to-pink-500/0 transform -translate-x-full group-hover:translate-x-0 transition-transform duration-500"></span>
+                </button>
+                <button 
+                  onClick={() => {
+                    alert('ระบบอัตรากำลังพล SPU Personnel System\n\nเวอร์ชัน 1.0.0\nพัฒนาสำหรับมหาวิทยาลัยศรีปทุม');
+                  }} 
+                  className="relative px-4 py-2 text-gray-700 font-semibold rounded-lg transition-all duration-300 hover:text-pink-600 hover:bg-pink-50 group overflow-hidden"
+                >
+                  <span className="relative z-10">เกี่ยวกับ</span>
+                  <span className="absolute inset-0 bg-gradient-to-r from-pink-500/0 via-pink-500/10 to-pink-500/0 transform -translate-x-full group-hover:translate-x-0 transition-transform duration-500"></span>
+                </button>
+                <button 
+                  onClick={() => {
+                    window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+                  }} 
+                  className="relative px-4 py-2 text-gray-700 font-semibold rounded-lg transition-all duration-300 hover:text-pink-600 hover:bg-pink-50 group overflow-hidden"
+                >
+                  <span className="relative z-10">ติดต่อ</span>
+                  <span className="absolute inset-0 bg-gradient-to-r from-pink-500/0 via-pink-500/10 to-pink-500/0 transform -translate-x-full group-hover:translate-x-0 transition-transform duration-500"></span>
+                </button>
               </nav>
             </div>
           </div>
@@ -354,27 +299,31 @@ const LoginPage = ({ onLogin, onShowRegister }) => {
         <section className="relative min-h-[500px] sm:min-h-[600px] flex items-center">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8 sm:py-12 w-full">
             <div className="grid lg:grid-cols-2 gap-8 lg:gap-12 items-center">
-              {/* Left Content */}
-              <div className="text-left space-y-4 sm:space-y-6 order-2 lg:order-1">
-                <p className="text-pink-100 text-xs sm:text-sm font-semibold uppercase tracking-widest">ยินดีต้อนรับ</p>
-                <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-black text-white leading-tight drop-shadow-2xl tracking-tight">
+              {/* Left Content with animations */}
+              <div className="text-left space-y-4 sm:space-y-6 order-2 lg:order-1 animate-fade-in-up">
+                <p className="text-pink-100 text-xs sm:text-sm font-semibold uppercase tracking-widest animate-fade-in opacity-0" style={{ animationDelay: '0.1s', animationFillMode: 'forwards' }}>
+                  ยินดีต้อนรับ
+                </p>
+                <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-black text-white leading-tight drop-shadow-2xl tracking-tight animate-fade-in-up opacity-0" style={{ animationDelay: '0.2s', animationFillMode: 'forwards' }}>
                   HR SPU
                 </h1>
-                <p className="text-base sm:text-lg md:text-xl text-white/95 leading-relaxed max-w-xl drop-shadow-lg font-medium">
+                <p className="text-base sm:text-lg md:text-xl text-white/95 leading-relaxed max-w-xl drop-shadow-lg font-medium animate-fade-in-up opacity-0" style={{ animationDelay: '0.3s', animationFillMode: 'forwards' }}>
                   SPU HR Personnel System
                 </p>
-                <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 mt-6 sm:mt-8">
+                <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 mt-6 sm:mt-8 animate-fade-in-up opacity-0" style={{ animationDelay: '0.4s', animationFillMode: 'forwards' }}>
                   <button 
                     onClick={() => {
                       alert('ระบบ SPU Personnel System\n\nใช้งานง่าย ปลอดภัย และมีประสิทธิภาพ\n\nเหมาะสำหรับการจัดการอัตรากำลังพล');
                     }}
-                    className="px-6 sm:px-8 py-3 sm:py-3.5 bg-white text-pink-600 rounded-lg hover:bg-pink-50 transition-all duration-200 shadow-lg hover:shadow-xl font-semibold text-sm sm:text-base cursor-pointer transform hover:scale-105 active:scale-95"
+                    className="group relative px-6 sm:px-8 py-3 sm:py-3.5 bg-white text-pink-600 rounded-lg overflow-hidden transition-all duration-300 shadow-lg hover:shadow-2xl font-semibold text-sm sm:text-base cursor-pointer transform hover:scale-105 active:scale-95"
                   >
-                    เรียนรู้เพิ่มเติม
+                    <span className="relative z-10">เรียนรู้เพิ่มเติม</span>
+                    <span className="absolute inset-0 bg-gradient-to-r from-pink-500 to-rose-500 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left"></span>
+                    <span className="absolute inset-0 flex items-center justify-center text-white opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10">เรียนรู้เพิ่มเติม</span>
                   </button>
                   <button 
                     onClick={() => window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' })}
-                    className="px-6 sm:px-8 py-3 sm:py-3.5 bg-white/20 backdrop-blur-sm text-white border-2 border-white rounded-lg hover:bg-white/30 transition-all duration-200 font-semibold text-sm sm:text-base cursor-pointer transform hover:scale-105 active:scale-95"
+                    className="px-6 sm:px-8 py-3 sm:py-3.5 bg-white/20 backdrop-blur-sm text-white border-2 border-white rounded-lg hover:bg-white/30 hover:border-white/50 transition-all duration-300 font-semibold text-sm sm:text-base cursor-pointer transform hover:scale-105 active:scale-95 shadow-lg hover:shadow-xl"
                   >
                     ติดต่อเรา
                   </button>
@@ -388,7 +337,7 @@ const LoginPage = ({ onLogin, onShowRegister }) => {
                   max-w-md: ความกว้างสูงสุด 28rem (448px)
                   responsive: w-full บน mobile, max-w-md บน desktop
                 */}
-                <div className="bg-white/95 backdrop-blur-md shadow-2xl rounded-lg w-full max-w-md overflow-hidden border border-white/20">
+                <div className="bg-white/95 backdrop-blur-md shadow-2xl rounded-2xl w-full max-w-md overflow-hidden border border-white/20 transform transition-all duration-500 hover:scale-[1.02] hover:shadow-3xl animate-fade-in-up opacity-0" style={{ animationDelay: '0.5s', animationFillMode: 'forwards' }}>
                 {/* 
                   ====================================================================
                   ส่วนหัวของกล่อง Login - สีชมพูแบบนุ่มนวล
@@ -408,12 +357,21 @@ const LoginPage = ({ onLogin, onShowRegister }) => {
                   แท็บเลือกบทบาท (Tabs) - สีชมพูแบบนุ่มนวล
                   ====================================================================
                 */}
-                <div className="flex border-b border-gray-100">
+                <div className="flex border-b border-gray-100 relative">
+                  {/* Active indicator slide */}
+                  <div 
+                    className="absolute bottom-0 h-0.5 bg-gradient-to-r from-pink-500 to-rose-500 transition-all duration-300 ease-in-out"
+                    style={{
+                      width: '25%',
+                      left: role === 'faculty' ? '0%' : role === 'hr' ? '25%' : role === 'vp_hr' ? '50%' : '75%'
+                    }}
+                  ></div>
+                  
                   {/* แท็บที่ 1: สำหรับคณะ/หน่วยงาน */}
                   <button 
-                    className={`flex-1 py-2.5 sm:py-3 text-xs sm:text-sm font-semibold transition-all duration-200 cursor-pointer ${
+                    className={`relative flex-1 py-2.5 sm:py-3 text-xs sm:text-sm font-semibold transition-all duration-300 cursor-pointer ${
                       role === 'faculty' 
-                        ? 'text-pink-600 border-b-3 border-pink-500 bg-pink-50'  // สถานะ Active
+                        ? 'text-pink-600 bg-pink-50'  // สถานะ Active
                         : 'text-gray-600 hover:text-gray-800 hover:bg-gray-50 active:bg-gray-100'  // สถานะ Inactive
                     }`}
                     onClick={() => setRole('faculty')}
@@ -423,9 +381,9 @@ const LoginPage = ({ onLogin, onShowRegister }) => {
                   </button>
                   {/* แท็บที่ 2: สำหรับ HR */}
                   <button 
-                    className={`flex-1 py-2.5 sm:py-3 text-xs sm:text-sm font-semibold transition-all duration-200 cursor-pointer ${
+                    className={`relative flex-1 py-2.5 sm:py-3 text-xs sm:text-sm font-semibold transition-all duration-300 cursor-pointer ${
                       role === 'hr' 
-                        ? 'text-pink-600 border-b-3 border-pink-500 bg-pink-50'  // สถานะ Active
+                        ? 'text-pink-600 bg-pink-50'  // สถานะ Active
                         : 'text-gray-600 hover:text-gray-800 hover:bg-gray-50 active:bg-gray-100'  // สถานะ Inactive
                     }`}
                     onClick={() => setRole('hr')}
@@ -434,9 +392,9 @@ const LoginPage = ({ onLogin, onShowRegister }) => {
                   </button>
                   {/* แท็บที่ 3: สำหรับ VP HR */}
                   <button 
-                    className={`flex-1 py-2.5 sm:py-3 text-xs sm:text-sm font-semibold transition-all duration-200 cursor-pointer ${
+                    className={`relative flex-1 py-2.5 sm:py-3 text-xs sm:text-sm font-semibold transition-all duration-300 cursor-pointer ${
                       role === 'vp_hr' 
-                        ? 'text-pink-600 border-b-3 border-pink-500 bg-pink-50'  // สถานะ Active
+                        ? 'text-pink-600 bg-pink-50'  // สถานะ Active
                         : 'text-gray-600 hover:text-gray-800 hover:bg-gray-50 active:bg-gray-100'  // สถานะ Inactive
                     }`}
                     onClick={() => setRole('vp_hr')}
@@ -445,9 +403,9 @@ const LoginPage = ({ onLogin, onShowRegister }) => {
                   </button>
                   {/* แท็บที่ 4: สำหรับ President */}
                   <button 
-                    className={`flex-1 py-2.5 sm:py-3 text-xs sm:text-sm font-semibold transition-all duration-200 cursor-pointer ${
+                    className={`relative flex-1 py-2.5 sm:py-3 text-xs sm:text-sm font-semibold transition-all duration-300 cursor-pointer ${
                       role === 'president' 
-                        ? 'text-pink-600 border-b-3 border-pink-500 bg-pink-50'  // สถานะ Active
+                        ? 'text-pink-600 bg-pink-50'  // สถานะ Active
                         : 'text-gray-600 hover:text-gray-800 hover:bg-gray-50 active:bg-gray-100'  // สถานะ Inactive
                     }`}
                     onClick={() => setRole('president')}
@@ -569,14 +527,7 @@ const LoginPage = ({ onLogin, onShowRegister }) => {
                 <button 
                   type="submit"
                   disabled={isLoading}
-                  className="w-full bg-gradient-to-r from-pink-500 to-pink-600 text-white py-3.5 rounded-lg hover:from-pink-600 hover:to-pink-700 transition-all duration-200 font-bold shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center mt-2 cursor-pointer transform hover:scale-[1.02] active:scale-[0.98] text-base relative"
-                  onClick={(e) => {
-                    // ป้องกัน double-click
-                    if (isLoading) {
-                      e.preventDefault();
-                      return false;
-                    }
-                  }}
+                  className="w-full bg-gradient-to-r from-pink-500 to-pink-600 text-white py-3.5 rounded-lg hover:from-pink-600 hover:to-pink-700 transition-all duration-200 font-bold shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center mt-2 cursor-pointer transform hover:scale-[1.02] active:scale-[0.98] text-base"
                 >
                   {isLoading ? (
                     <>
@@ -619,6 +570,80 @@ const LoginPage = ({ onLogin, onShowRegister }) => {
         </div>
       </section>
 
+        {/* Feature Cards Section with modern animations */}
+        <section className="bg-white/10 backdrop-blur-sm py-12 sm:py-16 px-4 sm:px-6">
+        <div className="max-w-7xl mx-auto">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
+              {/* Card 1 */}
+              <div className="group bg-white/90 backdrop-blur-sm border border-white/30 rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-500 overflow-hidden transform hover:-translate-y-2 hover:scale-[1.02]">
+                <div className="h-40 sm:h-48 bg-gradient-to-br from-blue-100/90 to-slate-100/90 flex items-center justify-center relative overflow-hidden">
+                  <div className="absolute inset-0 bg-gradient-to-br from-blue-500/0 to-blue-500/20 group-hover:from-blue-500/20 group-hover:to-blue-500/40 transition-all duration-500"></div>
+                  <Building size={40} className="sm:w-12 sm:h-12 text-blue-600 relative z-10 transform group-hover:scale-110 group-hover:rotate-3 transition-all duration-500" />
+                </div>
+                <div className="p-4 sm:p-6">
+                  <h3 className="text-lg sm:text-xl font-black text-gray-900 mb-2 sm:mb-3 tracking-tight group-hover:text-blue-600 transition-colors duration-300">จัดการคณะ</h3>
+                  <p className="text-gray-700 text-sm mb-3 sm:mb-4 leading-relaxed font-medium">
+                    สร้างและจัดการคำขออัตรากำลังพลสำหรับคณะและหน่วยงานของคุณได้อย่างง่ายดาย
+                  </p>
+                  <button 
+                    onClick={() => {
+                      alert('ระบบจัดการคณะ\n\n- สร้างคำขอใหม่\n- ติดตามสถานะ\n- ใช้ AI ช่วยร่าง Job Description');
+                    }}
+                    className="text-pink-600 hover:text-pink-700 font-bold text-sm cursor-pointer transition-all duration-300 hover:scale-105 inline-flex items-center gap-1 underline decoration-2 underline-offset-2 group-hover:gap-2"
+                  >
+                    อ่านเพิ่มเติม <span className="text-base transform group-hover:translate-x-1 transition-transform duration-300">→</span>
+                  </button>
+                </div>
+              </div>
+
+              {/* Card 2 */}
+              <div className="group bg-white/90 backdrop-blur-sm border border-white/30 rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-500 overflow-hidden transform hover:-translate-y-2 hover:scale-[1.02]">
+                <div className="h-40 sm:h-48 bg-gradient-to-br from-green-100/90 to-emerald-100/90 flex items-center justify-center relative overflow-hidden">
+                  <div className="absolute inset-0 bg-gradient-to-br from-green-500/0 to-green-500/20 group-hover:from-green-500/20 group-hover:to-green-500/40 transition-all duration-500"></div>
+                  <Briefcase size={40} className="sm:w-12 sm:h-12 text-green-600 relative z-10 transform group-hover:scale-110 group-hover:rotate-3 transition-all duration-500" />
+                </div>
+                <div className="p-4 sm:p-6">
+                  <h3 className="text-lg sm:text-xl font-black text-gray-900 mb-2 sm:mb-3 tracking-tight group-hover:text-green-600 transition-colors duration-300">ระบบอนุมัติ</h3>
+                  <p className="text-gray-700 text-sm mb-3 sm:mb-4 leading-relaxed font-medium">
+                    ระบบอนุมัติอัตรากำลังพลที่รวดเร็ว มีประสิทธิภาพ และติดตามได้ทุกขั้นตอน
+                  </p>
+                  <button 
+                    onClick={() => {
+                      alert('ระบบอนุมัติ\n\n- รับเรื่องและตรวจสอบ\n- เสนอผู้บริหาร\n- ติดตามสถานะอัตโนมัติ');
+                    }}
+                    className="text-pink-600 hover:text-pink-700 font-bold text-sm cursor-pointer transition-all duration-300 hover:scale-105 inline-flex items-center gap-1 underline decoration-2 underline-offset-2 group-hover:gap-2"
+                  >
+                    อ่านเพิ่มเติม <span className="text-base transform group-hover:translate-x-1 transition-transform duration-300">→</span>
+                  </button>
+                </div>
+              </div>
+
+              {/* Card 3 */}
+              <div className="group bg-white/90 backdrop-blur-sm border border-white/30 rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-500 overflow-hidden transform hover:-translate-y-2 hover:scale-[1.02] sm:col-span-2 lg:col-span-1">
+                <div className="h-40 sm:h-48 bg-gradient-to-br from-purple-100/90 to-indigo-100/90 flex items-center justify-center relative overflow-hidden">
+                  <div className="absolute inset-0 bg-gradient-to-br from-purple-500/0 to-purple-500/20 group-hover:from-purple-500/20 group-hover:to-purple-500/40 transition-all duration-500"></div>
+                  <svg className="w-10 h-10 sm:w-12 sm:h-12 text-purple-600 relative z-10 transform group-hover:scale-110 group-hover:rotate-12 transition-all duration-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                  </svg>
+                </div>
+                <div className="p-4 sm:p-6">
+                  <h3 className="text-lg sm:text-xl font-black text-gray-900 mb-2 sm:mb-3 tracking-tight group-hover:text-purple-600 transition-colors duration-300">ใช้งานง่าย</h3>
+                  <p className="text-gray-700 text-sm mb-3 sm:mb-4 leading-relaxed font-medium">
+                    อินเทอร์เฟซที่ใช้งานง่าย พร้อม AI ช่วยเหลือทำให้การทำงานของคุณรวดเร็วขึ้น
+                  </p>
+                  <button 
+                    onClick={() => {
+                      alert('ใช้งานง่าย\n\n- อินเทอร์เฟซทันสมัย\n- AI ช่วยร่าง Job Description\n- ติดตามสถานะแบบ Real-time');
+                    }}
+                    className="text-pink-600 hover:text-pink-700 font-bold text-sm cursor-pointer transition-all duration-300 hover:scale-105 inline-flex items-center gap-1 underline decoration-2 underline-offset-2 group-hover:gap-2"
+                  >
+                    อ่านเพิ่มเติม <span className="text-base transform group-hover:translate-x-1 transition-transform duration-300">→</span>
+                  </button>
+                </div>
+              </div>
+          </div>
+        </div>
+      </section>
 
           {/* Footer Section */}
           <footer className="bg-white/10 backdrop-blur-sm border-t border-white/20 text-white py-8 px-6">

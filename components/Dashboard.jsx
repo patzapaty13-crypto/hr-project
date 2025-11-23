@@ -28,8 +28,7 @@ import React, { useState, useEffect } from 'react';
 // Building: Icon สำหรับคณะ/หน่วยงาน
 // Briefcase: Icon สำหรับ HR
 // Plus: Icon สำหรับปุ่มเพิ่ม/สร้างใหม่
-// FileText: Icon สำหรับตรวจสอบ Resume
-import { LogOut, Building, Briefcase, Plus, FileText } from 'lucide-react';
+import { LogOut, Building, Briefcase, Plus } from 'lucide-react';
 
 // ============================================================================
 // นำเข้า Firestore Functions
@@ -67,8 +66,6 @@ import { WORKFLOW_STEPS } from '../constants';
 // ============================================================================
 // SPULogo: Component สำหรับแสดง Logo SPU
 import SPULogo from './SPULogo';
-// ResumeReview: Component สำหรับตรวจสอบ Resume ด้วย AI
-import ResumeReview from './ResumeReview';
 
 // ============================================================================
 // นำเข้า Local Storage Utility
@@ -93,9 +90,19 @@ const Dashboard = ({ userRole, faculty, onLogout, onCreateRequest, onSwitchToAdm
   // ใช้สำหรับแสดงข้อความ "กำลังโหลด..." ในตาราง
   const [loading, setLoading] = useState(true);
   
-  // State สำหรับ Resume Review Modal
-  const [showResumeReview, setShowResumeReview] = useState(false);
-  const [selectedRequest, setSelectedRequest] = useState(null);
+  // State สำหรับ navbar scroll effect
+  const [scrolled, setScrolled] = useState(false);
+  
+  // ตรวจจับการ scroll สำหรับ navbar effect
+  useEffect(() => {
+    const handleScroll = () => {
+      const isScrolled = window.scrollY > 50;
+      setScrolled(isScrolled);
+    };
+    
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   // ========================================================================
   // useEffect Hook: ดึงข้อมูลจาก Firestore แบบ Real-time หรือ Local Storage
@@ -381,8 +388,15 @@ const Dashboard = ({ userRole, faculty, onLogout, onCreateRequest, onSwitchToAdm
         - แสดงบทบาทหรือชื่อคณะ
         - ปุ่มออกจากระบบ
       */}
-      <nav className="bg-white text-gray-900 shadow-lg border-b border-gray-200 px-4 sm:px-6 py-3 sm:py-4">
-        <div className="max-w-7xl mx-auto flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-0">
+      <nav className={`bg-white text-gray-900 border-b border-gray-200 px-4 sm:px-6 transition-all duration-500 ease-in-out sticky top-0 z-50 ${
+        scrolled 
+          ? 'shadow-xl backdrop-blur-xl bg-white/95' 
+          : 'shadow-lg'
+      }`}>
+        <div className={`transition-all duration-500 ${
+          scrolled ? 'py-3' : 'py-3 sm:py-4'
+        }`}>
+          <div className="max-w-7xl mx-auto flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-0">
           {/* ส่วนซ้าย: Logo SPU และข้อมูลผู้ใช้ */}
           <div className="flex items-center space-x-2 sm:space-x-4 w-full sm:w-auto">
             {/* Logo SPU */}
@@ -457,6 +471,7 @@ const Dashboard = ({ userRole, faculty, onLogout, onCreateRequest, onSwitchToAdm
               <span className="sm:hidden">ออก</span>
             </button>
           </div>
+          </div>
         </div>
       </nav>
 
@@ -479,52 +494,64 @@ const Dashboard = ({ userRole, faculty, onLogout, onCreateRequest, onSwitchToAdm
             </p>
           </div>
           
-          {/* KPI Cards - 4 สีตามรูป (Blue, Green, Yellow, Red) */}
+          {/* KPI Cards - 4 สีตามรูป (Blue, Green, Yellow, Red) with modern animations */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mt-6 sm:mt-8">
             {/* Card 1: Blue - คำขอทั้งหมด */}
-            <div className="bg-blue-600 rounded-lg p-4 sm:p-6 text-white shadow-lg hover:shadow-xl transition">
-              <div className="flex items-center justify-between mb-2">
-                <h3 className="text-sm sm:text-base font-semibold">คำขอทั้งหมด</h3>
-                <Briefcase size={24} className="opacity-80" />
+            <div className="group bg-gradient-to-br from-blue-600 to-blue-700 rounded-2xl p-4 sm:p-6 text-white shadow-lg hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-2 hover:scale-[1.02] relative overflow-hidden">
+              <div className="absolute inset-0 bg-gradient-to-br from-blue-400/0 to-blue-400/20 group-hover:from-blue-400/20 group-hover:to-blue-400/40 transition-all duration-500"></div>
+              <div className="relative z-10">
+                <div className="flex items-center justify-between mb-2">
+                  <h3 className="text-sm sm:text-base font-semibold">คำขอทั้งหมด</h3>
+                  <Briefcase size={24} className="opacity-80 transform group-hover:scale-110 group-hover:rotate-3 transition-all duration-500" />
+                </div>
+                <div className="text-3xl sm:text-4xl font-bold mb-1 transform group-hover:scale-110 transition-transform duration-300">{requests.length}</div>
+                <div className="text-xs sm:text-sm text-blue-200">Total Requests</div>
               </div>
-              <div className="text-3xl sm:text-4xl font-bold mb-1">{requests.length}</div>
-              <div className="text-xs sm:text-sm text-blue-200">Total Requests</div>
             </div>
             
             {/* Card 2: Green - กำลังดำเนินการ */}
-            <div className="bg-green-600 rounded-lg p-4 sm:p-6 text-white shadow-lg hover:shadow-xl transition">
-              <div className="flex items-center justify-between mb-2">
-                <h3 className="text-sm sm:text-base font-semibold">กำลังดำเนินการ</h3>
-                <Building size={24} className="opacity-80" />
+            <div className="group bg-gradient-to-br from-green-600 to-green-700 rounded-2xl p-4 sm:p-6 text-white shadow-lg hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-2 hover:scale-[1.02] relative overflow-hidden">
+              <div className="absolute inset-0 bg-gradient-to-br from-green-400/0 to-green-400/20 group-hover:from-green-400/20 group-hover:to-green-400/40 transition-all duration-500"></div>
+              <div className="relative z-10">
+                <div className="flex items-center justify-between mb-2">
+                  <h3 className="text-sm sm:text-base font-semibold">กำลังดำเนินการ</h3>
+                  <Building size={24} className="opacity-80 transform group-hover:scale-110 group-hover:rotate-3 transition-all duration-500" />
+                </div>
+                <div className="text-3xl sm:text-4xl font-bold mb-1 transform group-hover:scale-110 transition-transform duration-300">
+                  {requests.filter(r => r.status === 'submitted' || r.status === 'hr_review').length}
+                </div>
+                <div className="text-xs sm:text-sm text-green-200">In Progress</div>
               </div>
-              <div className="text-3xl sm:text-4xl font-bold mb-1">
-                {requests.filter(r => r.status === 'submitted' || r.status === 'hr_review').length}
-              </div>
-              <div className="text-xs sm:text-sm text-green-200">In Progress</div>
             </div>
             
             {/* Card 3: Yellow - กำลังพิจารณา */}
-            <div className="bg-yellow-500 rounded-lg p-4 sm:p-6 text-white shadow-lg hover:shadow-xl transition">
-              <div className="flex items-center justify-between mb-2">
-                <h3 className="text-sm sm:text-base font-semibold">กำลังพิจารณา</h3>
-                <Plus size={24} className="opacity-80" />
+            <div className="group bg-gradient-to-br from-yellow-500 to-yellow-600 rounded-2xl p-4 sm:p-6 text-white shadow-lg hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-2 hover:scale-[1.02] relative overflow-hidden">
+              <div className="absolute inset-0 bg-gradient-to-br from-yellow-400/0 to-yellow-400/20 group-hover:from-yellow-400/20 group-hover:to-yellow-400/40 transition-all duration-500"></div>
+              <div className="relative z-10">
+                <div className="flex items-center justify-between mb-2">
+                  <h3 className="text-sm sm:text-base font-semibold">กำลังพิจารณา</h3>
+                  <Plus size={24} className="opacity-80 transform group-hover:scale-110 group-hover:rotate-3 transition-all duration-500" />
+                </div>
+                <div className="text-3xl sm:text-4xl font-bold mb-1 transform group-hover:scale-110 transition-transform duration-300">
+                  {requests.filter(r => r.status === 'vp_hr' || r.status === 'president').length}
+                </div>
+                <div className="text-xs sm:text-sm text-yellow-200">Under Review</div>
               </div>
-              <div className="text-3xl sm:text-4xl font-bold mb-1">
-                {requests.filter(r => r.status === 'vp_hr' || r.status === 'president').length}
-              </div>
-              <div className="text-xs sm:text-sm text-yellow-200">Under Review</div>
             </div>
             
             {/* Card 4: Red - ประกาศรับสมัครแล้ว */}
-            <div className="bg-red-600 rounded-lg p-4 sm:p-6 text-white shadow-lg hover:shadow-xl transition">
-              <div className="flex items-center justify-between mb-2">
-                <h3 className="text-sm sm:text-base font-semibold">ประกาศรับสมัคร</h3>
-                <Briefcase size={24} className="opacity-80" />
+            <div className="group bg-gradient-to-br from-red-600 to-red-700 rounded-2xl p-4 sm:p-6 text-white shadow-lg hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-2 hover:scale-[1.02] relative overflow-hidden">
+              <div className="absolute inset-0 bg-gradient-to-br from-red-400/0 to-red-400/20 group-hover:from-red-400/20 group-hover:to-red-400/40 transition-all duration-500"></div>
+              <div className="relative z-10">
+                <div className="flex items-center justify-between mb-2">
+                  <h3 className="text-sm sm:text-base font-semibold">ประกาศรับสมัคร</h3>
+                  <Briefcase size={24} className="opacity-80 transform group-hover:scale-110 group-hover:rotate-3 transition-all duration-500" />
+                </div>
+                <div className="text-3xl sm:text-4xl font-bold mb-1 transform group-hover:scale-110 transition-transform duration-300">
+                  {requests.filter(r => r.status === 'recruiting').length}
+                </div>
+                <div className="text-xs sm:text-sm text-red-200">Recruiting</div>
               </div>
-              <div className="text-3xl sm:text-4xl font-bold mb-1">
-                {requests.filter(r => r.status === 'recruiting').length}
-              </div>
-              <div className="text-xs sm:text-sm text-red-200">Recruiting</div>
             </div>
           </div>
         </div>
@@ -666,33 +693,20 @@ const Dashboard = ({ userRole, faculty, onLogout, onCreateRequest, onSwitchToAdm
                         {getStatusLabel(request.status)}
                       </span>
                     </td>
-                    {/* คอลัมน์ที่ 5: ปุ่มจัดการ (สำหรับ HR, VP HR, President) */}
+                    {/* คอลัมน์ที่ 5: ปุ่มจัดการ (สำหรับ HR เท่านั้น) */}
                     <td className="p-4">
-                      {(userRole === 'hr' || userRole === 'vp_hr' || userRole === 'president') ? (
+                      {userRole === 'hr' ? (
                         /* 
-                          ปุ่ม Action สำหรับ HR, VP HR, President
+                          ปุ่ม Action สำหรับ HR
                           แสดงปุ่มตามสถานะปัจจุบันของคำขอ:
                           - submitted (ส่งเรื่องแล้ว) -> ปุ่ม "รับเรื่อง"
-                          - hr_review (HR ตรวจสอบแล้ว) -> ปุ่ม "เสนอ VP" และ "ตรวจสอบ Resume"
-                          - vp_hr (VP อนุมัติแล้ว) -> ปุ่ม "เสนออธิการฯ" และ "ตรวจสอบ Resume"
-                          - president (อธิการบดีอนุมัติแล้ว) -> ปุ่ม "ประกาศรับสมัคร" และ "ตรวจสอบ Resume"
+                          - hr_review (HR ตรวจสอบแล้ว) -> ปุ่ม "เสนอ VP"
+                          - vp_hr (VP อนุมัติแล้ว) -> ปุ่ม "เสนออธิการฯ"
+                          - president (อธิการบดีอนุมัติแล้ว) -> ปุ่ม "ประกาศรับสมัคร"
                         */
-                        <div className="flex justify-end space-x-2 flex-wrap gap-2">
-                          {/* ปุ่มตรวจสอบ Resume - แสดงเมื่อสถานะเป็น hr_review, vp_hr, หรือ president */}
-                          {(request.status === 'hr_review' || request.status === 'vp_hr' || request.status === 'president') && (
-                            <button 
-                              onClick={() => {
-                                setSelectedRequest(request);
-                                setShowResumeReview(true);
-                              }}
-                              className="text-xs bg-pink-500 text-white px-3 py-1.5 rounded-lg hover:bg-pink-600 transition shadow-md whitespace-nowrap flex items-center gap-1"
-                            >
-                              <FileText size={14} />
-                              ตรวจสอบ Resume
-                            </button>
-                          )}
+                        <div className="flex justify-end space-x-2">
                           {/* ถ้าสถานะ = 'submitted' แสดงปุ่ม "รับเรื่อง" */}
-                          {request.status === 'submitted' && userRole === 'hr' && (
+                          {request.status === 'submitted' && (
                             <button 
                               onClick={() => updateStatus(request.id, 'hr_review')}
                               className="text-xs bg-blue-500 text-white px-3 py-1.5 rounded-lg hover:bg-blue-600 transition shadow-md whitespace-nowrap"
@@ -701,7 +715,7 @@ const Dashboard = ({ userRole, faculty, onLogout, onCreateRequest, onSwitchToAdm
                             </button>
                           )}
                           {/* ถ้าสถานะ = 'hr_review' แสดงปุ่ม "เสนอ VP" */}
-                          {request.status === 'hr_review' && userRole === 'hr' && (
+                          {request.status === 'hr_review' && (
                             <button 
                               onClick={() => updateStatus(request.id, 'vp_hr')}
                               className="text-xs bg-blue-500 text-white px-3 py-1.5 rounded-lg hover:bg-blue-600 transition shadow-md whitespace-nowrap"
@@ -710,7 +724,7 @@ const Dashboard = ({ userRole, faculty, onLogout, onCreateRequest, onSwitchToAdm
                             </button>
                           )}
                           {/* ถ้าสถานะ = 'vp_hr' แสดงปุ่ม "เสนออธิการฯ" */}
-                          {request.status === 'vp_hr' && (userRole === 'hr' || userRole === 'vp_hr') && (
+                          {request.status === 'vp_hr' && (
                             <button 
                               onClick={() => updateStatus(request.id, 'president')}
                               className="text-xs bg-indigo-600 text-white px-3 py-1.5 rounded-lg hover:bg-indigo-700 transition shadow-md whitespace-nowrap"
@@ -719,7 +733,7 @@ const Dashboard = ({ userRole, faculty, onLogout, onCreateRequest, onSwitchToAdm
                             </button>
                           )}
                           {/* ถ้าสถานะ = 'president' แสดงปุ่ม "ประกาศรับสมัคร" */}
-                          {request.status === 'president' && (userRole === 'hr' || userRole === 'president') && (
+                          {request.status === 'president' && (
                             <button 
                               onClick={() => updateStatus(request.id, 'recruiting')}
                               className="text-xs bg-green-600 text-white px-3 py-1.5 rounded-lg hover:bg-green-700 transition shadow-md whitespace-nowrap"
@@ -729,7 +743,7 @@ const Dashboard = ({ userRole, faculty, onLogout, onCreateRequest, onSwitchToAdm
                           )}
                         </div>
                       ) : (
-                        /* ถ้าไม่ใช่ HR/VP/President แสดงข้อความ "รายละเอียด" แทน */
+                        /* ถ้าไม่ใช่ HR แสดงข้อความ "รายละเอียด" แทน */
                         <span className="text-xs text-gray-400">รายละเอียด</span>
                       )}
                     </td>
@@ -918,22 +932,6 @@ const Dashboard = ({ userRole, faculty, onLogout, onCreateRequest, onSwitchToAdm
           </div>
         </div>
       </footer>
-
-      {/* Resume Review Modal */}
-      {selectedRequest && (
-        <ResumeReview
-          isOpen={showResumeReview}
-          onClose={() => {
-            setShowResumeReview(false);
-            setSelectedRequest(null);
-          }}
-          jobRequirements={{
-            position: selectedRequest.position,
-            description: selectedRequest.description || '',
-            requirements: selectedRequest.requirements || ''
-          }}
-        />
-      )}
     </div>
   );
 };
