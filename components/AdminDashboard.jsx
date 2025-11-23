@@ -45,6 +45,300 @@ import { getLocalRequests } from '../utils/localStorage';
 import { db, appId } from '../config/firebase';
 import { collection, query, onSnapshot } from 'firebase/firestore';
 import { FACULTIES } from '../constants';
+import { 
+  validateAndSanitizeEmail, 
+  validateAndSanitizeText, 
+  validateAndSanitizeNumber,
+  validateRole,
+  validateFacultyId,
+  checkAccess,
+  escapeHtml
+} from '../utils/security';
+
+// User Form Modal Component
+const UserFormModal = ({ selectedUser, onClose, onSuccess }) => {
+  const [formData, setFormData] = useState({
+    email: selectedUser?.email || '',
+    role: selectedUser?.role || 'faculty',
+    facultyId: selectedUser?.facultyId || ''
+  });
+  const [errors, setErrors] = useState({});
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const handleSubmit = () => {
+    setErrors({});
+    setIsSubmitting(true);
+
+    // Validate email
+    const emailValidation = validateAndSanitizeEmail(formData.email);
+    if (!emailValidation.valid) {
+      setErrors({ email: emailValidation.error });
+      setIsSubmitting(false);
+      return;
+    }
+
+    // Validate role
+    if (!validateRole(formData.role)) {
+      setErrors({ role: 'บทบาทไม่ถูกต้อง' });
+      setIsSubmitting(false);
+      return;
+    }
+
+    // Validate facultyId if role is faculty
+    if (formData.role === 'faculty') {
+      const validFacultyIds = FACULTIES.map(f => f.id);
+      if (!validateFacultyId(formData.facultyId, validFacultyIds)) {
+        setErrors({ facultyId: 'กรุณาเลือกคณะ/หน่วยงาน' });
+        setIsSubmitting(false);
+        return;
+      }
+    }
+
+    // Save user
+    try {
+      if (!db) {
+        // Demo Mode
+        const localUsers = JSON.parse(localStorage.getItem('spu_hr_users') || '[]');
+        const userData = {
+          uid: selectedUser?.uid || `user-${Date.now()}`,
+          email: emailValidation.sanitized,
+          role: formData.role,
+          facultyId: formData.role === 'faculty' ? formData.facultyId : null
+        };
+
+        if (selectedUser) {
+          // Update existing user
+          const updated = localUsers.map(u => 
+            u.uid === selectedUser.uid ? userData : u
+          );
+          localStorage.setItem('spu_hr_users', JSON.stringify(updated));
+        } else {
+          // Add new user
+          localUsers.push(userData);
+          localStorage.setItem('spu_hr_users', JSON.stringify(localUsers));
+        }
+        
+        // Trigger update event
+        window.dispatchEvent(new Event('localStorageUpdate'));
+      } else {
+        // Firestore - TODO: Implement
+        alert('ฟีเจอร์บันทึกผู้ใช้ใน Firestore กำลังพัฒนา');
+      }
+
+      alert(selectedUser ? 'อัปเดตข้อมูลผู้ใช้สำเร็จ' : 'เพิ่มผู้ใช้สำเร็จ');
+      onSuccess();
+    } catch (error) {
+      console.error('Error saving user:', error);
+      setErrors({ general: 'เกิดข้อผิดพลาดในการบันทึกข้อมูล' });
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  return (
+    <div className="space-y-4">
+      <div>
+        <label className="block text-sm font-semibold text-gray-700 mb-2">อีเมล *</label>
+        <input 
+          type="email" 
+          value={formData.email}
+          onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+          className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 ${
+            errors.email ? 'border-red-500 focus:ring-red-500' : 'border-gray-300 focus:ring-pink-500'
+          }`}
+          placeholder="user@spu.ac.th"
+          disabled={isSubmitting}
+        />
+        {errors.email && <p className="text-red-500 text-xs mt-1">{errors.email}</p>}
+      </div>
+      <div>
+        <label className="block text-sm font-semibold text-gray-700 mb-2">บทบาท *</label>
+        <select 
+          value={formData.role}
+          onChange={(e) => setFormData({ ...formData, role: e.target.value, facultyId: '' })}
+          className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 ${
+            errors.role ? 'border-red-500 focus:ring-red-500' : 'border-gray-300 focus:ring-pink-500'
+          }`}
+          disabled={isSubmitting}
+        >
+          <option value="hr">เจ้าหน้าที่ฝ่ายบุคคล</option>
+          <option value="vp_hr">รองอธิการบดี</option>
+          <option value="president">อธิการบดี</option>
+          <option value="faculty">คณะ/หน่วยงาน</option>
+        </select>
+        {errors.role && <p className="text-red-500 text-xs mt-1">{errors.role}</p>}
+      </div>
+      {formData.role === 'faculty' && (
+        <div>
+          <label className="block text-sm font-semibold text-gray-700 mb-2">คณะ/หน่วยงาน *</label>
+          <select 
+            value={formData.facultyId}
+            onChange={(e) => setFormData({ ...formData, facultyId: e.target.value })}
+            className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 ${
+              errors.facultyId ? 'border-red-500 focus:ring-red-500' : 'border-gray-300 focus:ring-pink-500'
+            }`}
+            disabled={isSubmitting}
+          >
+            <option value="">- เลือกคณะ -</option>
+            {FACULTIES.map(faculty => (
+              <option key={faculty.id} value={faculty.id}>
+                {escapeHtml(faculty.name)}
+              </option>
+            ))}
+          </select>
+          {errors.facultyId && <p className="text-red-500 text-xs mt-1">{errors.facultyId}</p>}
+        </div>
+      )}
+      {errors.general && (
+        <div className="bg-red-50 border border-red-300 text-red-800 px-4 py-3 rounded-lg text-sm">
+          {errors.general}
+        </div>
+      )}
+      <div className="flex gap-3 pt-4">
+        <button
+          onClick={handleSubmit}
+          disabled={isSubmitting}
+          className="flex-1 px-4 py-2 bg-pink-500 text-white rounded-lg hover:bg-pink-600 transition font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          {isSubmitting ? 'กำลังบันทึก...' : (selectedUser ? 'อัปเดต' : 'เพิ่ม')}
+        </button>
+        <button
+          onClick={onClose}
+          disabled={isSubmitting}
+          className="flex-1 px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition font-semibold disabled:opacity-50"
+        >
+          ยกเลิก
+        </button>
+      </div>
+    </div>
+  );
+};
+
+// Template Form Modal Component
+const TemplateFormModal = ({ selectedTemplate, onClose, onSuccess }) => {
+  const templateDefaults = {
+    'new-request': { name: 'แจ้งเตือนคำขอใหม่', subject: 'แจ้งเตือน: คำขอใหม่', content: 'สวัสดี,\n\nมีการสร้างคำขอใหม่:\n- ตำแหน่ง: {{position}}\n- คณะ: {{faculty}}\n- จำนวน: {{amount}} ตำแหน่ง\n\nกรุณาตรวจสอบและดำเนินการ\n\nขอบคุณ' },
+    'confirmation': { name: 'ยืนยันคำขอ', subject: 'ยืนยันคำขอ', content: 'สวัสดี,\n\nคำขอของคุณได้รับการยืนยันแล้ว\n\nกรุณาคลิกลิงก์ด้านล่างเพื่อยืนยัน:\n{{confirmation_link}}\n\nขอบคุณ' },
+    'status-update': { name: 'อัปเดตสถานะ', subject: 'อัปเดตสถานะคำขอ', content: 'สวัสดี,\n\nสถานะคำขอของคุณได้เปลี่ยนแปลง:\n- ตำแหน่ง: {{position}}\n- สถานะใหม่: {{new_status}}\n\nกรุณาตรวจสอบในระบบ\n\nขอบคุณ' }
+  };
+
+  const [formData, setFormData] = useState(
+    selectedTemplate && templateDefaults[selectedTemplate]
+      ? templateDefaults[selectedTemplate]
+      : { name: '', subject: '', content: '' }
+  );
+  const [errors, setErrors] = useState({});
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const handleSubmit = () => {
+    setErrors({});
+    setIsSubmitting(true);
+
+    // Validate name
+    const nameValidation = validateAndSanitizeText(formData.name, { minLength: 1, maxLength: 100, required: true });
+    if (!nameValidation.valid) {
+      setErrors({ name: nameValidation.error });
+      setIsSubmitting(false);
+      return;
+    }
+
+    // Validate subject
+    const subjectValidation = validateAndSanitizeText(formData.subject, { minLength: 1, maxLength: 200, required: true });
+    if (!subjectValidation.valid) {
+      setErrors({ subject: subjectValidation.error });
+      setIsSubmitting(false);
+      return;
+    }
+
+    // Validate content
+    const contentValidation = validateAndSanitizeText(formData.content, { minLength: 1, maxLength: 5000, required: true });
+    if (!contentValidation.valid) {
+      setErrors({ content: contentValidation.error });
+      setIsSubmitting(false);
+      return;
+    }
+
+    // Save template
+    try {
+      // TODO: Save to database
+      alert(selectedTemplate ? 'อัปเดต Template สำเร็จ' : 'สร้าง Template สำเร็จ');
+      onSuccess();
+    } catch (error) {
+      console.error('Error saving template:', error);
+      setErrors({ general: 'เกิดข้อผิดพลาดในการบันทึกข้อมูล' });
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  return (
+    <div className="space-y-4">
+      <div>
+        <label className="block text-sm font-semibold text-gray-700 mb-2">ชื่อ Template *</label>
+        <input 
+          type="text" 
+          value={formData.name}
+          onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+          className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 ${
+            errors.name ? 'border-red-500 focus:ring-red-500' : 'border-gray-300 focus:ring-pink-500'
+          }`}
+          placeholder="ชื่อ Template"
+          disabled={isSubmitting}
+        />
+        {errors.name && <p className="text-red-500 text-xs mt-1">{errors.name}</p>}
+      </div>
+      <div>
+        <label className="block text-sm font-semibold text-gray-700 mb-2">หัวข้ออีเมล *</label>
+        <input 
+          type="text" 
+          value={formData.subject}
+          onChange={(e) => setFormData({ ...formData, subject: e.target.value })}
+          className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 ${
+            errors.subject ? 'border-red-500 focus:ring-red-500' : 'border-gray-300 focus:ring-pink-500'
+          }`}
+          placeholder="Subject"
+          disabled={isSubmitting}
+        />
+        {errors.subject && <p className="text-red-500 text-xs mt-1">{errors.subject}</p>}
+      </div>
+      <div>
+        <label className="block text-sm font-semibold text-gray-700 mb-2">เนื้อหาอีเมล *</label>
+        <textarea 
+          rows={10}
+          value={formData.content}
+          onChange={(e) => setFormData({ ...formData, content: e.target.value })}
+          className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 ${
+            errors.content ? 'border-red-500 focus:ring-red-500' : 'border-gray-300 focus:ring-pink-500'
+          }`}
+          placeholder="เนื้อหาอีเมล..."
+          disabled={isSubmitting}
+        />
+        {errors.content && <p className="text-red-500 text-xs mt-1">{errors.content}</p>}
+      </div>
+      {errors.general && (
+        <div className="bg-red-50 border border-red-300 text-red-800 px-4 py-3 rounded-lg text-sm">
+          {errors.general}
+        </div>
+      )}
+      <div className="flex gap-3 pt-4">
+        <button
+          onClick={handleSubmit}
+          disabled={isSubmitting}
+          className="flex-1 px-4 py-2 bg-pink-500 text-white rounded-lg hover:bg-pink-600 transition font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          {isSubmitting ? 'กำลังบันทึก...' : (selectedTemplate ? 'อัปเดต' : 'สร้าง')}
+        </button>
+        <button
+          onClick={onClose}
+          disabled={isSubmitting}
+          className="flex-1 px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition font-semibold disabled:opacity-50"
+        >
+          ยกเลิก
+        </button>
+      </div>
+    </div>
+  );
+};
 
 const AdminDashboard = ({ userRole, faculty, onLogout, onCreateRequest, onSwitchToStandard }) => {
   const [requests, setRequests] = useState([]);
@@ -658,8 +952,8 @@ const AdminDashboard = ({ userRole, faculty, onLogout, onCreateRequest, onSwitch
                             alert(`รายละเอียดคำขอ\n\nตำแหน่ง: ${request.position}\nคณะ: ${request.facultyName}\nประเภท: ${request.type === 'new' ? 'อัตราใหม่' : 'ทดแทน'}\nจำนวน: ${request.amount} ตำแหน่ง\nสถานะ: ${request.status}\nวันที่สร้าง: ${request.createdAt?.seconds ? new Date(request.createdAt.seconds * 1000).toLocaleDateString('th-TH') : '-'}`);
                           }}
                         >
-                          <td className="px-6 py-4 text-sm font-medium text-gray-900">{request.position}</td>
-                          <td className="px-6 py-4 text-sm text-gray-700">{request.facultyName}</td>
+                          <td className="px-6 py-4 text-sm font-medium text-gray-900">{escapeHtml(request.position)}</td>
+                          <td className="px-6 py-4 text-sm text-gray-700">{escapeHtml(request.facultyName)}</td>
                           <td className="px-6 py-4 text-sm text-gray-700">
                             {request.type === 'new' ? 'อัตราใหม่' : 'ทดแทน'}
                           </td>
@@ -847,9 +1141,9 @@ const AdminDashboard = ({ userRole, faculty, onLogout, onCreateRequest, onSwitch
                               ? new Date(log.createdAt.seconds * 1000).toLocaleString('th-TH')
                               : '-'}
                           </td>
-                          <td className="px-6 py-4 text-sm text-gray-700">{log.recipient || log.to || '-'}</td>
-                          <td className="px-6 py-4 text-sm text-gray-700">{log.type || log.template || 'Notification'}</td>
-                          <td className="px-6 py-4 text-sm text-gray-700">{log.subject || '-'}</td>
+                          <td className="px-6 py-4 text-sm text-gray-700">{escapeHtml(log.recipient || log.to || '-')}</td>
+                          <td className="px-6 py-4 text-sm text-gray-700">{escapeHtml(log.type || log.template || 'Notification')}</td>
+                          <td className="px-6 py-4 text-sm text-gray-700">{escapeHtml(log.subject || '-')}</td>
                           <td className="px-6 py-4">
                             <span className={`px-2 py-1 text-xs rounded ${
                               log.status === 'success' || log.success
@@ -872,6 +1166,13 @@ const AdminDashboard = ({ userRole, faculty, onLogout, onCreateRequest, onSwitch
         {/* User Management View */}
         {activeMenu === 'user-management' && (
           <div className="space-y-6">
+            {/* ตรวจสอบสิทธิ์การเข้าถึง */}
+            {!checkAccess(userRole, 'hr') ? (
+              <div className="bg-red-50 border-2 border-red-300 text-red-800 px-6 py-4 rounded-lg">
+                <h3 className="font-semibold mb-2">⚠️ ไม่มีสิทธิ์เข้าถึง</h3>
+                <p>คุณไม่มีสิทธิ์เข้าถึงหน้านี้ กรุณาติดต่อผู้ดูแลระบบ</p>
+              </div>
+            ) : (
             <div className="bg-white rounded-lg shadow border border-gray-200">
               <div className="p-6 border-b border-gray-200 flex justify-between items-center">
                 <div>
@@ -924,9 +1225,9 @@ const AdminDashboard = ({ userRole, faculty, onLogout, onCreateRequest, onSwitch
                         
                         return (
                           <tr key={user.uid} className="hover:bg-gray-50">
-                            <td className="px-6 py-4 text-sm font-medium text-gray-900">{user.email || '-'}</td>
-                            <td className="px-6 py-4 text-sm text-gray-700">{roleLabels[user.role] || user.role}</td>
-                            <td className="px-6 py-4 text-sm text-gray-700">{facultyName}</td>
+                          <td className="px-6 py-4 text-sm font-medium text-gray-900">{escapeHtml(user.email || '-')}</td>
+                          <td className="px-6 py-4 text-sm text-gray-700">{escapeHtml(roleLabels[user.role] || user.role)}</td>
+                          <td className="px-6 py-4 text-sm text-gray-700">{escapeHtml(facultyName)}</td>
                             <td className="px-6 py-4">
                               <span className="px-2 py-1 text-xs rounded bg-green-100 text-green-800">Active</span>
                             </td>
@@ -977,63 +1278,32 @@ const AdminDashboard = ({ userRole, faculty, onLogout, onCreateRequest, onSwitch
 
         {/* User Modal */}
         {showUserModal && (
-          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-            <div className="bg-white rounded-lg shadow-xl max-w-md w-full p-6">
+          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4" onClick={(e) => {
+            if (e.target === e.currentTarget) {
+              setShowUserModal(false);
+              setSelectedUser(null);
+            }
+          }}>
+            <div className="bg-white rounded-lg shadow-xl max-w-md w-full p-6" onClick={(e) => e.stopPropagation()}>
               <h3 className="text-xl font-bold text-gray-800 mb-4">
                 {selectedUser ? 'แก้ไขผู้ใช้' : 'เพิ่มผู้ใช้ใหม่'}
               </h3>
-              <div className="space-y-4">
-                <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">อีเมล</label>
-                  <input 
-                    type="email" 
-                    defaultValue={selectedUser?.email || ''}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500"
-                    placeholder="user@spu.ac.th"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">บทบาท</label>
-                  <select className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500">
-                    <option value="hr" selected={selectedUser?.role === 'hr'}>เจ้าหน้าที่ฝ่ายบุคคล</option>
-                    <option value="vp_hr" selected={selectedUser?.role === 'vp_hr'}>รองอธิการบดี</option>
-                    <option value="president" selected={selectedUser?.role === 'president'}>อธิการบดี</option>
-                    <option value="faculty" selected={selectedUser?.role === 'faculty'}>คณะ/หน่วยงาน</option>
-                  </select>
-                </div>
-                <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">คณะ/หน่วยงาน</label>
-                  <select className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500">
-                    <option value="">- เลือกคณะ -</option>
-                    {FACULTIES.map(faculty => (
-                      <option key={faculty.id} value={faculty.id} selected={selectedUser?.facultyId === faculty.id}>
-                        {faculty.name}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-                <div className="flex gap-3 pt-4">
-                  <button
-                    onClick={() => {
-                      alert(selectedUser ? 'อัปเดตข้อมูลผู้ใช้สำเร็จ' : 'เพิ่มผู้ใช้สำเร็จ');
-                      setShowUserModal(false);
-                      setSelectedUser(null);
-                    }}
-                    className="flex-1 px-4 py-2 bg-pink-500 text-white rounded-lg hover:bg-pink-600 transition font-semibold"
-                  >
-                    {selectedUser ? 'อัปเดต' : 'เพิ่ม'}
-                  </button>
-                  <button
-                    onClick={() => {
-                      setShowUserModal(false);
-                      setSelectedUser(null);
-                    }}
-                    className="flex-1 px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition font-semibold"
-                  >
-                    ยกเลิก
-                  </button>
-                </div>
-              </div>
+              <UserFormModal 
+                selectedUser={selectedUser}
+                onClose={() => {
+                  setShowUserModal(false);
+                  setSelectedUser(null);
+                }}
+                onSuccess={() => {
+                  setShowUserModal(false);
+                  setSelectedUser(null);
+                  // Refresh users list
+                  if (activeMenu === 'user-management') {
+                    const localUsers = JSON.parse(localStorage.getItem('spu_hr_users') || '[]');
+                    setUsers(localUsers);
+                  }
+                }}
+              />
             </div>
           </div>
         )}
