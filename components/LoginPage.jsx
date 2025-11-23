@@ -223,16 +223,18 @@ const LoginPage = ({ onLogin, onShowRegister }) => {
               href="https://www.facebook.com" 
               target="_blank" 
               rel="noopener noreferrer" 
-              className="group relative px-4 py-2.5 rounded-lg bg-[#1877F2] text-white flex items-center gap-2 font-semibold text-sm shadow-md hover:shadow-xl transition-all duration-300 hover:scale-105"
-              style={{
-                boxShadow: '0 0 20px rgba(24, 119, 242, 0.4)'
-              }}
+              className="group relative px-4 py-2.5 rounded-lg bg-[#1877F2] text-white flex items-center gap-2 font-semibold text-sm shadow-md transition-all duration-300 hover:scale-105"
             >
               <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
                 <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
               </svg>
               <span>Facebook</span>
-              <div className="absolute inset-0 rounded-lg bg-[#1877F2] opacity-0 group-hover:opacity-20 transition-opacity duration-300 blur-xl"></div>
+              <div 
+                className="absolute inset-0 rounded-lg bg-[#1877F2] opacity-0 group-hover:opacity-100 transition-opacity duration-300 blur-xl -z-10"
+                style={{
+                  boxShadow: '0 0 20px rgba(24, 119, 242, 0.6)'
+                }}
+              ></div>
             </a>
             {/* Instagram */}
             <a 
