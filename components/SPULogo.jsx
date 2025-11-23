@@ -7,8 +7,8 @@
  * - แสดง Logo ของมหาวิทยาลัยศรีปทุม (SRIPATUM UNIVERSITY)
  * - Logo ประกอบด้วย:
  *   - "SPU" ตัวใหญ่อ้วน สีดำ (Top Section)
- *   - "SRIPATUM UNIVERSITY" สีดำ
- *   - แถบสีดำแนวนอน
+ *   - "SRIPATUM UNIVERSITY" สี hot pink/magenta
+ *   - แถบสี hot pink/magenta แนวนอน
  * 
  * Props:
  * - size: ขนาดของ Logo ('sm' | 'md' | 'lg' | 'xl') - Default: 'md'
@@ -119,12 +119,12 @@ const SPULogo = ({ size = 'md', className = '', onClick }) => {
 
   const sizes = sizeClasses[size] || sizeClasses.md;
 
-  // สีตามโลโก้จริง: dark gray บนพื้นหลังดำ
-  // SPU: สี dark gray เกือบดำ (#1a1a1a)
-  // SRIPATUM UNIVERSITY และแถบ: สี dark gray อ่อนกว่าเล็กน้อย (#2a2a2a)
-  const spuColor = '#1a1a1a'; // dark gray สำหรับ SPU
-  const textColor = '#2a2a2a'; // dark gray อ่อนกว่าเล็กน้อยสำหรับ SRIPATUM UNIVERSITY และแถบ
-  const backgroundColor = '#000000'; // พื้นหลังสีดำ
+  // สีตามโลโก้จริง: พื้นหลังขาว
+  // SPU: สีดำ (#000000)
+  // SRIPATUM UNIVERSITY และแถบ: สี hot pink/magenta (#e91e63)
+  const spuColor = '#000000'; // สีดำสำหรับ SPU
+  const textColor = '#e91e63'; // สี hot pink/magenta สำหรับ SRIPATUM UNIVERSITY และแถบ
+  const backgroundColor = '#ffffff'; // พื้นหลังสีขาว
 
   return (
     <div 
@@ -133,11 +133,11 @@ const SPULogo = ({ size = 'md', className = '', onClick }) => {
       style={{ 
         minWidth: 'fit-content',
         backgroundColor: backgroundColor,
-        padding: '1rem',
+        padding: '0.5rem',
         borderRadius: '0.25rem'
       }}
     >
-      {/* Top Section: SPU (สี dark gray เกือบดำ, ตัวใหญ่อ้วน, tracking แน่นมาก) */}
+      {/* Top Section: SPU (สีดำ, ตัวใหญ่อ้วน, tracking แน่นมาก) */}
       <div 
         className={`font-black ${sizes.spu} leading-none mb-1 sm:mb-1.5 tracking-tighter text-left`} 
         style={{ 
@@ -150,7 +150,7 @@ const SPULogo = ({ size = 'md', className = '', onClick }) => {
         SPU
       </div>
       
-      {/* Bottom Section: SRIPATUM UNIVERSITY (สี dark gray อ่อนกว่า SPU เล็กน้อย) */}
+      {/* Bottom Section: SRIPATUM UNIVERSITY (สี hot pink/magenta) */}
       <div className="flex flex-col items-start">
         {/* แถวแรก: SRIPATUM + แถบสี dark gray แนวนอน (แถบยาวเท่ากับความกว้างของ SRIPATUM) */}
         <div className="flex items-center gap-1.5 sm:gap-2">
@@ -165,7 +165,7 @@ const SPULogo = ({ size = 'md', className = '', onClick }) => {
           >
             SRIPATUM
           </span>
-          {/* แถบสี dark gray แนวนอน - ยาวเท่ากับความกว้างของ SRIPATUM text */}
+          {/* แถบสี hot pink/magenta แนวนอน - ยาวเท่ากับความกว้างของ SRIPATUM text */}
           <div 
             className={`${sizes.barHeight}`}
             style={{ 
