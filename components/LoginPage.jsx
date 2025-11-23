@@ -238,14 +238,17 @@ const LoginPage = ({ onLogin, onShowRegister }) => {
             <div className={`flex justify-between items-center transition-all duration-500 ${
               scrolled ? 'py-3' : 'py-4 sm:py-5'
             }`}>
-              {/* Logo SPU - Horizontal Layout with animation */}
-              <div className="flex items-center gap-3 sm:gap-4 transform transition-all duration-300 hover:scale-105">
-                <SPULogo 
-                  size="sm" 
-                  onClick={() => window.location.reload()}
-                  className="cursor-pointer"
-                />
-                <span className="hidden sm:block text-gray-900 text-base sm:text-lg font-bold tracking-wide transition-colors duration-200">
+              {/* Logo SPU - Horizontal Layout with expand animation */}
+              <div className="flex items-center gap-3 sm:gap-4 group">
+                <div className="transform transition-all duration-500 hover:scale-125 hover:z-50 relative">
+                  <SPULogo 
+                    size="sm" 
+                    onClick={() => window.location.reload()}
+                    className="cursor-pointer transition-all duration-500"
+                  />
+                  <div className="absolute inset-0 bg-white/20 rounded-lg opacity-0 group-hover:opacity-100 blur-xl -z-10 transition-opacity duration-500 transform scale-150"></div>
+                </div>
+                <span className="hidden sm:block text-gray-900 text-base sm:text-lg font-bold tracking-wide transition-all duration-300 group-hover:text-pink-600">
                   Personnel System
                 </span>
               </div>
@@ -299,33 +302,65 @@ const LoginPage = ({ onLogin, onShowRegister }) => {
         <section className="relative min-h-[500px] sm:min-h-[600px] flex items-center">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8 sm:py-12 w-full">
             <div className="grid lg:grid-cols-2 gap-8 lg:gap-12 items-center">
-              {/* Left Content with animations */}
-              <div className="text-left space-y-4 sm:space-y-6 order-2 lg:order-1 animate-fade-in-up">
-                <p className="text-pink-100 text-xs sm:text-sm font-semibold uppercase tracking-widest animate-fade-in opacity-0" style={{ animationDelay: '0.1s', animationFillMode: 'forwards' }}>
+              {/* Left Content with animations and large logo */}
+              <div className="text-left space-y-6 sm:space-y-8 order-2 lg:order-1 animate-fade-in-up">
+                {/* Large Logo with expand effect */}
+                <div className="flex justify-center lg:justify-start mb-4 sm:mb-6">
+                  <div className="group relative">
+                    <div className="transform transition-all duration-500 hover:scale-125 hover:z-50 relative">
+                      <SPULogo 
+                        size="lg" 
+                        onClick={() => window.location.reload()}
+                        className="cursor-pointer transition-all duration-500"
+                      />
+                      <div className="absolute inset-0 bg-white/30 rounded-lg opacity-0 group-hover:opacity-100 blur-2xl -z-10 transition-opacity duration-500 transform scale-150"></div>
+                    </div>
+                  </div>
+                </div>
+                
+                <p className="text-pink-100 text-xs sm:text-sm font-semibold uppercase tracking-widest animate-fade-in opacity-0 text-center lg:text-left" style={{ animationDelay: '0.1s', animationFillMode: 'forwards' }}>
                   ยินดีต้อนรับ
                 </p>
-                <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-black text-white leading-tight drop-shadow-2xl tracking-tight animate-fade-in-up opacity-0" style={{ animationDelay: '0.2s', animationFillMode: 'forwards' }}>
+                <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-black text-white leading-tight drop-shadow-2xl tracking-tight animate-fade-in-up opacity-0 text-center lg:text-left" style={{ animationDelay: '0.2s', animationFillMode: 'forwards' }}>
                   HR SPU
                 </h1>
-                <p className="text-base sm:text-lg md:text-xl text-white/95 leading-relaxed max-w-xl drop-shadow-lg font-medium animate-fade-in-up opacity-0" style={{ animationDelay: '0.3s', animationFillMode: 'forwards' }}>
+                <p className="text-base sm:text-lg md:text-xl text-white/95 leading-relaxed max-w-xl drop-shadow-lg font-medium animate-fade-in-up opacity-0 text-center lg:text-left mx-auto lg:mx-0" style={{ animationDelay: '0.3s', animationFillMode: 'forwards' }}>
                   SPU HR Personnel System
                 </p>
-                <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 mt-6 sm:mt-8 animate-fade-in-up opacity-0" style={{ animationDelay: '0.4s', animationFillMode: 'forwards' }}>
+                <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 mt-6 sm:mt-8 justify-center lg:justify-start animate-fade-in-up opacity-0" style={{ animationDelay: '0.4s', animationFillMode: 'forwards' }}>
                   <button 
                     onClick={() => {
                       alert('ระบบ SPU Personnel System\n\nใช้งานง่าย ปลอดภัย และมีประสิทธิภาพ\n\nเหมาะสำหรับการจัดการอัตรากำลังพล');
                     }}
-                    className="group relative px-6 sm:px-8 py-3 sm:py-3.5 bg-white text-pink-600 rounded-lg overflow-hidden transition-all duration-300 shadow-lg hover:shadow-2xl font-semibold text-sm sm:text-base cursor-pointer transform hover:scale-105 active:scale-95"
+                    className="group relative px-8 sm:px-10 py-4 sm:py-4.5 bg-white text-pink-600 rounded-xl overflow-hidden transition-all duration-300 shadow-xl hover:shadow-2xl font-bold text-sm sm:text-base cursor-pointer transform hover:scale-110 active:scale-95"
                   >
-                    <span className="relative z-10">เรียนรู้เพิ่มเติม</span>
+                    <span className="relative z-10 flex items-center gap-2">
+                      <span>เรียนรู้เพิ่มเติม</span>
+                      <svg className="w-5 h-5 transform group-hover:translate-x-1 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                      </svg>
+                    </span>
                     <span className="absolute inset-0 bg-gradient-to-r from-pink-500 to-rose-500 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left"></span>
-                    <span className="absolute inset-0 flex items-center justify-center text-white opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10">เรียนรู้เพิ่มเติม</span>
+                    <span className="absolute inset-0 flex items-center justify-center text-white opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10">
+                      <span className="flex items-center gap-2">
+                        <span>เรียนรู้เพิ่มเติม</span>
+                        <svg className="w-5 h-5 transform translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                        </svg>
+                      </span>
+                    </span>
                   </button>
                   <button 
                     onClick={() => window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' })}
-                    className="px-6 sm:px-8 py-3 sm:py-3.5 bg-white/20 backdrop-blur-sm text-white border-2 border-white rounded-lg hover:bg-white/30 hover:border-white/50 transition-all duration-300 font-semibold text-sm sm:text-base cursor-pointer transform hover:scale-105 active:scale-95 shadow-lg hover:shadow-xl"
+                    className="group relative px-8 sm:px-10 py-4 sm:py-4.5 bg-white/20 backdrop-blur-sm text-white border-2 border-white rounded-xl overflow-hidden hover:bg-white/30 hover:border-white/50 transition-all duration-300 font-bold text-sm sm:text-base cursor-pointer transform hover:scale-110 active:scale-95 shadow-xl hover:shadow-2xl"
                   >
-                    ติดต่อเรา
+                    <span className="relative z-10 flex items-center gap-2">
+                      <span>ติดต่อเรา</span>
+                      <svg className="w-5 h-5 transform group-hover:rotate-12 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                      </svg>
+                    </span>
+                    <span className="absolute inset-0 bg-white/10 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left"></span>
                   </button>
                 </div>
               </div>
@@ -566,81 +601,6 @@ const LoginPage = ({ onLogin, onShowRegister }) => {
                 </div>
               </div>
             </div>
-          </div>
-        </div>
-      </section>
-
-        {/* Feature Cards Section with modern animations */}
-        <section className="bg-white/10 backdrop-blur-sm py-12 sm:py-16 px-4 sm:px-6">
-        <div className="max-w-7xl mx-auto">
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
-              {/* Card 1 */}
-              <div className="group bg-white/90 backdrop-blur-sm border border-white/30 rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-500 overflow-hidden transform hover:-translate-y-2 hover:scale-[1.02]">
-                <div className="h-40 sm:h-48 bg-gradient-to-br from-blue-100/90 to-slate-100/90 flex items-center justify-center relative overflow-hidden">
-                  <div className="absolute inset-0 bg-gradient-to-br from-blue-500/0 to-blue-500/20 group-hover:from-blue-500/20 group-hover:to-blue-500/40 transition-all duration-500"></div>
-                  <Building size={40} className="sm:w-12 sm:h-12 text-blue-600 relative z-10 transform group-hover:scale-110 group-hover:rotate-3 transition-all duration-500" />
-                </div>
-                <div className="p-4 sm:p-6">
-                  <h3 className="text-lg sm:text-xl font-black text-gray-900 mb-2 sm:mb-3 tracking-tight group-hover:text-blue-600 transition-colors duration-300">จัดการคณะ</h3>
-                  <p className="text-gray-700 text-sm mb-3 sm:mb-4 leading-relaxed font-medium">
-                    สร้างและจัดการคำขออัตรากำลังพลสำหรับคณะและหน่วยงานของคุณได้อย่างง่ายดาย
-                  </p>
-                  <button 
-                    onClick={() => {
-                      alert('ระบบจัดการคณะ\n\n- สร้างคำขอใหม่\n- ติดตามสถานะ\n- ใช้ AI ช่วยร่าง Job Description');
-                    }}
-                    className="text-pink-600 hover:text-pink-700 font-bold text-sm cursor-pointer transition-all duration-300 hover:scale-105 inline-flex items-center gap-1 underline decoration-2 underline-offset-2 group-hover:gap-2"
-                  >
-                    อ่านเพิ่มเติม <span className="text-base transform group-hover:translate-x-1 transition-transform duration-300">→</span>
-                  </button>
-                </div>
-              </div>
-
-              {/* Card 2 */}
-              <div className="group bg-white/90 backdrop-blur-sm border border-white/30 rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-500 overflow-hidden transform hover:-translate-y-2 hover:scale-[1.02]">
-                <div className="h-40 sm:h-48 bg-gradient-to-br from-green-100/90 to-emerald-100/90 flex items-center justify-center relative overflow-hidden">
-                  <div className="absolute inset-0 bg-gradient-to-br from-green-500/0 to-green-500/20 group-hover:from-green-500/20 group-hover:to-green-500/40 transition-all duration-500"></div>
-                  <Briefcase size={40} className="sm:w-12 sm:h-12 text-green-600 relative z-10 transform group-hover:scale-110 group-hover:rotate-3 transition-all duration-500" />
-                </div>
-                <div className="p-4 sm:p-6">
-                  <h3 className="text-lg sm:text-xl font-black text-gray-900 mb-2 sm:mb-3 tracking-tight group-hover:text-green-600 transition-colors duration-300">ระบบอนุมัติ</h3>
-                  <p className="text-gray-700 text-sm mb-3 sm:mb-4 leading-relaxed font-medium">
-                    ระบบอนุมัติอัตรากำลังพลที่รวดเร็ว มีประสิทธิภาพ และติดตามได้ทุกขั้นตอน
-                  </p>
-                  <button 
-                    onClick={() => {
-                      alert('ระบบอนุมัติ\n\n- รับเรื่องและตรวจสอบ\n- เสนอผู้บริหาร\n- ติดตามสถานะอัตโนมัติ');
-                    }}
-                    className="text-pink-600 hover:text-pink-700 font-bold text-sm cursor-pointer transition-all duration-300 hover:scale-105 inline-flex items-center gap-1 underline decoration-2 underline-offset-2 group-hover:gap-2"
-                  >
-                    อ่านเพิ่มเติม <span className="text-base transform group-hover:translate-x-1 transition-transform duration-300">→</span>
-                  </button>
-                </div>
-              </div>
-
-              {/* Card 3 */}
-              <div className="group bg-white/90 backdrop-blur-sm border border-white/30 rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-500 overflow-hidden transform hover:-translate-y-2 hover:scale-[1.02] sm:col-span-2 lg:col-span-1">
-                <div className="h-40 sm:h-48 bg-gradient-to-br from-purple-100/90 to-indigo-100/90 flex items-center justify-center relative overflow-hidden">
-                  <div className="absolute inset-0 bg-gradient-to-br from-purple-500/0 to-purple-500/20 group-hover:from-purple-500/20 group-hover:to-purple-500/40 transition-all duration-500"></div>
-                  <svg className="w-10 h-10 sm:w-12 sm:h-12 text-purple-600 relative z-10 transform group-hover:scale-110 group-hover:rotate-12 transition-all duration-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
-                  </svg>
-                </div>
-                <div className="p-4 sm:p-6">
-                  <h3 className="text-lg sm:text-xl font-black text-gray-900 mb-2 sm:mb-3 tracking-tight group-hover:text-purple-600 transition-colors duration-300">ใช้งานง่าย</h3>
-                  <p className="text-gray-700 text-sm mb-3 sm:mb-4 leading-relaxed font-medium">
-                    อินเทอร์เฟซที่ใช้งานง่าย พร้อม AI ช่วยเหลือทำให้การทำงานของคุณรวดเร็วขึ้น
-                  </p>
-                  <button 
-                    onClick={() => {
-                      alert('ใช้งานง่าย\n\n- อินเทอร์เฟซทันสมัย\n- AI ช่วยร่าง Job Description\n- ติดตามสถานะแบบ Real-time');
-                    }}
-                    className="text-pink-600 hover:text-pink-700 font-bold text-sm cursor-pointer transition-all duration-300 hover:scale-105 inline-flex items-center gap-1 underline decoration-2 underline-offset-2 group-hover:gap-2"
-                  >
-                    อ่านเพิ่มเติม <span className="text-base transform group-hover:translate-x-1 transition-transform duration-300">→</span>
-                  </button>
-                </div>
-              </div>
           </div>
         </div>
       </section>
