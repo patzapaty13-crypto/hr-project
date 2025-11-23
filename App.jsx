@@ -79,6 +79,9 @@ export default function App() {
   // showRegister: ควบคุมการแสดงหน้า Register (true = แสดง Register, false = แสดง Login)
   const [showRegister, setShowRegister] = useState(false);
   
+  // isLoading: ควบคุมการแสดง loading state
+  const [isLoading, setIsLoading] = useState(true);
+  
   // useAdminDashboard: ควบคุมการแสดง Admin Dashboard หรือ Dashboard ปกติ (true = Admin Dashboard, false = Dashboard ปกติ)
   // เก็บค่าใน localStorage เพื่อให้คงอยู่หลัง refresh
   const [useAdminDashboard, setUseAdminDashboard] = useState(() => {
@@ -127,6 +130,7 @@ export default function App() {
         unsub = onAuthStateChanged(auth, (currentUser) => {
           // currentUser: Object ของผู้ใช้ที่ Login (null ถ้า Logout)
           setUser(currentUser);
+          setIsLoading(false);
           
           // ถ้าผู้ใช้ Logout ให้เคลียร์ State ทั้งหมด
           if (!currentUser) {
@@ -137,11 +141,31 @@ export default function App() {
             if (typeof window !== 'undefined') {
               localStorage.removeItem('spu_hr_useAdminDashboard');
             }
+          } else {
+            // ถ้ามี user ให้ลองโหลดข้อมูลจาก localStorage
+            if (typeof window !== 'undefined') {
+              const savedRole = localStorage.getItem('spu_hr_role');
+              const savedFaculty = localStorage.getItem('spu_hr_faculty');
+              if (savedRole) {
+                setRole(savedRole);
+              }
+              if (savedFaculty) {
+                try {
+                  setSelectedFaculty(JSON.parse(savedFaculty));
+                } catch (e) {
+                  console.warn('Error parsing saved faculty:', e);
+                }
+              }
+            }
           }
         });
       } catch (error) {
         console.warn('ไม่สามารถตั้งค่า Auth State Listener ได้:', error);
+        setIsLoading(false);
       }
+    } else {
+      // ถ้าไม่มี auth ให้ปิด loading ทันที
+      setIsLoading(false);
     }
     
     /**
@@ -261,6 +285,18 @@ export default function App() {
   // ========================================================================
   // Conditional Rendering: แสดงหน้า Login หรือ Dashboard
   // ========================================================================
+  
+  // แสดง loading state ขณะกำลังตรวจสอบ authentication
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-pink-50 via-rose-50 to-pink-100 flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-16 h-16 border-4 border-pink-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-gray-700 font-medium">กำลังโหลด...</p>
+        </div>
+      </div>
+    );
+  }
   
   /**
    * ถ้ายังไม่ Login หรือไม่มีบทบาท ให้แสดงหน้า LoginPage หรือ RegisterPage

@@ -33,17 +33,25 @@ const SPULogo = ({ size = 'md', className = '', onClick }) => {
 
   // ฟังก์ชันคำนวณตำแหน่งและความกว้างของแถบใต้ตัว U
   const calculateBarPosition = () => {
-    if (spuRef.current) {
-      // หาตำแหน่งของตัว U โดยประมาณ (S + P + spacing)
-      const spuWidth = spuRef.current.offsetWidth;
-      const letterWidth = spuWidth / 3; // ประมาณความกว้างของแต่ละตัวอักษร
-      const leftPosition = letterWidth * 2; // ตำแหน่งเริ่มต้นของตัว U
-      const barWidth = letterWidth * 0.8; // ความกว้างของแถบประมาณ 80% ของตัวอักษร
-      
-      setBarPosition({
-        left: leftPosition,
-        width: barWidth
-      });
+    if (spuRef.current && spuRef.current.offsetWidth > 0) {
+      try {
+        // หาตำแหน่งของตัว U โดยประมาณ (S + P + spacing)
+        const spuWidth = spuRef.current.offsetWidth;
+        if (spuWidth > 0) {
+          const letterWidth = spuWidth / 3; // ประมาณความกว้างของแต่ละตัวอักษร
+          const leftPosition = letterWidth * 2; // ตำแหน่งเริ่มต้นของตัว U
+          const barWidth = letterWidth * 0.8; // ความกว้างของแถบประมาณ 80% ของตัวอักษร
+          
+          setBarPosition({
+            left: Math.max(0, leftPosition),
+            width: Math.max(10, barWidth)
+          });
+        }
+      } catch (error) {
+        console.warn('Error in calculateBarPosition:', error);
+        // ตั้งค่า default position
+        setBarPosition({ left: 0, width: 30 });
+      }
     }
   };
 
@@ -52,26 +60,40 @@ const SPULogo = ({ size = 'md', className = '', onClick }) => {
     spuRef.current = node;
     
     if (node) {
-      // คำนวณตำแหน่งทันทีเมื่อ element mount
-      calculateBarPosition();
-
-      // รอให้ fonts โหลดเสร็จ (ถ้ามี)
-      if (document.fonts && document.fonts.ready) {
-        document.fonts.ready.then(() => {
+      try {
+        // คำนวณตำแหน่งทันทีเมื่อ element mount - ใช้ setTimeout เพื่อให้แน่ใจว่า DOM render เสร็จแล้ว
+        setTimeout(() => {
           calculateBarPosition();
+        }, 0);
+
+        // รอให้ fonts โหลดเสร็จ (ถ้ามี)
+        if (document.fonts && document.fonts.ready) {
+          document.fonts.ready.then(() => {
+            try {
+              calculateBarPosition();
+            } catch (error) {
+              console.warn('Error calculating bar position after fonts loaded:', error);
+            }
+          });
+        }
+
+        // ใช้ ResizeObserver เพื่อตรวจจับการเปลี่ยนแปลงขนาด
+        if (resizeObserverRef.current) {
+          resizeObserverRef.current.disconnect();
+        }
+
+        resizeObserverRef.current = new ResizeObserver(() => {
+          try {
+            calculateBarPosition();
+          } catch (error) {
+            console.warn('Error in ResizeObserver callback:', error);
+          }
         });
+
+        resizeObserverRef.current.observe(node);
+      } catch (error) {
+        console.warn('Error setting up SPU ref:', error);
       }
-
-      // ใช้ ResizeObserver เพื่อตรวจจับการเปลี่ยนแปลงขนาด
-      if (resizeObserverRef.current) {
-        resizeObserverRef.current.disconnect();
-      }
-
-      resizeObserverRef.current = new ResizeObserver(() => {
-        calculateBarPosition();
-      });
-
-      resizeObserverRef.current.observe(node);
     } else {
       // Cleanup เมื่อ element unmount
       if (resizeObserverRef.current) {
@@ -84,13 +106,23 @@ const SPULogo = ({ size = 'md', className = '', onClick }) => {
   // ใช้ useEffect สำหรับ resize listener และ cleanup
   useEffect(() => {
     const handleResize = () => {
-      calculateBarPosition();
+      try {
+        calculateBarPosition();
+      } catch (error) {
+        console.warn('Error calculating bar position:', error);
+      }
     };
 
     window.addEventListener('resize', handleResize);
     
-    // รีเฟรชเมื่อ size เปลี่ยน
-    calculateBarPosition();
+    // รีเฟรชเมื่อ size เปลี่ยน - ใช้ setTimeout เพื่อให้แน่ใจว่า DOM render เสร็จแล้ว
+    setTimeout(() => {
+      try {
+        calculateBarPosition();
+      } catch (error) {
+        console.warn('Error calculating bar position on mount:', error);
+      }
+    }, 0);
 
     return () => {
       window.removeEventListener('resize', handleResize);
@@ -158,16 +190,18 @@ const SPULogo = ({ size = 'md', className = '', onClick }) => {
           SPU
         </div>
         {/* แถบสี hot pink/magenta แนวนอน - อยู่ใต้ตัว U */}
-        <div 
-          className={`${sizes.barHeight} absolute`}
-          style={{ 
-            backgroundColor: textColor,
-            left: `${barPosition.left}px`,
-            width: `${barPosition.width}px`,
-            top: '100%',
-            marginTop: '0.125rem'
-          }}
-        ></div>
+        {barPosition.width > 0 && (
+          <div 
+            className={`${sizes.barHeight} absolute`}
+            style={{ 
+              backgroundColor: textColor,
+              left: `${barPosition.left}px`,
+              width: `${barPosition.width}px`,
+              top: '100%',
+              marginTop: '0.125rem'
+            }}
+          ></div>
+        )}
       </div>
       
       {/* Bottom Section: SRIPATUM UNIVERSITY (สี hot pink/magenta) */}
