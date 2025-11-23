@@ -1173,106 +1173,107 @@ const AdminDashboard = ({ userRole, faculty, onLogout, onCreateRequest, onSwitch
                 <p>คุณไม่มีสิทธิ์เข้าถึงหน้านี้ กรุณาติดต่อผู้ดูแลระบบ</p>
               </div>
             ) : (
-            <div className="bg-white rounded-lg shadow border border-gray-200">
-              <div className="p-6 border-b border-gray-200 flex justify-between items-center">
-                <div>
-                  <h2 className="text-2xl font-bold text-gray-800">User Management</h2>
-                  <p className="text-sm text-gray-600 mt-1">จัดการผู้ใช้และสิทธิ์การเข้าถึง</p>
+              <div className="bg-white rounded-lg shadow border border-gray-200">
+                <div className="p-6 border-b border-gray-200 flex justify-between items-center">
+                  <div>
+                    <h2 className="text-2xl font-bold text-gray-800">User Management</h2>
+                    <p className="text-sm text-gray-600 mt-1">จัดการผู้ใช้และสิทธิ์การเข้าถึง</p>
+                  </div>
+                  <button 
+                    onClick={() => {
+                      setSelectedUser(null);
+                      setShowUserModal(true);
+                    }}
+                    className="px-4 py-2 bg-pink-500 text-white rounded-lg hover:bg-pink-600 transition font-semibold"
+                  >
+                    + เพิ่มผู้ใช้
+                  </button>
                 </div>
-                <button 
-                  onClick={() => {
-                    setSelectedUser(null);
-                    setShowUserModal(true);
-                  }}
-                  className="px-4 py-2 bg-pink-500 text-white rounded-lg hover:bg-pink-600 transition font-semibold"
-                >
-                  + เพิ่มผู้ใช้
-                </button>
-              </div>
-              <div className="overflow-x-auto">
-                <table className="w-full">
-                  <thead className="bg-gray-50">
-                    <tr>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">อีเมล</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">บทบาท</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">คณะ/หน่วยงาน</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">สถานะ</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">การจัดการ</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-gray-200">
-                    {users.length === 0 ? (
+                <div className="overflow-x-auto">
+                  <table className="w-full">
+                    <thead className="bg-gray-50">
                       <tr>
-                        <td colSpan="5" className="px-6 py-4 text-center text-gray-500">
-                          <div className="py-8">
-                            <UserCog size={48} className="mx-auto text-gray-400 mb-4" />
-                            <p className="text-gray-600">ยังไม่มีข้อมูลผู้ใช้</p>
-                            <p className="text-sm text-gray-500 mt-2">ผู้ใช้ที่ลงทะเบียนจะแสดงที่นี่</p>
-                          </div>
-                        </td>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">อีเมล</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">บทบาท</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">คณะ/หน่วยงาน</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">สถานะ</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">การจัดการ</th>
                       </tr>
-                    ) : (
-                      users.map((user) => {
-                        const roleLabels = {
-                          'hr': 'เจ้าหน้าที่ฝ่ายบุคคล',
-                          'vp_hr': 'รองอธิการบดี',
-                          'president': 'อธิการบดี',
-                          'faculty': 'คณะ/หน่วยงาน'
-                        };
-                        const facultyName = user.facultyId 
-                          ? (FACULTIES.find(f => f.id === user.facultyId)?.name || user.facultyId)
-                          : '-';
-                        
-                        return (
-                          <tr key={user.uid} className="hover:bg-gray-50">
-                          <td className="px-6 py-4 text-sm font-medium text-gray-900">{escapeHtml(user.email || '-')}</td>
-                          <td className="px-6 py-4 text-sm text-gray-700">{escapeHtml(roleLabels[user.role] || user.role)}</td>
-                          <td className="px-6 py-4 text-sm text-gray-700">{escapeHtml(facultyName)}</td>
-                            <td className="px-6 py-4">
-                              <span className="px-2 py-1 text-xs rounded bg-green-100 text-green-800">Active</span>
-                            </td>
-                            <td className="px-6 py-4">
-                              <div className="flex gap-2">
-                                <button 
-                                  onClick={() => {
-                                    setSelectedUser(user);
-                                    setShowUserModal(true);
-                                  }}
-                                  className="px-3 py-1 text-xs bg-gray-100 hover:bg-gray-200 rounded transition"
-                                >
-                                  แก้ไข
-                                </button>
-                                <button 
-                                  onClick={() => {
-                                    if (confirm(`คุณต้องการลบผู้ใช้ ${user.email} หรือไม่?`)) {
-                                      // ลบผู้ใช้
-                                      if (!db) {
-                                        // Demo Mode
-                                        const localUsers = JSON.parse(localStorage.getItem('spu_hr_users') || '[]');
-                                        const updated = localUsers.filter(u => u.uid !== user.uid);
-                                        localStorage.setItem('spu_hr_users', JSON.stringify(updated));
-                                        setUsers(updated);
-                                        alert('ลบผู้ใช้สำเร็จ');
-                                      } else {
-                                        // Firestore
-                                        alert('ฟีเจอร์ลบผู้ใช้จาก Firestore กำลังพัฒนา');
+                    </thead>
+                    <tbody className="divide-y divide-gray-200">
+                      {users.length === 0 ? (
+                        <tr>
+                          <td colSpan="5" className="px-6 py-4 text-center text-gray-500">
+                            <div className="py-8">
+                              <UserCog size={48} className="mx-auto text-gray-400 mb-4" />
+                              <p className="text-gray-600">ยังไม่มีข้อมูลผู้ใช้</p>
+                              <p className="text-sm text-gray-500 mt-2">ผู้ใช้ที่ลงทะเบียนจะแสดงที่นี่</p>
+                            </div>
+                          </td>
+                        </tr>
+                      ) : (
+                        users.map((user) => {
+                          const roleLabels = {
+                            'hr': 'เจ้าหน้าที่ฝ่ายบุคคล',
+                            'vp_hr': 'รองอธิการบดี',
+                            'president': 'อธิการบดี',
+                            'faculty': 'คณะ/หน่วยงาน'
+                          };
+                          const facultyName = user.facultyId 
+                            ? (FACULTIES.find(f => f.id === user.facultyId)?.name || user.facultyId)
+                            : '-';
+                          
+                          return (
+                            <tr key={user.uid} className="hover:bg-gray-50">
+                              <td className="px-6 py-4 text-sm font-medium text-gray-900">{escapeHtml(user.email || '-')}</td>
+                              <td className="px-6 py-4 text-sm text-gray-700">{escapeHtml(roleLabels[user.role] || user.role)}</td>
+                              <td className="px-6 py-4 text-sm text-gray-700">{escapeHtml(facultyName)}</td>
+                              <td className="px-6 py-4">
+                                <span className="px-2 py-1 text-xs rounded bg-green-100 text-green-800">Active</span>
+                              </td>
+                              <td className="px-6 py-4">
+                                <div className="flex gap-2">
+                                  <button 
+                                    onClick={() => {
+                                      setSelectedUser(user);
+                                      setShowUserModal(true);
+                                    }}
+                                    className="px-3 py-1 text-xs bg-gray-100 hover:bg-gray-200 rounded transition"
+                                  >
+                                    แก้ไข
+                                  </button>
+                                  <button 
+                                    onClick={() => {
+                                      if (confirm(`คุณต้องการลบผู้ใช้ ${user.email} หรือไม่?`)) {
+                                        // ลบผู้ใช้
+                                        if (!db) {
+                                          // Demo Mode
+                                          const localUsers = JSON.parse(localStorage.getItem('spu_hr_users') || '[]');
+                                          const updated = localUsers.filter(u => u.uid !== user.uid);
+                                          localStorage.setItem('spu_hr_users', JSON.stringify(updated));
+                                          setUsers(updated);
+                                          alert('ลบผู้ใช้สำเร็จ');
+                                        } else {
+                                          // Firestore
+                                          alert('ฟีเจอร์ลบผู้ใช้จาก Firestore กำลังพัฒนา');
+                                        }
                                       }
-                                    }
-                                  }}
-                                  className="px-3 py-1 text-xs bg-red-100 hover:bg-red-200 text-red-700 rounded transition"
-                                >
-                                  ลบ
-                                </button>
-                              </div>
-                            </td>
-                          </tr>
-                        );
-                      })
-                    )}
-                  </tbody>
-                </table>
+                                    }}
+                                    className="px-3 py-1 text-xs bg-red-100 hover:bg-red-200 text-red-700 rounded transition"
+                                  >
+                                    ลบ
+                                  </button>
+                                </div>
+                              </td>
+                            </tr>
+                          );
+                        })
+                      )}
+                    </tbody>
+                  </table>
+                </div>
               </div>
-            </div>
+            )}
           </div>
         )}
 
@@ -1310,60 +1311,27 @@ const AdminDashboard = ({ userRole, faculty, onLogout, onCreateRequest, onSwitch
 
         {/* Template Modal */}
         {showTemplateModal && (
-          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-            <div className="bg-white rounded-lg shadow-xl max-w-2xl w-full p-6 max-h-[90vh] overflow-y-auto">
+          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4" onClick={(e) => {
+            if (e.target === e.currentTarget) {
+              setShowTemplateModal(false);
+              setSelectedTemplate(null);
+            }
+          }}>
+            <div className="bg-white rounded-lg shadow-xl max-w-2xl w-full p-6 max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
               <h3 className="text-xl font-bold text-gray-800 mb-4">
                 {selectedTemplate ? 'แก้ไข Email Template' : 'สร้าง Email Template ใหม่'}
               </h3>
-              <div className="space-y-4">
-                <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">ชื่อ Template</label>
-                  <input 
-                    type="text" 
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500"
-                    placeholder="ชื่อ Template"
-                    defaultValue={selectedTemplate === 'new-request' ? 'แจ้งเตือนคำขอใหม่' : selectedTemplate === 'confirmation' ? 'ยืนยันคำขอ' : selectedTemplate === 'status-update' ? 'อัปเดตสถานะ' : ''}
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">หัวข้ออีเมล</label>
-                  <input 
-                    type="text" 
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500"
-                    placeholder="Subject"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">เนื้อหาอีเมล</label>
-                  <textarea 
-                    rows={10}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500"
-                    placeholder="เนื้อหาอีเมล..."
-                    defaultValue={selectedTemplate === 'new-request' ? 'สวัสดี,\n\nมีการสร้างคำขอใหม่:\n- ตำแหน่ง: {{position}}\n- คณะ: {{faculty}}\n- จำนวน: {{amount}} ตำแหน่ง\n\nกรุณาตรวจสอบและดำเนินการ\n\nขอบคุณ' : selectedTemplate === 'confirmation' ? 'สวัสดี,\n\nคำขอของคุณได้รับการยืนยันแล้ว\n\nกรุณาคลิกลิงก์ด้านล่างเพื่อยืนยัน:\n{{confirmation_link}}\n\nขอบคุณ' : selectedTemplate === 'status-update' ? 'สวัสดี,\n\nสถานะคำขอของคุณได้เปลี่ยนแปลง:\n- ตำแหน่ง: {{position}}\n- สถานะใหม่: {{new_status}}\n\nกรุณาตรวจสอบในระบบ\n\nขอบคุณ' : ''}
-                  />
-                </div>
-                <div className="flex gap-3 pt-4">
-                  <button
-                    onClick={() => {
-                      alert(selectedTemplate ? 'อัปเดต Template สำเร็จ' : 'สร้าง Template สำเร็จ');
-                      setShowTemplateModal(false);
-                      setSelectedTemplate(null);
-                    }}
-                    className="flex-1 px-4 py-2 bg-pink-500 text-white rounded-lg hover:bg-pink-600 transition font-semibold"
-                  >
-                    {selectedTemplate ? 'อัปเดต' : 'สร้าง'}
-                  </button>
-                  <button
-                    onClick={() => {
-                      setShowTemplateModal(false);
-                      setSelectedTemplate(null);
-                    }}
-                    className="flex-1 px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition font-semibold"
-                  >
-                    ยกเลิก
-                  </button>
-                </div>
-              </div>
+              <TemplateFormModal 
+                selectedTemplate={selectedTemplate}
+                onClose={() => {
+                  setShowTemplateModal(false);
+                  setSelectedTemplate(null);
+                }}
+                onSuccess={() => {
+                  setShowTemplateModal(false);
+                  setSelectedTemplate(null);
+                }}
+              />
             </div>
             </div>
         )}
