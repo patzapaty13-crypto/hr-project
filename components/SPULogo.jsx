@@ -128,18 +128,19 @@ const SPULogo = ({ size = 'md', className = '', onClick }) => {
 
   return (
     <div 
-      className={`flex flex-col items-start justify-center ${onClick ? 'cursor-pointer' : ''} ${className}`}
+      className={`flex flex-col justify-center ${onClick ? 'cursor-pointer' : ''} ${className}`}
       onClick={onClick}
       style={{ 
         minWidth: 'fit-content',
         backgroundColor: backgroundColor,
-        padding: '0.5rem',
-        borderRadius: '0.25rem'
+        padding: size === 'sm' ? '0.75rem' : size === 'md' ? '1rem' : size === 'lg' ? '1.25rem' : '1.5rem',
+        borderRadius: '0.5rem',
+        boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)'
       }}
     >
-      {/* Top Section: SPU (สีดำ, ตัวใหญ่อ้วน, tracking แน่นมาก) */}
+      {/* Top Section: SPU (สีดำ, ตัวใหญ่อ้วน, tracking แน่นมาก) - อยู่กลาง */}
       <div 
-        className={`font-black ${sizes.spu} leading-none mb-1 sm:mb-1.5 tracking-tighter text-left`} 
+        className={`font-black ${sizes.spu} leading-none mb-2 sm:mb-3 tracking-tighter text-center`} 
         style={{ 
           color: spuColor,
           fontFamily: 'sans-serif', 
@@ -150,7 +151,7 @@ const SPULogo = ({ size = 'md', className = '', onClick }) => {
         SPU
       </div>
       
-      {/* Bottom Section: SRIPATUM UNIVERSITY (สีดำ) */}
+      {/* Bottom Section: SRIPATUM UNIVERSITY (สีดำ) - ชิดซ้าย */}
       <div className="flex flex-col items-start">
         {/* แถวแรก: SRIPATUM + แถบสีดำแนวนอน (แถบยาวเท่ากับความกว้างของ SRIPATUM) */}
         <div className="flex items-center gap-1.5 sm:gap-2">
