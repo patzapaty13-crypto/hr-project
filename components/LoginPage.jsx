@@ -238,17 +238,14 @@ const LoginPage = ({ onLogin, onShowRegister }) => {
             <div className={`flex justify-between items-center transition-all duration-500 ${
               scrolled ? 'py-3' : 'py-4 sm:py-5'
             }`}>
-              {/* Logo SPU - Horizontal Layout with expand animation */}
-              <div className="flex items-center gap-3 sm:gap-4 group">
-                <div className="transform transition-all duration-500 hover:scale-125 hover:z-50 relative">
-                  <SPULogo 
-                    size="sm" 
-                    onClick={() => window.location.reload()}
-                    className="cursor-pointer transition-all duration-500"
-                  />
-                  <div className="absolute inset-0 bg-white/20 rounded-lg opacity-0 group-hover:opacity-100 blur-xl -z-10 transition-opacity duration-500 transform scale-150"></div>
-                </div>
-                <span className="hidden sm:block text-gray-900 text-base sm:text-lg font-bold tracking-wide transition-all duration-300 group-hover:text-pink-600">
+              {/* Logo SPU - Horizontal Layout */}
+              <div className="flex items-center gap-3 sm:gap-4">
+                <SPULogo 
+                  size="sm" 
+                  onClick={() => window.location.reload()}
+                  className="cursor-pointer"
+                />
+                <span className="hidden sm:block text-gray-900 text-base sm:text-lg font-bold tracking-wide">
                   Personnel System
                 </span>
               </div>
@@ -304,18 +301,13 @@ const LoginPage = ({ onLogin, onShowRegister }) => {
             <div className="grid lg:grid-cols-2 gap-8 lg:gap-12 items-center">
               {/* Left Content with animations and large logo */}
               <div className="text-left space-y-6 sm:space-y-8 order-2 lg:order-1 animate-fade-in-up">
-                {/* Large Logo with expand effect */}
+                {/* Large Logo */}
                 <div className="flex justify-center lg:justify-start mb-4 sm:mb-6">
-                  <div className="group relative">
-                    <div className="transform transition-all duration-500 hover:scale-125 hover:z-50 relative">
-                      <SPULogo 
-                        size="lg" 
-                        onClick={() => window.location.reload()}
-                        className="cursor-pointer transition-all duration-500"
-                      />
-                      <div className="absolute inset-0 bg-white/30 rounded-lg opacity-0 group-hover:opacity-100 blur-2xl -z-10 transition-opacity duration-500 transform scale-150"></div>
-                    </div>
-                  </div>
+                  <SPULogo 
+                    size="lg" 
+                    onClick={() => window.location.reload()}
+                    className="cursor-pointer"
+                  />
                 </div>
                 
                 <p className="text-pink-100 text-xs sm:text-sm font-semibold uppercase tracking-widest animate-fade-in opacity-0 text-center lg:text-left" style={{ animationDelay: '0.1s', animationFillMode: 'forwards' }}>
