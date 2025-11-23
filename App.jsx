@@ -105,19 +105,28 @@ export default function App() {
      * ตรวจสอบว่ามี Custom Token หรือไม่ ถ้ามีก็ Login อัตโนมัติ
      */
     const initAuth = async () => {
-      // ตรวจสอบว่าอยู่ใน Browser และมี Token พิเศษหรือไม่
-      // window.__initial_auth_token: Token ที่ตั้งค่าไว้ใน index.html (ถ้ามี)
-      if (typeof window !== 'undefined' && window.__initial_auth_token) {
-        // Login ด้วย Custom Token (สำหรับกรณีพิเศษ)
-        await signInWithCustomToken(auth, window.__initial_auth_token);
-      } else {
-        // ถ้าไม่มี Token ก็รอให้ผู้ใช้กด Login เองในหน้า LoginPage
-        // ไม่ต้องทำอะไร เพียงรอให้ผู้ใช้เลือกบทบาทและกด Login
+      try {
+        // ตรวจสอบว่าอยู่ใน Browser และมี Token พิเศษหรือไม่
+        // window.__initial_auth_token: Token ที่ตั้งค่าไว้ใน index.html (ถ้ามี)
+        if (typeof window !== 'undefined' && window.__initial_auth_token && auth) {
+          // Login ด้วย Custom Token (สำหรับกรณีพิเศษ) - เพิ่ม timeout
+          const authPromise = signInWithCustomToken(auth, window.__initial_auth_token);
+          const timeoutPromise = new Promise((_, reject) => 
+            setTimeout(() => reject(new Error('Authentication timeout')), 10000)
+          );
+          await Promise.race([authPromise, timeoutPromise]);
+        } else {
+          // ถ้าไม่มี Token ก็รอให้ผู้ใช้กด Login เองในหน้า LoginPage
+          // ไม่ต้องทำอะไร เพียงรอให้ผู้ใช้เลือกบทบาทและกด Login
+        }
+      } catch (error) {
+        console.warn('Error in initAuth:', error);
+        // ไม่ throw error เพื่อให้แอปทำงานต่อได้
       }
     };
     
-    // เรียกใช้ฟังก์ชันเริ่มต้น Authentication
-    initAuth();
+    // เรียกใช้ฟังก์ชันเริ่มต้น Authentication (ไม่ await เพื่อไม่ให้ block)
+    initAuth().catch(console.error);
     
     /**
      * ตั้ง Listener สำหรับตรวจจับการเปลี่ยนแปลงสถานะ Login
@@ -127,9 +136,22 @@ export default function App() {
      * - Token หมดอายุ
      */
     let unsub = null;
+    let authStateTimeout = null;
+    
     if (auth) {
       try {
+        // เพิ่ม timeout สำหรับ auth state change
+        authStateTimeout = setTimeout(() => {
+          setIsLoading(false);
+        }, 5000); // ถ้า 5 วินาทียังไม่ตอบกลับ ให้ปิด loading
+        
         unsub = onAuthStateChanged(auth, (currentUser) => {
+          // Clear timeout เมื่อได้รับ response
+          if (authStateTimeout) {
+            clearTimeout(authStateTimeout);
+            authStateTimeout = null;
+          }
+          
           // currentUser: Object ของผู้ใช้ที่ Login (null ถ้า Logout)
           setUser(currentUser);
           setIsLoading(false);
@@ -141,27 +163,46 @@ export default function App() {
             setUseAdminDashboard(false);
             // ลบค่า useAdminDashboard จาก localStorage เมื่อ Logout
             if (typeof window !== 'undefined') {
-              localStorage.removeItem('spu_hr_useAdminDashboard');
+              try {
+                localStorage.removeItem('spu_hr_useAdminDashboard');
+              } catch (e) {
+                console.warn('Error removing from localStorage:', e);
+              }
             }
           } else {
             // ถ้ามี user ให้ลองโหลดข้อมูลจาก localStorage
             if (typeof window !== 'undefined') {
-              const savedRole = localStorage.getItem('spu_hr_role');
-              const savedFaculty = localStorage.getItem('spu_hr_faculty');
-              if (savedRole) {
-                setRole(savedRole);
-              }
-              if (savedFaculty) {
-                try {
-                  setSelectedFaculty(JSON.parse(savedFaculty));
-                } catch (e) {
-                  console.warn('Error parsing saved faculty:', e);
+              try {
+                const savedRole = localStorage.getItem('spu_hr_role');
+                const savedFaculty = localStorage.getItem('spu_hr_faculty');
+                if (savedRole) {
+                  setRole(savedRole);
                 }
+                if (savedFaculty) {
+                  try {
+                    setSelectedFaculty(JSON.parse(savedFaculty));
+                  } catch (e) {
+                    console.warn('Error parsing saved faculty:', e);
+                  }
+                }
+              } catch (e) {
+                console.warn('Error reading from localStorage:', e);
               }
             }
           }
+        }, (error) => {
+          // Error callback
+          if (authStateTimeout) {
+            clearTimeout(authStateTimeout);
+            authStateTimeout = null;
+          }
+          console.warn('Auth state change error:', error);
+          setIsLoading(false);
         });
       } catch (error) {
+        if (authStateTimeout) {
+          clearTimeout(authStateTimeout);
+        }
         console.warn('ไม่สามารถตั้งค่า Auth State Listener ได้:', error);
         setIsLoading(false);
       }
@@ -176,8 +217,15 @@ export default function App() {
      * ป้องกัน Memory Leak
      */
     return () => {
+      if (authStateTimeout) {
+        clearTimeout(authStateTimeout);
+      }
       if (unsub) {
-        unsub();
+        try {
+          unsub();
+        } catch (error) {
+          console.warn('Error unsubscribing auth state:', error);
+        }
       }
     };
   }, []); // [] = รันเพียงครั้งเดียวเมื่อ Component โหลด

@@ -40,6 +40,41 @@ const SPU_IMAGES = [
 
 const BackgroundSlider = ({ children, className = '' }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [loadedImages, setLoadedImages] = useState(new Set());
+  const [imageErrors, setImageErrors] = useState(new Set());
+
+  // Preload images with error handling
+  useEffect(() => {
+    const preloadImages = async () => {
+      const promises = SPU_IMAGES.map((image) => {
+        return new Promise((resolve) => {
+          const img = new Image();
+          img.onload = () => {
+            setLoadedImages(prev => new Set([...prev, image.id]));
+            resolve();
+          };
+          img.onerror = () => {
+            setImageErrors(prev => new Set([...prev, image.id]));
+            resolve(); // Continue even if image fails
+          };
+          // Add timeout for image loading
+          setTimeout(() => {
+            if (!loadedImages.has(image.id) && !imageErrors.has(image.id)) {
+              setImageErrors(prev => new Set([...prev, image.id]));
+              resolve();
+            }
+          }, 10000); // 10 second timeout
+          img.src = image.url;
+        });
+      });
+      
+      // Load first image immediately, others in background
+      await promises[0];
+      Promise.all(promises.slice(1)).catch(console.error);
+    };
+    
+    preloadImages();
+  }, []);
 
   // Auto-play slide show
   useEffect(() => {
@@ -54,23 +89,44 @@ const BackgroundSlider = ({ children, className = '' }) => {
     <div className={`relative min-h-screen overflow-hidden ${className}`}>
       {/* Background Images */}
       <div className="absolute inset-0">
-        {SPU_IMAGES.map((image, index) => (
-          <div
-            key={image.id}
-            className={`absolute inset-0 transition-opacity duration-1000 ${
-              index === currentIndex ? 'opacity-100' : 'opacity-0'
-            }`}
-          >
-            <img
-              src={image.url}
-              alt={image.alt}
-              className="w-full h-full object-cover"
-            />
-            {/* Overlay เพื่อให้ข้อความอ่านง่าย */}
-            {/* Overlay เพื่อให้ข้อความอ่านง่าย - ใช้ gradient สีม่วง-น้ำเงินอ่อน */}
-            <div className="absolute inset-0 bg-gradient-to-br from-slate-900/70 via-blue-900/60 to-indigo-900/70"></div>
-          </div>
-        ))}
+        {SPU_IMAGES.map((image, index) => {
+          const isVisible = index === currentIndex;
+          const isLoaded = loadedImages.has(image.id);
+          const hasError = imageErrors.has(image.id);
+          
+          // Only render visible image or first image
+          if (!isVisible && index !== 0 && !isLoaded) {
+            return null;
+          }
+          
+          return (
+            <div
+              key={image.id}
+              className={`absolute inset-0 transition-opacity duration-1000 ${
+                isVisible ? 'opacity-100' : 'opacity-0'
+              }`}
+            >
+              {!hasError && (
+                <img
+                  src={image.url}
+                  alt={image.alt}
+                  className="w-full h-full object-cover"
+                  loading={index === 0 ? 'eager' : 'lazy'}
+                  onError={(e) => {
+                    setImageErrors(prev => new Set([...prev, image.id]));
+                    e.target.style.display = 'none';
+                  }}
+                />
+              )}
+              {/* Fallback gradient background if image fails */}
+              {hasError && (
+                <div className="w-full h-full bg-gradient-to-br from-slate-900 via-blue-900 to-indigo-900"></div>
+              )}
+              {/* Overlay เพื่อให้ข้อความอ่านง่าย - ใช้ gradient สีม่วง-น้ำเงินอ่อน */}
+              <div className="absolute inset-0 bg-gradient-to-br from-slate-900/70 via-blue-900/60 to-indigo-900/70"></div>
+            </div>
+          );
+        })}
       </div>
 
       {/* Content */}
