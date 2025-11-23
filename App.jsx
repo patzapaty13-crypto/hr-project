@@ -204,18 +204,27 @@ export default function App() {
           setUser({ uid: 'local-user-' + Date.now(), isAnonymous: true });
         } else {
           // ตรวจสอบว่ามี Firebase config หรือไม่
-          const firebaseConfig = JSON.parse(window.__firebase_config || '{}');
-          if (!firebaseConfig.apiKey || firebaseConfig.apiKey === 'YOUR_API_KEY') {
-            console.warn('Firebase config ไม่ถูกต้อง ใช้การ Login แบบ Local State');
-            setUser({ uid: 'local-user-' + Date.now(), isAnonymous: true });
-          } else {
-            // ใช้ Anonymous Authentication เป็น fallback
-            try {
-              await signInAnonymously(auth);
-            } catch (authError) {
-              console.warn('Firebase Authentication ล้มเหลว ใช้การ Login แบบ Local State:', authError);
+          try {
+            const firebaseConfig = JSON.parse(window.__firebase_config || '{}');
+            if (!firebaseConfig.apiKey || firebaseConfig.apiKey === 'YOUR_API_KEY') {
+              console.warn('Firebase config ไม่ถูกต้อง ใช้การ Login แบบ Local State');
               setUser({ uid: 'local-user-' + Date.now(), isAnonymous: true });
+            } else {
+              // ใช้ Anonymous Authentication เป็น fallback (เพิ่ม timeout)
+              try {
+                const authPromise = signInAnonymously(auth);
+                const timeoutPromise = new Promise((_, reject) => 
+                  setTimeout(() => reject(new Error('Authentication timeout')), 10000)
+                );
+                await Promise.race([authPromise, timeoutPromise]);
+              } catch (authError) {
+                console.warn('Firebase Authentication ล้มเหลว ใช้การ Login แบบ Local State:', authError);
+                setUser({ uid: 'local-user-' + Date.now(), isAnonymous: true });
+              }
             }
+          } catch (configError) {
+            console.warn('Error parsing Firebase config:', configError);
+            setUser({ uid: 'local-user-' + Date.now(), isAnonymous: true });
           }
         }
       }
@@ -226,9 +235,13 @@ export default function App() {
       
       // เก็บข้อมูล Login ใน localStorage
       if (typeof window !== 'undefined') {
-        localStorage.setItem('spu_hr_role', userRole);
-        if (faculty) {
-          localStorage.setItem('spu_hr_faculty', JSON.stringify(faculty));
+        try {
+          localStorage.setItem('spu_hr_role', userRole);
+          if (faculty) {
+            localStorage.setItem('spu_hr_faculty', JSON.stringify(faculty));
+          }
+        } catch (storageError) {
+          console.warn('Error saving to localStorage:', storageError);
         }
       }
     } catch (error) {
@@ -241,9 +254,13 @@ export default function App() {
       
       // เก็บข้อมูล Login ใน localStorage
       if (typeof window !== 'undefined') {
-        localStorage.setItem('spu_hr_role', userRole);
-        if (faculty) {
-          localStorage.setItem('spu_hr_faculty', JSON.stringify(faculty));
+        try {
+          localStorage.setItem('spu_hr_role', userRole);
+          if (faculty) {
+            localStorage.setItem('spu_hr_faculty', JSON.stringify(faculty));
+          }
+        } catch (storageError) {
+          console.warn('Error saving to localStorage:', storageError);
         }
       }
     }

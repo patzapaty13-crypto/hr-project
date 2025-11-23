@@ -104,15 +104,23 @@ const LoginPage = ({ onLogin, onShowRegister }) => {
     setError('');
     setIsLoading(true);
 
+    // Timeout protection - ถ้าใช้เวลานานกว่า 30 วินาที ให้หยุด
+    const timeoutId = setTimeout(() => {
+      setIsLoading(false);
+      setError('การเข้าสู่ระบบใช้เวลานานเกินไป กรุณาลองใหม่อีกครั้ง');
+    }, 30000);
+
     try {
       // Validation
       if (!email || !password) {
+        clearTimeout(timeoutId);
         setError('กรุณากรอกอีเมลและรหัสผ่าน');
         setIsLoading(false);
         return;
       }
 
       if (role === 'faculty' && !facultyId) {
+        clearTimeout(timeoutId);
         setError('กรุณาเลือกคณะ/หน่วยงาน');
         setIsLoading(false);
         return;
@@ -122,8 +130,15 @@ const LoginPage = ({ onLogin, onShowRegister }) => {
       let userCredential;
       if (auth) {
         try {
-          userCredential = await signInWithEmailAndPassword(auth, email.toLowerCase(), password);
+          // เพิ่ม timeout สำหรับ Firebase auth
+          const authPromise = signInWithEmailAndPassword(auth, email.toLowerCase(), password);
+          const timeoutPromise = new Promise((_, reject) => 
+            setTimeout(() => reject(new Error('การเข้าสู่ระบบใช้เวลานานเกินไป')), 15000)
+          );
+          
+          userCredential = await Promise.race([authPromise, timeoutPromise]);
         } catch (authError) {
+          clearTimeout(timeoutId);
           if (authError.code === 'auth/user-not-found') {
             setError('ไม่พบผู้ใช้ในระบบ กรุณาลงทะเบียนก่อน');
             setIsLoading(false);
@@ -134,6 +149,14 @@ const LoginPage = ({ onLogin, onShowRegister }) => {
             return;
           } else if (authError.code === 'auth/invalid-email') {
             setError('รูปแบบอีเมลไม่ถูกต้อง');
+            setIsLoading(false);
+            return;
+          } else if (authError.code === 'auth/network-request-failed') {
+            setError('ไม่สามารถเชื่อมต่อกับเซิร์ฟเวอร์ได้ กรุณาตรวจสอบการเชื่อมต่ออินเทอร์เน็ต');
+            setIsLoading(false);
+            return;
+          } else if (authError.message && authError.message.includes('timeout')) {
+            setError('การเข้าสู่ระบบใช้เวลานานเกินไป กรุณาลองใหม่อีกครั้ง');
             setIsLoading(false);
             return;
           }
@@ -149,10 +172,24 @@ const LoginPage = ({ onLogin, onShowRegister }) => {
         };
       }
 
-      // ดึงข้อมูลผู้ใช้จาก Database
-      const userData = await getUserByEmail(email.toLowerCase());
+      // ดึงข้อมูลผู้ใช้จาก Database (เพิ่ม timeout)
+      let userData;
+      try {
+        const userDataPromise = getUserByEmail(email.toLowerCase());
+        const userDataTimeout = new Promise((_, reject) => 
+          setTimeout(() => reject(new Error('การดึงข้อมูลผู้ใช้ใช้เวลานานเกินไป')), 10000)
+        );
+        userData = await Promise.race([userDataPromise, userDataTimeout]);
+      } catch (userDataError) {
+        clearTimeout(timeoutId);
+        console.error('Error getting user data:', userDataError);
+        setError('ไม่สามารถดึงข้อมูลผู้ใช้ได้ กรุณาลองใหม่อีกครั้ง');
+        setIsLoading(false);
+        return;
+      }
 
       if (!userData) {
+        clearTimeout(timeoutId);
         setError('ไม่พบข้อมูลผู้ใช้ในระบบ กรุณาลงทะเบียนก่อน');
         setIsLoading(false);
         return;
@@ -162,6 +199,7 @@ const LoginPage = ({ onLogin, onShowRegister }) => {
       const accessCheck = checkAccess(userData, role, role === 'faculty' ? facultyId : null);
       
       if (!accessCheck.allowed) {
+        clearTimeout(timeoutId);
         setError(accessCheck.message);
         setIsLoading(false);
         return;
@@ -172,18 +210,32 @@ const LoginPage = ({ onLogin, onShowRegister }) => {
       if (role === 'faculty') {
         selectedFaculty = FACULTIES.find(f => f.id === facultyId);
         if (!selectedFaculty) {
+          clearTimeout(timeoutId);
           setError('ไม่พบข้อมูลคณะที่เลือก');
           setIsLoading(false);
           return;
         }
       }
 
-      // เรียก onLogin พร้อมส่งข้อมูล
-      await onLogin(role, selectedFaculty, userCredential.user);
+      // เรียก onLogin พร้อมส่งข้อมูล (เพิ่ม timeout)
+      try {
+        const loginPromise = onLogin(role, selectedFaculty, userCredential.user);
+        const loginTimeout = new Promise((_, reject) => 
+          setTimeout(() => reject(new Error('การเข้าสู่ระบบใช้เวลานานเกินไป')), 10000)
+        );
+        await Promise.race([loginPromise, loginTimeout]);
+        clearTimeout(timeoutId);
+      } catch (loginError) {
+        clearTimeout(timeoutId);
+        console.error('Error in onLogin:', loginError);
+        setError('เกิดข้อผิดพลาดในการเข้าสู่ระบบ กรุณาลองใหม่อีกครั้ง');
+        setIsLoading(false);
+        return;
+      }
     } catch (err) {
+      clearTimeout(timeoutId);
       console.error('Login error:', err);
       setError(err.message || 'เกิดข้อผิดพลาดในการเข้าสู่ระบบ กรุณาลองใหม่อีกครั้ง');
-    } finally {
       setIsLoading(false);
     }
   };
@@ -471,7 +523,14 @@ const LoginPage = ({ onLogin, onShowRegister }) => {
                 <button 
                   type="submit"
                   disabled={isLoading}
-                  className="w-full bg-gradient-to-r from-pink-500 to-pink-600 text-white py-3.5 rounded-lg hover:from-pink-600 hover:to-pink-700 transition-all duration-200 font-bold shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center mt-2 cursor-pointer transform hover:scale-[1.02] active:scale-[0.98] text-base"
+                  className="w-full bg-gradient-to-r from-pink-500 to-pink-600 text-white py-3.5 rounded-lg hover:from-pink-600 hover:to-pink-700 transition-all duration-200 font-bold shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center mt-2 cursor-pointer transform hover:scale-[1.02] active:scale-[0.98] text-base relative"
+                  onClick={(e) => {
+                    // ป้องกัน double-click
+                    if (isLoading) {
+                      e.preventDefault();
+                      return false;
+                    }
+                  }}
                 >
                   {isLoading ? (
                     <>
