@@ -263,8 +263,7 @@ const LoginPage = ({ onLogin, onShowRegister }) => {
                   HR SPU
                 </h1>
                 <p className="text-base sm:text-lg md:text-xl text-white/95 leading-relaxed max-w-xl drop-shadow-lg font-medium">
-                  ระบบขออนุมัติอัตรากำลังพลออนไลน์ที่ทันสมัยและใช้งานง่าย 
-                  สำหรับคณะและหน่วยงาน รวมถึงสำนักงานบุคคล
+                  SPU HR Personnel System
                 </p>
                 <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 mt-6 sm:mt-8">
                   <button 

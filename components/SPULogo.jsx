@@ -119,19 +119,29 @@ const SPULogo = ({ size = 'md', className = '', onClick }) => {
 
   const sizes = sizeClasses[size] || sizeClasses.md;
 
-  // สีดำ (#000000) สำหรับ SRIPATUM UNIVERSITY และแถบ (ตามรูปใหม่)
-  const blackColor = '#000000';
+  // สีตามโลโก้จริง: dark gray บนพื้นหลังดำ
+  // SPU: สี dark gray เกือบดำ (#1a1a1a)
+  // SRIPATUM UNIVERSITY และแถบ: สี dark gray อ่อนกว่าเล็กน้อย (#2a2a2a)
+  const spuColor = '#1a1a1a'; // dark gray สำหรับ SPU
+  const textColor = '#2a2a2a'; // dark gray อ่อนกว่าเล็กน้อยสำหรับ SRIPATUM UNIVERSITY และแถบ
+  const backgroundColor = '#000000'; // พื้นหลังสีดำ
 
   return (
     <div 
       className={`flex flex-col items-start justify-center ${onClick ? 'cursor-pointer' : ''} ${className}`}
       onClick={onClick}
-      style={{ minWidth: 'fit-content' }}
+      style={{ 
+        minWidth: 'fit-content',
+        backgroundColor: backgroundColor,
+        padding: '1rem',
+        borderRadius: '0.25rem'
+      }}
     >
-      {/* Top Section: SPU (สีดำ, ตัวใหญ่อ้วน, tracking แน่นมาก) */}
+      {/* Top Section: SPU (สี dark gray เกือบดำ, ตัวใหญ่อ้วน, tracking แน่นมาก) */}
       <div 
-        className={`font-black text-black ${sizes.spu} leading-none mb-1 sm:mb-1.5 tracking-tighter text-left`} 
+        className={`font-black ${sizes.spu} leading-none mb-1 sm:mb-1.5 tracking-tighter text-left`} 
         style={{ 
+          color: spuColor,
           fontFamily: 'sans-serif', 
           fontWeight: 900,
           letterSpacing: '-0.02em' // tracking แน่นมาก
@@ -140,26 +150,26 @@ const SPULogo = ({ size = 'md', className = '', onClick }) => {
         SPU
       </div>
       
-      {/* Bottom Section: SRIPATUM UNIVERSITY (สีดำ - ตามรูปใหม่) */}
+      {/* Bottom Section: SRIPATUM UNIVERSITY (สี dark gray อ่อนกว่า SPU เล็กน้อย) */}
       <div className="flex flex-col items-start">
-        {/* แถวแรก: SRIPATUM + แถบสีดำแนวนอน (แถบยาวเท่ากับความกว้างของ SRIPATUM) */}
+        {/* แถวแรก: SRIPATUM + แถบสี dark gray แนวนอน (แถบยาวเท่ากับความกว้างของ SRIPATUM) */}
         <div className="flex items-center gap-1.5 sm:gap-2">
           <span 
             ref={setSripatumRef}
             className={`font-bold ${sizes.university} leading-none tracking-wider uppercase whitespace-nowrap`} 
             style={{ 
-              color: blackColor,
+              color: textColor,
               fontFamily: 'sans-serif',
               fontWeight: 700
             }}
           >
             SRIPATUM
           </span>
-          {/* แถบสีดำแนวนอน - ยาวเท่ากับความกว้างของ SRIPATUM text */}
+          {/* แถบสี dark gray แนวนอน - ยาวเท่ากับความกว้างของ SRIPATUM text */}
           <div 
-            className={`${sizes.barHeight} bg-black`}
+            className={`${sizes.barHeight}`}
             style={{ 
-              backgroundColor: blackColor,
+              backgroundColor: textColor,
               width: `${barWidth}px`,
               flexShrink: 0
             }}
@@ -170,7 +180,7 @@ const SPULogo = ({ size = 'md', className = '', onClick }) => {
         <span 
           className={`font-bold ${sizes.university} leading-none tracking-wider uppercase mt-0.5 sm:mt-1`}
           style={{ 
-            color: blackColor,
+            color: textColor,
             fontFamily: 'sans-serif',
             fontWeight: 700
           }}
