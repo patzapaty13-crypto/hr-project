@@ -26,33 +26,39 @@ import React, { useRef, useEffect, useState } from 'react';
  * ============================================================================
  */
 const SPULogo = ({ size = 'md', className = '', onClick }) => {
-  // State สำหรับเก็บความกว้างของ SRIPATUM text
-  const [barWidth, setBarWidth] = useState(80); // default width
-  const sripatumRef = useRef(null);
+  // State สำหรับเก็บตำแหน่งและความกว้างของแถบ
+  const [barPosition, setBarPosition] = useState({ left: 0, width: 0 });
+  const spuRef = useRef(null);
   const resizeObserverRef = useRef(null);
 
-  // ฟังก์ชันคำนวณความกว้าง
-  const calculateBarWidth = () => {
-    if (sripatumRef.current) {
-      const width = sripatumRef.current.offsetWidth;
-      if (width > 0) {
-        setBarWidth(width);
-      }
+  // ฟังก์ชันคำนวณตำแหน่งและความกว้างของแถบใต้ตัว U
+  const calculateBarPosition = () => {
+    if (spuRef.current) {
+      // หาตำแหน่งของตัว U โดยประมาณ (S + P + spacing)
+      const spuWidth = spuRef.current.offsetWidth;
+      const letterWidth = spuWidth / 3; // ประมาณความกว้างของแต่ละตัวอักษร
+      const leftPosition = letterWidth * 2; // ตำแหน่งเริ่มต้นของตัว U
+      const barWidth = letterWidth * 0.8; // ความกว้างของแถบประมาณ 80% ของตัวอักษร
+      
+      setBarPosition({
+        left: leftPosition,
+        width: barWidth
+      });
     }
   };
 
-  // Callback ref สำหรับคำนวณความกว้างทันทีเมื่อ element mount
-  const setSripatumRef = (node) => {
-    sripatumRef.current = node;
+  // Callback ref สำหรับคำนวณตำแหน่งทันทีเมื่อ element mount
+  const setSpuRefCallback = (node) => {
+    spuRef.current = node;
     
     if (node) {
-      // คำนวณความกว้างทันทีเมื่อ element mount
-      calculateBarWidth();
+      // คำนวณตำแหน่งทันทีเมื่อ element mount
+      calculateBarPosition();
 
       // รอให้ fonts โหลดเสร็จ (ถ้ามี)
       if (document.fonts && document.fonts.ready) {
         document.fonts.ready.then(() => {
-          calculateBarWidth();
+          calculateBarPosition();
         });
       }
 
@@ -62,7 +68,7 @@ const SPULogo = ({ size = 'md', className = '', onClick }) => {
       }
 
       resizeObserverRef.current = new ResizeObserver(() => {
-        calculateBarWidth();
+        calculateBarPosition();
       });
 
       resizeObserverRef.current.observe(node);
@@ -78,13 +84,13 @@ const SPULogo = ({ size = 'md', className = '', onClick }) => {
   // ใช้ useEffect สำหรับ resize listener และ cleanup
   useEffect(() => {
     const handleResize = () => {
-      calculateBarWidth();
+      calculateBarPosition();
     };
 
     window.addEventListener('resize', handleResize);
     
     // รีเฟรชเมื่อ size เปลี่ยน
-    calculateBarWidth();
+    calculateBarPosition();
 
     return () => {
       window.removeEventListener('resize', handleResize);
@@ -137,44 +143,46 @@ const SPULogo = ({ size = 'md', className = '', onClick }) => {
         borderRadius: '0.25rem'
       }}
     >
-      {/* Top Section: SPU (สีดำ, ตัวใหญ่อ้วน, tracking แน่นมาก) */}
-      <div 
-        className={`font-black ${sizes.spu} leading-none mb-1 sm:mb-1.5 tracking-tighter text-left`} 
-        style={{ 
-          color: spuColor,
-          fontFamily: 'sans-serif', 
-          fontWeight: 900,
-          letterSpacing: '-0.02em' // tracking แน่นมาก
-        }}
-      >
-        SPU
+      {/* Top Section: SPU (สีดำ, ตัวใหญ่อ้วน, tracking แน่นมาก) พร้อมแถบใต้ตัว U */}
+      <div className="relative">
+        <div 
+          ref={setSpuRefCallback}
+          className={`font-black ${sizes.spu} leading-none mb-1 sm:mb-1.5 tracking-tighter text-left`} 
+          style={{ 
+            color: spuColor,
+            fontFamily: 'sans-serif', 
+            fontWeight: 900,
+            letterSpacing: '-0.02em' // tracking แน่นมาก
+          }}
+        >
+          SPU
+        </div>
+        {/* แถบสี hot pink/magenta แนวนอน - อยู่ใต้ตัว U */}
+        <div 
+          className={`${sizes.barHeight} absolute`}
+          style={{ 
+            backgroundColor: textColor,
+            left: `${barPosition.left}px`,
+            width: `${barPosition.width}px`,
+            top: '100%',
+            marginTop: '0.125rem'
+          }}
+        ></div>
       </div>
       
       {/* Bottom Section: SRIPATUM UNIVERSITY (สี hot pink/magenta) */}
-      <div className="flex flex-col items-start">
-        {/* แถวแรก: SRIPATUM + แถบสี dark gray แนวนอน (แถบยาวเท่ากับความกว้างของ SRIPATUM) */}
-        <div className="flex items-center gap-1.5 sm:gap-2">
-          <span 
-            ref={setSripatumRef}
-            className={`font-bold ${sizes.university} leading-none tracking-wider uppercase whitespace-nowrap`} 
-            style={{ 
-              color: textColor,
-              fontFamily: 'sans-serif',
-              fontWeight: 700
-            }}
-          >
-            SRIPATUM
-          </span>
-          {/* แถบสี hot pink/magenta แนวนอน - ยาวเท่ากับความกว้างของ SRIPATUM text */}
-          <div 
-            className={`${sizes.barHeight}`}
-            style={{ 
-              backgroundColor: textColor,
-              width: `${barWidth}px`,
-              flexShrink: 0
-            }}
-          ></div>
-        </div>
+      <div className="flex flex-col items-start mt-1 sm:mt-1.5">
+        {/* แถวแรก: SRIPATUM */}
+        <span 
+          className={`font-bold ${sizes.university} leading-none tracking-wider uppercase whitespace-nowrap`} 
+          style={{ 
+            color: textColor,
+            fontFamily: 'sans-serif',
+            fontWeight: 700
+          }}
+        >
+          SRIPATUM
+        </span>
         
         {/* แถวที่สอง: UNIVERSITY (ด้านล่างของ SRIPATUM, จัดชิดซ้ายเหมือนกัน) */}
         <span 
