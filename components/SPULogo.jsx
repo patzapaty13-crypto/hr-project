@@ -131,11 +131,7 @@ const SPULogo = ({ size = 'md', className = '', onClick }) => {
       className={`flex flex-col justify-center ${onClick ? 'cursor-pointer' : ''} ${className}`}
       onClick={onClick}
       style={{ 
-        minWidth: 'fit-content',
-        backgroundColor: backgroundColor,
-        padding: size === 'sm' ? '0.75rem' : size === 'md' ? '1rem' : size === 'lg' ? '1.25rem' : '1.5rem',
-        borderRadius: '0.5rem',
-        boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)'
+        minWidth: 'fit-content'
       }}
     >
       {/* Top Section: SPU (สีดำ, ตัวใหญ่อ้วน, tracking แน่นมาก) - อยู่กลาง */}
