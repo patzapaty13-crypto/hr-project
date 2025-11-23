@@ -28,7 +28,8 @@ import React, { useState, useEffect } from 'react';
 // Building: Icon สำหรับคณะ/หน่วยงาน
 // Briefcase: Icon สำหรับ HR
 // Plus: Icon สำหรับปุ่มเพิ่ม/สร้างใหม่
-import { LogOut, Building, Briefcase, Plus } from 'lucide-react';
+// FileText: Icon สำหรับตรวจสอบ Resume
+import { LogOut, Building, Briefcase, Plus, FileText } from 'lucide-react';
 
 // ============================================================================
 // นำเข้า Firestore Functions
@@ -66,6 +67,8 @@ import { WORKFLOW_STEPS } from '../constants';
 // ============================================================================
 // SPULogo: Component สำหรับแสดง Logo SPU
 import SPULogo from './SPULogo';
+// ResumeReview: Component สำหรับตรวจสอบ Resume ด้วย AI
+import ResumeReview from './ResumeReview';
 
 // ============================================================================
 // นำเข้า Local Storage Utility
@@ -89,6 +92,10 @@ const Dashboard = ({ userRole, faculty, onLogout, onCreateRequest, onSwitchToAdm
   // loading: สถานะการโหลดข้อมูล (true = กำลังโหลด, false = โหลดเสร็จแล้ว)
   // ใช้สำหรับแสดงข้อความ "กำลังโหลด..." ในตาราง
   const [loading, setLoading] = useState(true);
+  
+  // State สำหรับ Resume Review Modal
+  const [showResumeReview, setShowResumeReview] = useState(false);
+  const [selectedRequest, setSelectedRequest] = useState(null);
 
   // ========================================================================
   // useEffect Hook: ดึงข้อมูลจาก Firestore แบบ Real-time หรือ Local Storage
@@ -659,20 +666,33 @@ const Dashboard = ({ userRole, faculty, onLogout, onCreateRequest, onSwitchToAdm
                         {getStatusLabel(request.status)}
                       </span>
                     </td>
-                    {/* คอลัมน์ที่ 5: ปุ่มจัดการ (สำหรับ HR เท่านั้น) */}
+                    {/* คอลัมน์ที่ 5: ปุ่มจัดการ (สำหรับ HR, VP HR, President) */}
                     <td className="p-4">
-                      {userRole === 'hr' ? (
+                      {(userRole === 'hr' || userRole === 'vp_hr' || userRole === 'president') ? (
                         /* 
-                          ปุ่ม Action สำหรับ HR
+                          ปุ่ม Action สำหรับ HR, VP HR, President
                           แสดงปุ่มตามสถานะปัจจุบันของคำขอ:
                           - submitted (ส่งเรื่องแล้ว) -> ปุ่ม "รับเรื่อง"
-                          - hr_review (HR ตรวจสอบแล้ว) -> ปุ่ม "เสนอ VP"
-                          - vp_hr (VP อนุมัติแล้ว) -> ปุ่ม "เสนออธิการฯ"
-                          - president (อธิการบดีอนุมัติแล้ว) -> ปุ่ม "ประกาศรับสมัคร"
+                          - hr_review (HR ตรวจสอบแล้ว) -> ปุ่ม "เสนอ VP" และ "ตรวจสอบ Resume"
+                          - vp_hr (VP อนุมัติแล้ว) -> ปุ่ม "เสนออธิการฯ" และ "ตรวจสอบ Resume"
+                          - president (อธิการบดีอนุมัติแล้ว) -> ปุ่ม "ประกาศรับสมัคร" และ "ตรวจสอบ Resume"
                         */
-                        <div className="flex justify-end space-x-2">
+                        <div className="flex justify-end space-x-2 flex-wrap gap-2">
+                          {/* ปุ่มตรวจสอบ Resume - แสดงเมื่อสถานะเป็น hr_review, vp_hr, หรือ president */}
+                          {(request.status === 'hr_review' || request.status === 'vp_hr' || request.status === 'president') && (
+                            <button 
+                              onClick={() => {
+                                setSelectedRequest(request);
+                                setShowResumeReview(true);
+                              }}
+                              className="text-xs bg-pink-500 text-white px-3 py-1.5 rounded-lg hover:bg-pink-600 transition shadow-md whitespace-nowrap flex items-center gap-1"
+                            >
+                              <FileText size={14} />
+                              ตรวจสอบ Resume
+                            </button>
+                          )}
                           {/* ถ้าสถานะ = 'submitted' แสดงปุ่ม "รับเรื่อง" */}
-                          {request.status === 'submitted' && (
+                          {request.status === 'submitted' && userRole === 'hr' && (
                             <button 
                               onClick={() => updateStatus(request.id, 'hr_review')}
                               className="text-xs bg-blue-500 text-white px-3 py-1.5 rounded-lg hover:bg-blue-600 transition shadow-md whitespace-nowrap"
@@ -681,7 +701,7 @@ const Dashboard = ({ userRole, faculty, onLogout, onCreateRequest, onSwitchToAdm
                             </button>
                           )}
                           {/* ถ้าสถานะ = 'hr_review' แสดงปุ่ม "เสนอ VP" */}
-                          {request.status === 'hr_review' && (
+                          {request.status === 'hr_review' && userRole === 'hr' && (
                             <button 
                               onClick={() => updateStatus(request.id, 'vp_hr')}
                               className="text-xs bg-blue-500 text-white px-3 py-1.5 rounded-lg hover:bg-blue-600 transition shadow-md whitespace-nowrap"
@@ -690,7 +710,7 @@ const Dashboard = ({ userRole, faculty, onLogout, onCreateRequest, onSwitchToAdm
                             </button>
                           )}
                           {/* ถ้าสถานะ = 'vp_hr' แสดงปุ่ม "เสนออธิการฯ" */}
-                          {request.status === 'vp_hr' && (
+                          {request.status === 'vp_hr' && (userRole === 'hr' || userRole === 'vp_hr') && (
                             <button 
                               onClick={() => updateStatus(request.id, 'president')}
                               className="text-xs bg-indigo-600 text-white px-3 py-1.5 rounded-lg hover:bg-indigo-700 transition shadow-md whitespace-nowrap"
@@ -699,7 +719,7 @@ const Dashboard = ({ userRole, faculty, onLogout, onCreateRequest, onSwitchToAdm
                             </button>
                           )}
                           {/* ถ้าสถานะ = 'president' แสดงปุ่ม "ประกาศรับสมัคร" */}
-                          {request.status === 'president' && (
+                          {request.status === 'president' && (userRole === 'hr' || userRole === 'president') && (
                             <button 
                               onClick={() => updateStatus(request.id, 'recruiting')}
                               className="text-xs bg-green-600 text-white px-3 py-1.5 rounded-lg hover:bg-green-700 transition shadow-md whitespace-nowrap"
@@ -709,7 +729,7 @@ const Dashboard = ({ userRole, faculty, onLogout, onCreateRequest, onSwitchToAdm
                           )}
                         </div>
                       ) : (
-                        /* ถ้าไม่ใช่ HR แสดงข้อความ "รายละเอียด" แทน */
+                        /* ถ้าไม่ใช่ HR/VP/President แสดงข้อความ "รายละเอียด" แทน */
                         <span className="text-xs text-gray-400">รายละเอียด</span>
                       )}
                     </td>
@@ -898,6 +918,22 @@ const Dashboard = ({ userRole, faculty, onLogout, onCreateRequest, onSwitchToAdm
           </div>
         </div>
       </footer>
+
+      {/* Resume Review Modal */}
+      {selectedRequest && (
+        <ResumeReview
+          isOpen={showResumeReview}
+          onClose={() => {
+            setShowResumeReview(false);
+            setSelectedRequest(null);
+          }}
+          jobRequirements={{
+            position: selectedRequest.position,
+            description: selectedRequest.description || '',
+            requirements: selectedRequest.requirements || ''
+          }}
+        />
+      )}
     </div>
   );
 };
