@@ -53,6 +53,10 @@ const AdminDashboard = ({ userRole, faculty, onLogout, onCreateRequest, onSwitch
   const [isMenuOpen, setIsMenuOpen] = useState(false); // สำหรับควบคุมการแสดง/ซ่อนเมนูบนมือถือ
   const [users, setUsers] = useState([]);
   const [emailLogs, setEmailLogs] = useState([]);
+  const [selectedUser, setSelectedUser] = useState(null);
+  const [selectedTemplate, setSelectedTemplate] = useState(null);
+  const [showUserModal, setShowUserModal] = useState(false);
+  const [showTemplateModal, setShowTemplateModal] = useState(false);
 
   // ========================================================================
   // useEffect Hook: ดึงข้อมูลคำขอ
@@ -580,7 +584,13 @@ const AdminDashboard = ({ userRole, faculty, onLogout, onCreateRequest, onSwitch
                       </tr>
                     ) : (
                       requests.map((request) => (
-                        <tr key={request.id} className="hover:bg-gray-50">
+                        <tr 
+                          key={request.id} 
+                          className="hover:bg-gray-50 cursor-pointer"
+                          onClick={() => {
+                            alert(`รายละเอียดคำขอ\n\nตำแหน่ง: ${request.position}\nคณะ: ${request.facultyName}\nประเภท: ${request.type === 'new' ? 'อัตราใหม่' : 'ทดแทน'}\nจำนวน: ${request.amount} ตำแหน่ง\nสถานะ: ${request.status}\nวันที่สร้าง: ${request.createdAt?.seconds ? new Date(request.createdAt.seconds * 1000).toLocaleDateString('th-TH') : '-'}`);
+                          }}
+                        >
                           <td className="px-6 py-4 text-sm font-medium text-gray-900">{request.position}</td>
                           <td className="px-6 py-4 text-sm text-gray-700">{request.facultyName}</td>
                           <td className="px-6 py-4 text-sm text-gray-700">
@@ -630,7 +640,13 @@ const AdminDashboard = ({ userRole, faculty, onLogout, onCreateRequest, onSwitch
                   <h2 className="text-2xl font-bold text-gray-800">Email Templates</h2>
                   <p className="text-sm text-gray-600 mt-1">จัดการเทมเพลตอีเมลสำหรับระบบ</p>
                 </div>
-                <button className="px-4 py-2 bg-pink-500 text-white rounded-lg hover:bg-pink-600 transition font-semibold">
+                <button 
+                  onClick={() => {
+                    setSelectedTemplate(null);
+                    setShowTemplateModal(true);
+                  }}
+                  className="px-4 py-2 bg-pink-500 text-white rounded-lg hover:bg-pink-600 transition font-semibold"
+                >
                   + สร้าง Template ใหม่
                 </button>
               </div>
@@ -642,8 +658,23 @@ const AdminDashboard = ({ userRole, faculty, onLogout, onCreateRequest, onSwitch
                   </div>
                   <p className="text-sm text-gray-600 mb-3">ส่งเมื่อมีการสร้างคำขอใหม่</p>
                   <div className="flex gap-2">
-                    <button className="px-3 py-1 text-sm bg-gray-100 hover:bg-gray-200 rounded transition">แก้ไข</button>
-                    <button className="px-3 py-1 text-sm bg-gray-100 hover:bg-gray-200 rounded transition">ดูตัวอย่าง</button>
+                    <button 
+                      onClick={() => {
+                        setSelectedTemplate('new-request');
+                        setShowTemplateModal(true);
+                      }}
+                      className="px-3 py-1 text-sm bg-gray-100 hover:bg-gray-200 rounded transition"
+                    >
+                      แก้ไข
+                    </button>
+                    <button 
+                      onClick={() => {
+                        alert('ตัวอย่าง Email Template: แจ้งเตือนคำขอใหม่\n\nสวัสดี,\n\nมีการสร้างคำขอใหม่:\n- ตำแหน่ง: [Position]\n- คณะ: [Faculty]\n- จำนวน: [Amount] ตำแหน่ง\n\nกรุณาตรวจสอบและดำเนินการ\n\nขอบคุณ');
+                      }}
+                      className="px-3 py-1 text-sm bg-gray-100 hover:bg-gray-200 rounded transition"
+                    >
+                      ดูตัวอย่าง
+                    </button>
                   </div>
                 </div>
                 <div className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition">
@@ -653,8 +684,23 @@ const AdminDashboard = ({ userRole, faculty, onLogout, onCreateRequest, onSwitch
                   </div>
                   <p className="text-sm text-gray-600 mb-3">ส่งพร้อม confirmation link สำหรับยืนยันคำขอ</p>
                   <div className="flex gap-2">
-                    <button className="px-3 py-1 text-sm bg-gray-100 hover:bg-gray-200 rounded transition">แก้ไข</button>
-                    <button className="px-3 py-1 text-sm bg-gray-100 hover:bg-gray-200 rounded transition">ดูตัวอย่าง</button>
+                    <button 
+                      onClick={() => {
+                        setSelectedTemplate('confirmation');
+                        setShowTemplateModal(true);
+                      }}
+                      className="px-3 py-1 text-sm bg-gray-100 hover:bg-gray-200 rounded transition"
+                    >
+                      แก้ไข
+                    </button>
+                    <button 
+                      onClick={() => {
+                        alert('ตัวอย่าง Email Template: ยืนยันคำขอ\n\nสวัสดี,\n\nคำขอของคุณได้รับการยืนยันแล้ว\n\nกรุณาคลิกลิงก์ด้านล่างเพื่อยืนยัน:\n[Confirmation Link]\n\nขอบคุณ');
+                      }}
+                      className="px-3 py-1 text-sm bg-gray-100 hover:bg-gray-200 rounded transition"
+                    >
+                      ดูตัวอย่าง
+                    </button>
                   </div>
                 </div>
                 <div className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition">
@@ -664,8 +710,23 @@ const AdminDashboard = ({ userRole, faculty, onLogout, onCreateRequest, onSwitch
                   </div>
                   <p className="text-sm text-gray-600 mb-3">แจ้งเตือนเมื่อสถานะคำขอเปลี่ยนแปลง</p>
                   <div className="flex gap-2">
-                    <button className="px-3 py-1 text-sm bg-gray-100 hover:bg-gray-200 rounded transition">แก้ไข</button>
-                    <button className="px-3 py-1 text-sm bg-gray-100 hover:bg-gray-200 rounded transition">ดูตัวอย่าง</button>
+                    <button 
+                      onClick={() => {
+                        setSelectedTemplate('status-update');
+                        setShowTemplateModal(true);
+                      }}
+                      className="px-3 py-1 text-sm bg-gray-100 hover:bg-gray-200 rounded transition"
+                    >
+                      แก้ไข
+                    </button>
+                    <button 
+                      onClick={() => {
+                        alert('ตัวอย่าง Email Template: อัปเดตสถานะ\n\nสวัสดี,\n\nสถานะคำขอของคุณได้เปลี่ยนแปลง:\n- ตำแหน่ง: [Position]\n- สถานะใหม่: [New Status]\n\nกรุณาตรวจสอบในระบบ\n\nขอบคุณ');
+                      }}
+                      className="px-3 py-1 text-sm bg-gray-100 hover:bg-gray-200 rounded transition"
+                    >
+                      ดูตัวอย่าง
+                    </button>
                   </div>
                 </div>
               </div>
@@ -705,7 +766,13 @@ const AdminDashboard = ({ userRole, faculty, onLogout, onCreateRequest, onSwitch
                       </tr>
                     ) : (
                       emailLogs.map((log, index) => (
-                        <tr key={log.id || index} className="hover:bg-gray-50">
+                        <tr 
+                          key={log.id || index} 
+                          className="hover:bg-gray-50 cursor-pointer"
+                          onClick={() => {
+                            alert(`รายละเอียด Email Log\n\nวันที่ส่ง: ${log.timestamp ? new Date(log.timestamp).toLocaleString('th-TH') : log.createdAt?.seconds ? new Date(log.createdAt.seconds * 1000).toLocaleString('th-TH') : '-'}\nผู้รับ: ${log.recipient || log.to || '-'}\nประเภท: ${log.type || log.template || 'Notification'}\nหัวข้อ: ${log.subject || '-'}\nสถานะ: ${log.status === 'success' || log.success ? 'สำเร็จ' : 'ล้มเหลว'}\nข้อความ: ${log.message || log.error || '-'}`);
+                          }}
+                        >
                           <td className="px-6 py-4 text-sm text-gray-900">
                             {log.timestamp 
                               ? new Date(log.timestamp).toLocaleString('th-TH')
@@ -744,7 +811,13 @@ const AdminDashboard = ({ userRole, faculty, onLogout, onCreateRequest, onSwitch
                   <h2 className="text-2xl font-bold text-gray-800">User Management</h2>
                   <p className="text-sm text-gray-600 mt-1">จัดการผู้ใช้และสิทธิ์การเข้าถึง</p>
                 </div>
-                <button className="px-4 py-2 bg-pink-500 text-white rounded-lg hover:bg-pink-600 transition font-semibold">
+                <button 
+                  onClick={() => {
+                    setSelectedUser(null);
+                    setShowUserModal(true);
+                  }}
+                  className="px-4 py-2 bg-pink-500 text-white rounded-lg hover:bg-pink-600 transition font-semibold"
+                >
                   + เพิ่มผู้ใช้
                 </button>
               </div>
@@ -792,8 +865,36 @@ const AdminDashboard = ({ userRole, faculty, onLogout, onCreateRequest, onSwitch
                             </td>
                             <td className="px-6 py-4">
                               <div className="flex gap-2">
-                                <button className="px-3 py-1 text-xs bg-gray-100 hover:bg-gray-200 rounded transition">แก้ไข</button>
-                                <button className="px-3 py-1 text-xs bg-red-100 hover:bg-red-200 text-red-700 rounded transition">ลบ</button>
+                                <button 
+                                  onClick={() => {
+                                    setSelectedUser(user);
+                                    setShowUserModal(true);
+                                  }}
+                                  className="px-3 py-1 text-xs bg-gray-100 hover:bg-gray-200 rounded transition"
+                                >
+                                  แก้ไข
+                                </button>
+                                <button 
+                                  onClick={() => {
+                                    if (confirm(`คุณต้องการลบผู้ใช้ ${user.email} หรือไม่?`)) {
+                                      // ลบผู้ใช้
+                                      if (!db) {
+                                        // Demo Mode
+                                        const localUsers = JSON.parse(localStorage.getItem('spu_hr_users') || '[]');
+                                        const updated = localUsers.filter(u => u.uid !== user.uid);
+                                        localStorage.setItem('spu_hr_users', JSON.stringify(updated));
+                                        setUsers(updated);
+                                        alert('ลบผู้ใช้สำเร็จ');
+                                      } else {
+                                        // Firestore
+                                        alert('ฟีเจอร์ลบผู้ใช้จาก Firestore กำลังพัฒนา');
+                                      }
+                                    }
+                                  }}
+                                  className="px-3 py-1 text-xs bg-red-100 hover:bg-red-200 text-red-700 rounded transition"
+                                >
+                                  ลบ
+                                </button>
                               </div>
                             </td>
                           </tr>
@@ -802,6 +903,129 @@ const AdminDashboard = ({ userRole, faculty, onLogout, onCreateRequest, onSwitch
                     )}
                   </tbody>
                 </table>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* User Modal */}
+        {showUserModal && (
+          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+            <div className="bg-white rounded-lg shadow-xl max-w-md w-full p-6">
+              <h3 className="text-xl font-bold text-gray-800 mb-4">
+                {selectedUser ? 'แก้ไขผู้ใช้' : 'เพิ่มผู้ใช้ใหม่'}
+              </h3>
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">อีเมล</label>
+                  <input 
+                    type="email" 
+                    defaultValue={selectedUser?.email || ''}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500"
+                    placeholder="user@spu.ac.th"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">บทบาท</label>
+                  <select className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500">
+                    <option value="hr" selected={selectedUser?.role === 'hr'}>เจ้าหน้าที่ฝ่ายบุคคล</option>
+                    <option value="vp_hr" selected={selectedUser?.role === 'vp_hr'}>รองอธิการบดี</option>
+                    <option value="president" selected={selectedUser?.role === 'president'}>อธิการบดี</option>
+                    <option value="faculty" selected={selectedUser?.role === 'faculty'}>คณะ/หน่วยงาน</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">คณะ/หน่วยงาน</label>
+                  <select className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500">
+                    <option value="">- เลือกคณะ -</option>
+                    {FACULTIES.map(faculty => (
+                      <option key={faculty.id} value={faculty.id} selected={selectedUser?.facultyId === faculty.id}>
+                        {faculty.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <div className="flex gap-3 pt-4">
+                  <button
+                    onClick={() => {
+                      alert(selectedUser ? 'อัปเดตข้อมูลผู้ใช้สำเร็จ' : 'เพิ่มผู้ใช้สำเร็จ');
+                      setShowUserModal(false);
+                      setSelectedUser(null);
+                    }}
+                    className="flex-1 px-4 py-2 bg-pink-500 text-white rounded-lg hover:bg-pink-600 transition font-semibold"
+                  >
+                    {selectedUser ? 'อัปเดต' : 'เพิ่ม'}
+                  </button>
+                  <button
+                    onClick={() => {
+                      setShowUserModal(false);
+                      setSelectedUser(null);
+                    }}
+                    className="flex-1 px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition font-semibold"
+                  >
+                    ยกเลิก
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Template Modal */}
+        {showTemplateModal && (
+          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+            <div className="bg-white rounded-lg shadow-xl max-w-2xl w-full p-6 max-h-[90vh] overflow-y-auto">
+              <h3 className="text-xl font-bold text-gray-800 mb-4">
+                {selectedTemplate ? 'แก้ไข Email Template' : 'สร้าง Email Template ใหม่'}
+              </h3>
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">ชื่อ Template</label>
+                  <input 
+                    type="text" 
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500"
+                    placeholder="ชื่อ Template"
+                    defaultValue={selectedTemplate === 'new-request' ? 'แจ้งเตือนคำขอใหม่' : selectedTemplate === 'confirmation' ? 'ยืนยันคำขอ' : selectedTemplate === 'status-update' ? 'อัปเดตสถานะ' : ''}
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">หัวข้ออีเมล</label>
+                  <input 
+                    type="text" 
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500"
+                    placeholder="Subject"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">เนื้อหาอีเมล</label>
+                  <textarea 
+                    rows={10}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500"
+                    placeholder="เนื้อหาอีเมล..."
+                    defaultValue={selectedTemplate === 'new-request' ? 'สวัสดี,\n\nมีการสร้างคำขอใหม่:\n- ตำแหน่ง: {{position}}\n- คณะ: {{faculty}}\n- จำนวน: {{amount}} ตำแหน่ง\n\nกรุณาตรวจสอบและดำเนินการ\n\nขอบคุณ' : selectedTemplate === 'confirmation' ? 'สวัสดี,\n\nคำขอของคุณได้รับการยืนยันแล้ว\n\nกรุณาคลิกลิงก์ด้านล่างเพื่อยืนยัน:\n{{confirmation_link}}\n\nขอบคุณ' : selectedTemplate === 'status-update' ? 'สวัสดี,\n\nสถานะคำขอของคุณได้เปลี่ยนแปลง:\n- ตำแหน่ง: {{position}}\n- สถานะใหม่: {{new_status}}\n\nกรุณาตรวจสอบในระบบ\n\nขอบคุณ' : ''}
+                  />
+                </div>
+                <div className="flex gap-3 pt-4">
+                  <button
+                    onClick={() => {
+                      alert(selectedTemplate ? 'อัปเดต Template สำเร็จ' : 'สร้าง Template สำเร็จ');
+                      setShowTemplateModal(false);
+                      setSelectedTemplate(null);
+                    }}
+                    className="flex-1 px-4 py-2 bg-pink-500 text-white rounded-lg hover:bg-pink-600 transition font-semibold"
+                  >
+                    {selectedTemplate ? 'อัปเดต' : 'สร้าง'}
+                  </button>
+                  <button
+                    onClick={() => {
+                      setShowTemplateModal(false);
+                      setSelectedTemplate(null);
+                    }}
+                    className="flex-1 px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition font-semibold"
+                  >
+                    ยกเลิก
+                  </button>
+                </div>
               </div>
             </div>
           </div>
