@@ -49,7 +49,14 @@ import { FACULTIES } from '../constants';
 const AdminDashboard = ({ userRole, faculty, onLogout, onCreateRequest, onSwitchToStandard }) => {
   const [requests, setRequests] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [activeMenu, setActiveMenu] = useState('dashboard');
+  // เก็บ activeMenu ใน localStorage เพื่อให้คงอยู่หลัง refresh
+  const [activeMenu, setActiveMenu] = useState(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('spu_hr_activeMenu');
+      return saved || 'dashboard';
+    }
+    return 'dashboard';
+  });
   const [isMenuOpen, setIsMenuOpen] = useState(false); // สำหรับควบคุมการแสดง/ซ่อนเมนูบนมือถือ
   const [users, setUsers] = useState([]);
   const [emailLogs, setEmailLogs] = useState([]);
@@ -104,57 +111,97 @@ const AdminDashboard = ({ userRole, faculty, onLogout, onCreateRequest, onSwitch
     }
   }, [userRole, faculty, db]);
 
-  // ดึงข้อมูลผู้ใช้
+  // ดึงข้อมูลผู้ใช้ - อัปเดตแบบเรียลไทม์
   useEffect(() => {
-    const fetchUsers = async () => {
-      if (!db) {
-        // Demo Mode: อ่านจาก localStorage
+    if (activeMenu !== 'user-management') return;
+
+    if (!db) {
+      // Demo Mode: อ่านจาก localStorage และตั้งค่า listener
+      const fetchUsers = () => {
         const localUsers = JSON.parse(localStorage.getItem('spu_hr_users') || '[]');
         setUsers(localUsers);
-        return;
-      }
-
+      };
+      
+      // ดึงข้อมูลครั้งแรก
+      fetchUsers();
+      
+      // ตั้งค่า listener สำหรับการเปลี่ยนแปลงใน localStorage
+      const handleStorageChange = () => {
+        fetchUsers();
+      };
+      
+      window.addEventListener('storage', handleStorageChange);
+      window.addEventListener('localStorageUpdate', handleStorageChange);
+      
+      // อัปเดตทุก 2 วินาที (สำหรับ demo mode)
+      const interval = setInterval(fetchUsers, 2000);
+      
+      return () => {
+        window.removeEventListener('storage', handleStorageChange);
+        window.removeEventListener('localStorageUpdate', handleStorageChange);
+        clearInterval(interval);
+      };
+    } else {
+      // Firestore: ใช้ real-time listener
       try {
         const usersRef = collection(db, 'artifacts', appId, 'public', 'data', 'users');
         const unsubscribe = onSnapshot(usersRef, (snapshot) => {
           const data = snapshot.docs.map(doc => ({ uid: doc.id, ...doc.data() }));
           setUsers(data);
+        }, (error) => {
+          console.error('Error fetching users:', error);
         });
         return () => unsubscribe();
       } catch (error) {
-        console.error('Error fetching users:', error);
+        console.error('Error setting up users listener:', error);
       }
-    };
-
-    if (activeMenu === 'user-management') {
-      fetchUsers();
     }
   }, [activeMenu, db]);
 
-  // ดึงข้อมูล Email Logs
+  // ดึงข้อมูล Email Logs - อัปเดตแบบเรียลไทม์
   useEffect(() => {
-    const fetchEmailLogs = () => {
-      if (!db) {
-        // Demo Mode: อ่านจาก localStorage
+    if (activeMenu !== 'email-logs') return;
+
+    if (!db) {
+      // Demo Mode: อ่านจาก localStorage และตั้งค่า listener
+      const fetchEmailLogs = () => {
         const logs = JSON.parse(localStorage.getItem('spu_hr_email_logs') || '[]');
         setEmailLogs(logs.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0)));
-        return;
-      }
-
+      };
+      
+      // ดึงข้อมูลครั้งแรก
+      fetchEmailLogs();
+      
+      // ตั้งค่า listener สำหรับการเปลี่ยนแปลงใน localStorage
+      const handleStorageChange = () => {
+        fetchEmailLogs();
+      };
+      
+      window.addEventListener('storage', handleStorageChange);
+      window.addEventListener('localStorageUpdate', handleStorageChange);
+      
+      // อัปเดตทุก 2 วินาที (สำหรับ demo mode)
+      const interval = setInterval(fetchEmailLogs, 2000);
+      
+      return () => {
+        window.removeEventListener('storage', handleStorageChange);
+        window.removeEventListener('localStorageUpdate', handleStorageChange);
+        clearInterval(interval);
+      };
+    } else {
+      // Firestore: ใช้ real-time listener
       try {
         const logsRef = collection(db, 'artifacts', appId, 'public', 'data', 'email_logs');
         const unsubscribe = onSnapshot(logsRef, (snapshot) => {
           const data = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
           setEmailLogs(data.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0)));
+        }, (error) => {
+          console.error('Error fetching email logs:', error);
         });
         return () => unsubscribe();
       } catch (error) {
-        console.error('Error fetching email logs:', error);
+        console.error('Error setting up email logs listener:', error);
       }
-    };
-
-    if (activeMenu === 'email-logs') {
-      fetchEmailLogs();
     }
   }, [activeMenu, db]);
 
@@ -264,7 +311,10 @@ const AdminDashboard = ({ userRole, faculty, onLogout, onCreateRequest, onSwitch
           {/* Navigation Menu - Desktop (Horizontal) */}
           <nav className="hidden lg:flex space-x-1 overflow-x-auto">
             <button
-              onClick={() => setActiveMenu('dashboard')}
+              onClick={() => {
+                setActiveMenu('dashboard');
+                localStorage.setItem('spu_hr_activeMenu', 'dashboard');
+              }}
               className={`flex items-center space-x-2 px-4 py-3 rounded-lg transition whitespace-nowrap ${
                 activeMenu === 'dashboard'
                   ? 'bg-pink-200 text-pink-800 font-medium'
@@ -275,7 +325,10 @@ const AdminDashboard = ({ userRole, faculty, onLogout, onCreateRequest, onSwitch
               <span>Dashboard</span>
             </button>
             <button
-              onClick={() => setActiveMenu('positions')}
+              onClick={() => {
+                setActiveMenu('positions');
+                localStorage.setItem('spu_hr_activeMenu', 'positions');
+              }}
               className={`flex items-center space-x-2 px-4 py-3 rounded-lg transition whitespace-nowrap ${
                 activeMenu === 'positions'
                   ? 'bg-pink-200 text-pink-800 font-medium'
@@ -286,7 +339,10 @@ const AdminDashboard = ({ userRole, faculty, onLogout, onCreateRequest, onSwitch
               <span>Positions</span>
             </button>
             <button
-              onClick={() => setActiveMenu('email-templates')}
+              onClick={() => {
+                setActiveMenu('email-templates');
+                localStorage.setItem('spu_hr_activeMenu', 'email-templates');
+              }}
               className={`flex items-center space-x-2 px-4 py-3 rounded-lg transition whitespace-nowrap ${
                 activeMenu === 'email-templates'
                   ? 'bg-pink-200 text-pink-800 font-medium'
@@ -297,7 +353,10 @@ const AdminDashboard = ({ userRole, faculty, onLogout, onCreateRequest, onSwitch
               <span>Email Templates</span>
             </button>
             <button
-              onClick={() => setActiveMenu('email-logs')}
+              onClick={() => {
+                setActiveMenu('email-logs');
+                localStorage.setItem('spu_hr_activeMenu', 'email-logs');
+              }}
               className={`flex items-center space-x-2 px-4 py-3 rounded-lg transition whitespace-nowrap ${
                 activeMenu === 'email-logs'
                   ? 'bg-pink-200 text-pink-800 font-medium'
@@ -308,7 +367,10 @@ const AdminDashboard = ({ userRole, faculty, onLogout, onCreateRequest, onSwitch
               <span>Email Logs</span>
             </button>
             <button
-              onClick={() => setActiveMenu('user-management')}
+              onClick={() => {
+                setActiveMenu('user-management');
+                localStorage.setItem('spu_hr_activeMenu', 'user-management');
+              }}
               className={`flex items-center space-x-2 px-4 py-3 rounded-lg transition whitespace-nowrap ${
                 activeMenu === 'user-management'
                   ? 'bg-pink-200 text-pink-800 font-medium'
@@ -330,6 +392,7 @@ const AdminDashboard = ({ userRole, faculty, onLogout, onCreateRequest, onSwitch
               <button
                 onClick={() => {
                   setActiveMenu('dashboard');
+                  localStorage.setItem('spu_hr_activeMenu', 'dashboard');
                   setIsMenuOpen(false);
                 }}
                 className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg transition ${
@@ -344,6 +407,7 @@ const AdminDashboard = ({ userRole, faculty, onLogout, onCreateRequest, onSwitch
               <button
                 onClick={() => {
                   setActiveMenu('positions');
+                  localStorage.setItem('spu_hr_activeMenu', 'positions');
                   setIsMenuOpen(false);
                 }}
                 className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg transition ${
@@ -358,6 +422,7 @@ const AdminDashboard = ({ userRole, faculty, onLogout, onCreateRequest, onSwitch
               <button
                 onClick={() => {
                   setActiveMenu('email-templates');
+                  localStorage.setItem('spu_hr_activeMenu', 'email-templates');
                   setIsMenuOpen(false);
                 }}
                 className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg transition ${
@@ -372,6 +437,7 @@ const AdminDashboard = ({ userRole, faculty, onLogout, onCreateRequest, onSwitch
               <button
                 onClick={() => {
                   setActiveMenu('email-logs');
+                  localStorage.setItem('spu_hr_activeMenu', 'email-logs');
                   setIsMenuOpen(false);
                 }}
                 className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg transition ${
@@ -386,6 +452,7 @@ const AdminDashboard = ({ userRole, faculty, onLogout, onCreateRequest, onSwitch
               <button
                 onClick={() => {
                   setActiveMenu('user-management');
+                  localStorage.setItem('spu_hr_activeMenu', 'user-management');
                   setIsMenuOpen(false);
                 }}
                 className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg transition ${
@@ -1028,7 +1095,7 @@ const AdminDashboard = ({ userRole, faculty, onLogout, onCreateRequest, onSwitch
                 </div>
               </div>
             </div>
-          </div>
+            </div>
         )}
       </main>
     </div>
