@@ -25,13 +25,10 @@ export default defineConfig({
       },
     },
     // เพิ่มประสิทธิภาพการ build
-    minify: 'terser',
-    terserOptions: {
-      compress: {
-        drop_console: true, // ลบ console.log ใน production
-        drop_debugger: true,
-      },
-    },
+    // ใช้ esbuild (default) แทน terser - เร็วกว่าและไม่ต้องติดตั้งเพิ่ม
+    minify: 'esbuild',
+    // esbuild ไม่รองรับ drop_console โดยตรง แต่เร็วกว่า terser มาก
+    // ถ้าต้องการลบ console.log ต้องใช้ plugin หรือ terser
   },
 })
 
