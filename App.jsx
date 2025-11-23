@@ -46,15 +46,17 @@ import { auth } from './config/firebase';
 // ============================================================================
 // LoginPage: Component สำหรับหน้าเข้าสู่ระบบ
 // Dashboard: Component สำหรับหน้า Dashboard แสดงรายการคำขอ
-// AdminDashboard: Component สำหรับหน้า Admin Dashboard พร้อม Charts
+// AdminDashboard: Component สำหรับหน้า Admin Dashboard พร้อม Charts (ใช้ dynamic import เพื่อลด bundle size)
 // SimpleForm: Component สำหรับ Popup สร้างคำขอใหม่
 // ConfirmationPage: หน้ายืนยันคำขอผ่านอีเมล
 import LoginPage from './components/LoginPage';
 import RegisterPage from './components/RegisterPage';
 import Dashboard from './components/Dashboard';
-import AdminDashboard from './components/AdminDashboard';
 import SimpleForm from './components/SimpleForm';
 import ConfirmationPage from './components/ConfirmationPage';
+
+// Dynamic import สำหรับ AdminDashboard เพื่อลด initial bundle size
+const AdminDashboard = React.lazy(() => import('./components/AdminDashboard'));
 
 // ============================================================================
 // Component หลักของแอปพลิเคชัน
@@ -342,18 +344,27 @@ export default function App() {
             - ถ้าไม่ → แสดง Dashboard ปกติ
           */}
           {useAdminDashboard && role === 'hr' ? (
-            <AdminDashboard 
-              userRole={role} 
-              faculty={selectedFaculty} 
-              onLogout={handleLogout}
-              onCreateRequest={() => setShowForm(true)}
-              onSwitchToStandard={() => {
-                setUseAdminDashboard(false);
-                if (typeof window !== 'undefined') {
-                  localStorage.removeItem('spu_hr_useAdminDashboard');
-                }
-              }}
-            />
+            <React.Suspense fallback={
+              <div className="min-h-screen bg-gradient-to-br from-pink-50 via-rose-50 to-pink-100 flex items-center justify-center">
+                <div className="text-center">
+                  <div className="w-16 h-16 border-4 border-pink-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+                  <p className="text-gray-700 font-medium">กำลังโหลด Dashboard...</p>
+                </div>
+              </div>
+            }>
+              <AdminDashboard 
+                userRole={role} 
+                faculty={selectedFaculty} 
+                onLogout={handleLogout}
+                onCreateRequest={() => setShowForm(true)}
+                onSwitchToStandard={() => {
+                  setUseAdminDashboard(false);
+                  if (typeof window !== 'undefined') {
+                    localStorage.removeItem('spu_hr_useAdminDashboard');
+                  }
+                }}
+              />
+            </React.Suspense>
           ) : (
             <>
               {/* 
