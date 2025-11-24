@@ -38,7 +38,10 @@ import {
   FileCheck,
   UserCog,
   Menu,
-  X
+  X,
+  AlertTriangle,
+  CheckCircle,
+  Trash2
 } from 'lucide-react';
 import SPULogo from './SPULogo';
 import { getLocalRequests } from '../utils/localStorage';
@@ -54,6 +57,98 @@ import {
   checkAccess,
   escapeHtml
 } from '../utils/security';
+
+// Confirm Modal Component
+const ConfirmModal = ({ isOpen, message, onConfirm, onCancel }) => {
+  if (!isOpen) return null;
+
+  return (
+    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+      <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full transform transition-all animate-fade-in-up">
+        <div className="p-6">
+          {/* Icon */}
+          <div className="flex justify-center mb-4">
+            <div className="w-16 h-16 rounded-full bg-red-100 flex items-center justify-center">
+              <AlertTriangle className="w-8 h-8 text-red-600" />
+            </div>
+          </div>
+          
+          {/* Message */}
+          <h3 className="text-xl font-bold text-gray-900 text-center mb-2">
+            ยืนยันการลบ
+          </h3>
+          <p className="text-gray-600 text-center mb-6">
+            {message}
+          </p>
+          
+          {/* Buttons */}
+          <div className="flex gap-3">
+            <button
+              onClick={onCancel}
+              className="flex-1 px-4 py-3 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg font-semibold transition"
+            >
+              ยกเลิก
+            </button>
+            <button
+              onClick={onConfirm}
+              className="flex-1 px-4 py-3 bg-red-500 hover:bg-red-600 text-white rounded-lg font-semibold transition shadow-lg hover:shadow-xl"
+            >
+              <span className="flex items-center justify-center gap-2">
+                <Trash2 size={18} />
+                ลบ
+              </span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// Alert Modal Component
+const AlertModal = ({ isOpen, message, type = 'success', onClose }) => {
+  if (!isOpen) return null;
+
+  const icons = {
+    success: <CheckCircle className="w-8 h-8 text-green-600" />,
+    error: <AlertTriangle className="w-8 h-8 text-red-600" />,
+    info: <AlertTriangle className="w-8 h-8 text-blue-600" />
+  };
+
+  const bgColors = {
+    success: 'bg-green-100',
+    error: 'bg-red-100',
+    info: 'bg-blue-100'
+  };
+
+  return (
+    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+      <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full transform transition-all animate-fade-in-up">
+        <div className="p-6">
+          {/* Icon */}
+          <div className="flex justify-center mb-4">
+            <div className={`w-16 h-16 rounded-full ${bgColors[type]} flex items-center justify-center`}>
+              {icons[type]}
+            </div>
+          </div>
+          
+          {/* Message */}
+          <p className="text-gray-700 text-center mb-6 text-lg">
+            {message}
+          </p>
+          
+          {/* Button */}
+          <button
+            onClick={onClose}
+            className="w-full px-4 py-3 bg-pink-500 hover:bg-pink-600 text-white rounded-lg font-semibold transition shadow-lg hover:shadow-xl"
+          >
+            ตกลง
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
 
 // User Form Modal Component
 const UserFormModal = ({ selectedUser, onClose, onSuccess }) => {
@@ -122,11 +217,11 @@ const UserFormModal = ({ selectedUser, onClose, onSuccess }) => {
         window.dispatchEvent(new Event('localStorageUpdate'));
       } else {
         // Firestore - TODO: Implement
-        alert('ฟีเจอร์บันทึกผู้ใช้ใน Firestore กำลังพัฒนา');
+        onSuccess(null, 'ฟีเจอร์บันทึกผู้ใช้ใน Firestore กำลังพัฒนา');
+        return;
       }
 
-      alert(selectedUser ? 'อัปเดตข้อมูลผู้ใช้สำเร็จ' : 'เพิ่มผู้ใช้สำเร็จ');
-      onSuccess();
+      onSuccess(selectedUser ? 'อัปเดตข้อมูลผู้ใช้สำเร็จ' : 'เพิ่มผู้ใช้สำเร็จ');
     } catch (error) {
       console.error('Error saving user:', error);
       setErrors({ general: 'เกิดข้อผิดพลาดในการบันทึกข้อมูล' });
@@ -358,6 +453,9 @@ const AdminDashboard = ({ userRole, faculty, onLogout, onCreateRequest, onSwitch
   const [selectedTemplate, setSelectedTemplate] = useState(null);
   const [showUserModal, setShowUserModal] = useState(false);
   const [showTemplateModal, setShowTemplateModal] = useState(false);
+  // Modal states
+  const [deleteConfirm, setDeleteConfirm] = useState(null); // { email, onConfirm }
+  const [alertMessage, setAlertMessage] = useState(null); // { message, type: 'success' | 'error' | 'info' }
 
   // ========================================================================
   // useEffect Hook: ดึงข้อมูลคำขอ
@@ -1244,20 +1342,25 @@ const AdminDashboard = ({ userRole, faculty, onLogout, onCreateRequest, onSwitch
                                   </button>
                                   <button 
                                     onClick={() => {
-                                      if (confirm(`คุณต้องการลบผู้ใช้ ${user.email} หรือไม่?`)) {
-                                        // ลบผู้ใช้
-                                        if (!db) {
-                                          // Demo Mode
-                                          const localUsers = JSON.parse(localStorage.getItem('spu_hr_users') || '[]');
-                                          const updated = localUsers.filter(u => u.uid !== user.uid);
-                                          localStorage.setItem('spu_hr_users', JSON.stringify(updated));
-                                          setUsers(updated);
-                                          alert('ลบผู้ใช้สำเร็จ');
-                                        } else {
-                                          // Firestore
-                                          alert('ฟีเจอร์ลบผู้ใช้จาก Firestore กำลังพัฒนา');
+                                      setDeleteConfirm({
+                                        email: user.email,
+                                        onConfirm: () => {
+                                          // ลบผู้ใช้
+                                          if (!db) {
+                                            // Demo Mode
+                                            const localUsers = JSON.parse(localStorage.getItem('spu_hr_users') || '[]');
+                                            const updated = localUsers.filter(u => u.uid !== user.uid);
+                                            localStorage.setItem('spu_hr_users', JSON.stringify(updated));
+                                            setUsers(updated);
+                                            setDeleteConfirm(null);
+                                            setAlertMessage({ message: 'ลบผู้ใช้สำเร็จ', type: 'success' });
+                                          } else {
+                                            // Firestore
+                                            setDeleteConfirm(null);
+                                            setAlertMessage({ message: 'ฟีเจอร์ลบผู้ใช้จาก Firestore กำลังพัฒนา', type: 'info' });
+                                          }
                                         }
-                                      }
+                                      });
                                     }}
                                     className="px-3 py-1 text-xs bg-red-100 hover:bg-red-200 text-red-700 rounded transition"
                                   >
@@ -1295,13 +1398,19 @@ const AdminDashboard = ({ userRole, faculty, onLogout, onCreateRequest, onSwitch
                   setShowUserModal(false);
                   setSelectedUser(null);
                 }}
-                onSuccess={() => {
+                onSuccess={(message, errorMessage) => {
                   setShowUserModal(false);
                   setSelectedUser(null);
                   // Refresh users list
                   if (activeMenu === 'user-management') {
                     const localUsers = JSON.parse(localStorage.getItem('spu_hr_users') || '[]');
                     setUsers(localUsers);
+                  }
+                  // Show alert message
+                  if (message) {
+                    setAlertMessage({ message, type: 'success' });
+                  } else if (errorMessage) {
+                    setAlertMessage({ message: errorMessage, type: 'info' });
                   }
                 }}
               />
@@ -1335,6 +1444,26 @@ const AdminDashboard = ({ userRole, faculty, onLogout, onCreateRequest, onSwitch
             </div>
             </div>
         )}
+
+        {/* Confirm Delete Modal */}
+        <ConfirmModal
+          isOpen={deleteConfirm !== null}
+          message={`คุณต้องการลบผู้ใช้ ${deleteConfirm?.email} หรือไม่?`}
+          onConfirm={() => {
+            if (deleteConfirm?.onConfirm) {
+              deleteConfirm.onConfirm();
+            }
+          }}
+          onCancel={() => setDeleteConfirm(null)}
+        />
+
+        {/* Alert Modal */}
+        <AlertModal
+          isOpen={alertMessage !== null}
+          message={alertMessage?.message || ''}
+          type={alertMessage?.type || 'success'}
+          onClose={() => setAlertMessage(null)}
+        />
       </main>
     </div>
   );
