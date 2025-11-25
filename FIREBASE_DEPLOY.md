@@ -54,7 +54,8 @@ firebase init hosting
    - พิมพ์: `Yes` (เพราะเป็น React SPA)
 
 4. **Set up automatic builds and deploys with GitHub?**
-   - พิมพ์: `No` (หรือ Yes ถ้าต้องการ auto-deploy)
+   - พิมพ์: `No` (แนะนำ - ถ้าไม่ต้องการ auto-deploy)
+   - **หมายเหตุ:** ถ้าตอบ Yes อาจเกิด authorization error ดู [FIREBASE_GITHUB_WORKFLOW.md](./FIREBASE_GITHUB_WORKFLOW.md)
 
 5. **File dist/index.html already exists. Overwrite?**
    - พิมพ์: `No` (ไม่ต้อง overwrite)
