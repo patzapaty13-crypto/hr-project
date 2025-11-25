@@ -32,7 +32,7 @@ import usersRouter from './routes/users.js';
 import aiRouter from './routes/ai.js';
 
 // Load environment variables
-dotenv.config();
+dotenv.config({ path: './server/.env' });
 
 const app = express();
 const PORT = process.env.PORT || 3001;
