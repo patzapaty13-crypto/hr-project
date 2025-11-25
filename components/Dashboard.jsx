@@ -868,8 +868,31 @@ const Dashboard = ({ userRole, faculty, onLogout, onCreateRequest, onSwitchToAdm
                             </button>
                           )}
                         </div>
+                      ) : userRole === 'vp_hr' ? (
+                        /* 
+                          ปุ่ม Action สำหรับ VP HR
+                          VP HR สามารถอนุมัติคำขอที่อยู่ในสถานะ 'hr_review' และ 'vp_hr'
+                        */
+                        <div className="flex justify-end space-x-2">
+                          {request.status === 'hr_review' && (
+                            <button 
+                              onClick={() => handleStatusChange(request.id, 'vp_hr')}
+                              className="text-xs bg-purple-500 text-white px-3 py-1.5 rounded-lg hover:bg-purple-600 transition shadow-md whitespace-nowrap"
+                            >
+                              รับเรื่องพิจารณา
+                            </button>
+                          )}
+                          {request.status === 'vp_hr' && (
+                            <button 
+                              onClick={() => handleStatusChange(request.id, 'recruiting')}
+                              className="text-xs bg-green-600 text-white px-3 py-1.5 rounded-lg hover:bg-green-700 transition shadow-md whitespace-nowrap"
+                            >
+                              อนุมัติและประกาศรับสมัคร
+                            </button>
+                          )}
+                        </div>
                       ) : (
-                        /* ถ้าไม่ใช่ HR แสดงข้อความ "รายละเอียด" แทน */
+                        /* ถ้าไม่ใช่ HR หรือ VP HR แสดงข้อความ "รายละเอียด" แทน */
                         <span className="text-xs text-gray-400">รายละเอียด</span>
                       )}
                     </td>
