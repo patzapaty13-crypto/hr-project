@@ -41,6 +41,7 @@ lerna-debug.log*
 .firebase/
 firebase-debug.log
 firestore-debug.log
+# Note: .firebaserc should be committed (contains project ID for team)
 
 # OS
 Thumbs.db
