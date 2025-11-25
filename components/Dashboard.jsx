@@ -29,6 +29,7 @@ import React, { useState, useEffect } from 'react';
 // Briefcase: Icon สำหรับ HR
 // Plus: Icon สำหรับปุ่มเพิ่ม/สร้างใหม่
 import { LogOut, Building, Briefcase, Plus, Sparkles, Users } from 'lucide-react';
+import TrainAnimation from './TrainAnimation';
 
 // ============================================================================
 // นำเข้า Firestore Functions
