@@ -154,10 +154,10 @@ const LoginPage = ({ onLogin, onShowRegister }) => {
           throw authError;
         }
       } else {
-        // Demo Mode: สร้าง mock user
+        // Fallback Mode: สร้าง local user เมื่อ Firebase ไม่พร้อมใช้งาน
         userCredential = {
           user: {
-            uid: 'demo-user-' + Date.now(),
+            uid: 'local-user-' + Date.now(),
             email: email.toLowerCase()
           }
         };

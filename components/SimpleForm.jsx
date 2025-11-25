@@ -166,8 +166,10 @@ const SimpleForm = ({ faculty, onClose, onSubmit, userId }) => {
       return;
     }
 
-    // Debug: ตรวจสอบสถานะ db
-    console.log('🔍 Debug: db status:', db ? 'Available' : 'Not Available (Demo Mode)');
+    // ตรวจสอบสถานะ Firebase
+    if (!db) {
+      console.warn('⚠️ Firebase ไม่พร้อมใช้งาน ใช้ Local Storage เป็น fallback');
+    }
 
     try {
       /**
@@ -214,8 +216,8 @@ const SimpleForm = ({ faculty, onClose, onSubmit, userId }) => {
         );
         savedRequestId = docRef.id;
       } else {
-        // ใช้ Local Storage (Demo Mode)
-        console.log('✅ ใช้ Demo Mode: บันทึกข้อมูลลง Local Storage');
+        // ใช้ Local Storage (Fallback Mode เมื่อ Firebase ไม่พร้อมใช้งาน)
+        console.warn('⚠️ Firebase ไม่พร้อมใช้งาน ใช้ Local Storage เป็น fallback');
         try {
           savedRequestId = addLocalRequest(newRequest);
           console.log('✅ บันทึกข้อมูลสำเร็จใน Local Storage');
@@ -439,17 +441,6 @@ const SimpleForm = ({ faculty, onClose, onSubmit, userId }) => {
             </div>
           )}
 
-          {/* แสดง Demo Mode Notice */}
-          {!db && (
-            <div className="bg-yellow-50 border-2 border-yellow-300 text-yellow-800 px-4 py-3 rounded-lg text-sm">
-              <div className="font-semibold mb-1">ℹ️ โหมด Demo</div>
-              <div className="text-xs">
-                ข้อมูลจะถูกบันทึกใน Browser Local Storage เท่านั้น
-                <br />
-                สำหรับใช้งานจริง กรุณาตั้งค่า Firebase Config ใน index.html
-              </div>
-            </div>
-          )}
         </div>
 
         {/* 

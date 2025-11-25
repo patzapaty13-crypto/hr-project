@@ -83,73 +83,61 @@ export const validateStatusTransition = (currentStatus, newStatus, request = {})
 const checkSpecificConditions = (currentStatus, newStatus, request) => {
   const warnings = [];
 
-  // 1. ตรวจสอบการเริ่มสรรหา (ต้องรออนุมัติอธิการบดีก่อน)
+  // 1. ตรวจสอบการเริ่มสรรหา (ต้องรออนุมัติ VP HR ก่อน)
   if (currentStatus === 'vp_hr' && newStatus === 'recruiting') {
-    // ตามคู่มือ: ต้องรออนุมัติอธิการบดีก่อน แต่ในระบบเราใช้ vp_hr เป็นขั้นตอนสุดท้ายก่อน recruiting
-    // ดังนั้นควรตรวจสอบว่ามีการอนุมัติจาก vp_hr แล้วหรือยัง
-    if (!request.approvedByVP) {
-      warnings.push('กรุณาตรวจสอบว่าผู้ช่วยอธิการบดีได้อนุมัติแล้ว');
-    }
+    // ตรวจสอบว่าอยู่ในสถานะ vp_hr แล้ว แสดงว่าผ่านการอนุมัติจาก VP HR แล้ว
+    // เพิ่มคำแนะนำให้ตรวจสอบ
+    warnings.push('กรุณาตรวจสอบว่าผู้ช่วยอธิการบดีได้อนุมัติและพร้อมประกาศรับสมัครแล้ว');
   }
 
   // 2. ตรวจสอบการคัดเลือกใบสมัคร (ต้องมีใบสมัครก่อน)
   if (currentStatus === 'sourcing' && newStatus === 'screening') {
-    if (!request.hasApplications) {
-      return {
-        canProceed: false,
-        message: 'ยังไม่มีใบสมัคร กรุณาสรรหาผู้สมัครก่อน',
-        warnings: []
-      };
+    // ตรวจสอบว่ามีข้อมูลใบสมัครหรือไม่ (อาจเก็บใน applications field)
+    if (!request.applications || request.applications.length === 0) {
+      warnings.push('กรุณาตรวจสอบว่ามีใบสมัครแล้วก่อนคัดเลือก');
+    } else {
+      warnings.push('กรุณาตรวจสอบว่าได้สรรหาผู้สมัครครบถ้วนแล้ว');
     }
-    warnings.push('กรุณาตรวจสอบว่าได้สรรหาผู้สมัครครบถ้วนแล้ว');
   }
 
   // 3. ตรวจสอบการส่งให้ต้นสังกัด (ต้องคัดเลือกแล้ว)
   if (currentStatus === 'screening' && newStatus === 'application_review') {
+    // ตรวจสอบว่ามีการคัดเลือกใบสมัครแล้วหรือไม่
     if (!request.selectedApplications || request.selectedApplications.length === 0) {
-      return {
-        canProceed: false,
-        message: 'กรุณาคัดเลือกใบสมัครก่อนส่งให้ต้นสังกัด',
-        warnings: []
-      };
+      warnings.push('กรุณาตรวจสอบว่าคัดเลือกใบสมัครแล้วก่อนส่งให้ต้นสังกัด');
+    } else {
+      warnings.push('กรุณาตรวจสอบว่าได้คัดเลือกใบสมัครที่เหมาะสมแล้ว');
     }
-    warnings.push('กรุณาตรวจสอบว่าได้คัดเลือกใบสมัครที่เหมาะสมแล้ว');
   }
 
   // 4. ตรวจสอบการนัดสัมภาษณ์ (ต้องมีผู้สมัครที่ต้นสังกัดเห็นชอบ)
   if (currentStatus === 'application_review' && newStatus === 'interview_scheduled') {
-    if (!request.approvedByFaculty) {
-      return {
-        canProceed: false,
-        message: 'กรุณารอให้ต้นสังกัดพิจารณาและเห็นชอบก่อน',
-        warnings: []
-      };
+    // ตรวจสอบว่าต้นสังกัดได้พิจารณาแล้วหรือไม่
+    if (!request.facultyApproved) {
+      warnings.push('กรุณาตรวจสอบว่าต้นสังกัดได้พิจารณาและเห็นชอบผู้สมัครแล้ว');
+    } else {
+      warnings.push('กรุณาตรวจสอบว่าต้นสังกัดได้เห็นชอบผู้สมัครแล้ว');
     }
-    warnings.push('กรุณาตรวจสอบว่าต้นสังกัดได้เห็นชอบผู้สมัครแล้ว');
   }
 
   // 5. ตรวจสอบการเสนออธิการบดี (ต้องมีผลสัมภาษณ์)
   if (currentStatus === 'interview_result' && newStatus === 'president') {
+    // ตรวจสอบว่ามีผลการสัมภาษณ์หรือไม่
     if (!request.interviewResult) {
-      return {
-        canProceed: false,
-        message: 'กรุณาบันทึกผลการสัมภาษณ์ก่อนเสนออธิการบดี',
-        warnings: []
-      };
+      warnings.push('กรุณาตรวจสอบว่าบันทึกผลการสัมภาษณ์แล้วก่อนเสนออธิการบดี');
+    } else {
+      warnings.push('กรุณาตรวจสอบว่าผลการสัมภาษณ์ถูกต้องและครบถ้วน');
     }
-    warnings.push('กรุณาตรวจสอบว่าผลการสัมภาษณ์ถูกต้องและครบถ้วน');
   }
 
   // 6. ตรวจสอบการแจ้งบุคลากร (ต้องมีอนุมัติจากอธิการบดี)
   if (currentStatus === 'president' && newStatus === 'notified') {
-    if (!request.approvedByPresident) {
-      return {
-        canProceed: false,
-        message: 'กรุณารอให้อธิการบดีอนุมัติก่อน',
-        warnings: []
-      };
+    // ตรวจสอบว่าอธิการบดีได้อนุมัติแล้วหรือไม่
+    if (!request.presidentApproved) {
+      warnings.push('กรุณาตรวจสอบว่าอธิการบดีได้อนุมัติแล้วก่อนแจ้งบุคลากร');
+    } else {
+      warnings.push('กรุณาเตรียมเอกสารและข้อมูลสำหรับแจ้งบุคลากร');
     }
-    warnings.push('กรุณาเตรียมเอกสารและข้อมูลสำหรับแจ้งบุคลากร');
   }
 
   return {

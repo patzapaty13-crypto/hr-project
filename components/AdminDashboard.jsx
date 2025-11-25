@@ -462,7 +462,7 @@ const AdminDashboard = ({ userRole, faculty, onLogout, onCreateRequest, onSwitch
   // ========================================================================
   useEffect(() => {
     if (!db) {
-      // ใช้ Local Storage (Demo Mode)
+      // ใช้ Local Storage (Fallback Mode)
       const localRequests = getLocalRequests();
       let data = localRequests.sort((a, b) => {
         const timeA = a.createdAt?.seconds || 0;

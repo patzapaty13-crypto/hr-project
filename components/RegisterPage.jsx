@@ -43,7 +43,7 @@ const RegisterPage = ({ onBackToLogin, onRegisterSuccess }) => {
    */
   const checkEmailExists = async (emailToCheck) => {
     if (!db) {
-      // Demo Mode: ตรวจสอบจาก localStorage
+      // ตรวจสอบจาก localStorage (Fallback Mode)
       const users = JSON.parse(localStorage.getItem('spu_hr_users') || '[]');
       return users.some(u => u.email === emailToCheck);
     }
@@ -64,7 +64,7 @@ const RegisterPage = ({ onBackToLogin, onRegisterSuccess }) => {
    */
   const saveUserToDatabase = async (userUid, userData) => {
     if (!db) {
-      // Demo Mode: เก็บใน localStorage
+      // เก็บใน localStorage (Fallback Mode)
       const users = JSON.parse(localStorage.getItem('spu_hr_users') || '[]');
       users.push({
         uid: userUid,
@@ -178,10 +178,10 @@ const RegisterPage = ({ onBackToLogin, onRegisterSuccess }) => {
           throw authError;
         }
       } else {
-        // Demo Mode: สร้าง mock user
+        // Fallback Mode: สร้าง local user เมื่อ Firebase ไม่พร้อมใช้งาน
         userCredential = {
           user: {
-            uid: 'demo-user-' + Date.now(),
+            uid: 'local-user-' + Date.now(),
             email: email
           }
         };

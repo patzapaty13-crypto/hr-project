@@ -28,7 +28,7 @@ import React, { useState, useEffect } from 'react';
 // Building: Icon สำหรับคณะ/หน่วยงาน
 // Briefcase: Icon สำหรับ HR
 // Plus: Icon สำหรับปุ่มเพิ่ม/สร้างใหม่
-import { LogOut, Building, Briefcase, Plus, Sparkles } from 'lucide-react';
+import { LogOut, Building, Briefcase, Plus, Sparkles, Users } from 'lucide-react';
 
 // ============================================================================
 // นำเข้า Firestore Functions
@@ -69,11 +69,14 @@ import SPULogo from './SPULogo';
 import ResumeAnalysisModal from './ResumeAnalysisModal';
 import ResumeInputModal from './ResumeInputModal';
 import StatusTransitionModal from './StatusTransitionModal';
+import ApplicationManagementModal from './ApplicationManagementModal';
+import InterviewResultModal from './InterviewResultModal';
+import FacultyApprovalModal from './FacultyApprovalModal';
 
 // ============================================================================
 // นำเข้า Local Storage Utility
 // ============================================================================
-// ใช้สำหรับ Demo Mode เมื่อ Firebase ไม่พร้อมใช้งาน
+// ใช้สำหรับ Fallback Mode เมื่อ Firebase ไม่พร้อมใช้งาน
 import { getLocalRequests, updateLocalRequestStatus } from '../utils/localStorage';
 
 /**
@@ -105,6 +108,18 @@ const Dashboard = ({ userRole, faculty, onLogout, onCreateRequest, onSwitchToAdm
   // State สำหรับ Status Transition Modal
   const [showStatusModal, setShowStatusModal] = useState(false);
   const [pendingStatusChange, setPendingStatusChange] = useState(null);
+
+  // State สำหรับ Application Management Modal
+  const [showApplicationModal, setShowApplicationModal] = useState(false);
+  const [selectedRequestForApplication, setSelectedRequestForApplication] = useState(null);
+
+  // State สำหรับ Interview Result Modal
+  const [showInterviewResultModal, setShowInterviewResultModal] = useState(false);
+  const [selectedRequestForInterview, setSelectedRequestForInterview] = useState(null);
+
+  // State สำหรับ Faculty Approval Modal
+  const [showFacultyApprovalModal, setShowFacultyApprovalModal] = useState(false);
+  const [selectedRequestForApproval, setSelectedRequestForApproval] = useState(null);
   
   // ตรวจจับการ scroll สำหรับ navbar effect
   useEffect(() => {
@@ -124,8 +139,8 @@ const Dashboard = ({ userRole, faculty, onLogout, onCreateRequest, onSwitchToAdm
   useEffect(() => {
     // ตรวจสอบว่ามี db หรือไม่
     if (!db) {
-      // ใช้ Local Storage (Demo Mode)
-      console.log('ใช้ Demo Mode: อ่านข้อมูลจาก Local Storage');
+      // ใช้ Local Storage (Fallback Mode เมื่อ Firebase ไม่พร้อมใช้งาน)
+      console.warn('⚠️ Firebase ไม่พร้อมใช้งาน ใช้ Local Storage เป็น fallback');
       
       const loadLocalData = () => {
         try {
@@ -331,8 +346,8 @@ const Dashboard = ({ userRole, faculty, onLogout, onCreateRequest, onSwitchToAdm
     try {
       // ตรวจสอบว่ามี db หรือไม่
       if (!db) {
-        // ใช้ Local Storage (Demo Mode)
-        console.log('ใช้ Demo Mode: อัปเดตสถานะใน Local Storage');
+        // ใช้ Local Storage (Fallback Mode)
+        console.warn('⚠️ Firebase ไม่พร้อมใช้งาน ใช้ Local Storage เป็น fallback');
         updateLocalRequestStatus(reqId, newStatus);
         
         // อัปเดต State โดยตรง
@@ -366,11 +381,36 @@ const Dashboard = ({ userRole, faculty, onLogout, onCreateRequest, onSwitchToAdm
        * อัปเดตข้อมูลใน Document
        * - status: สถานะใหม่
        * - lastUpdated: เวลาที่อัปเดต (ใช้เวลาจาก Server)
+       * - บันทึกข้อมูลการอนุมัติตามสถานะ
        */
-      await updateDoc(requestRef, {
+      const updateData = {
         status: newStatus,
-        lastUpdated: serverTimestamp()  // ใช้เวลาจาก Server ไม่ใช่เวลาจาก Client
-      });
+        lastUpdated: serverTimestamp()
+      };
+
+      // บันทึกข้อมูลการอนุมัติตามสถานะ
+      if (newStatus === 'vp_hr') {
+        updateData.vpApproved = true;
+        updateData.vpApprovedAt = serverTimestamp();
+      } else if (newStatus === 'recruiting') {
+        updateData.recruitingStarted = true;
+        updateData.recruitingStartedAt = serverTimestamp();
+      } else if (newStatus === 'application_review') {
+        updateData.screeningCompleted = true;
+        updateData.screeningCompletedAt = serverTimestamp();
+      } else if (newStatus === 'interview_scheduled') {
+        updateData.facultyApproved = true;
+        updateData.facultyApprovedAt = serverTimestamp();
+      } else if (newStatus === 'president') {
+        updateData.interviewCompleted = true;
+        updateData.interviewCompletedAt = serverTimestamp();
+      } else if (newStatus === 'notified') {
+        updateData.presidentApproved = true;
+        updateData.presidentApprovedAt = serverTimestamp();
+        updateData.notifiedAt = serverTimestamp();
+      }
+
+      await updateDoc(requestRef, updateData);
       
       // เมื่ออัปเดตสำเร็จ onSnapshot จะทำงานอัตโนมัติและอัปเดต UI
     } catch (err) {
@@ -634,11 +674,6 @@ const Dashboard = ({ userRole, faculty, onLogout, onCreateRequest, onSwitchToAdm
               <h2 className="text-xl sm:text-2xl font-bold text-gray-900">
                 รายการคำขอทั้งหมด
               </h2>
-              {!db && (
-                <span className="text-xs bg-yellow-100 text-yellow-800 px-2 py-1 rounded border border-yellow-300">
-                  Demo Mode
-                </span>
-              )}
             </div>
             <p className="text-gray-600 text-xs sm:text-sm mt-1">
               {userRole === 'hr' 
@@ -800,15 +835,37 @@ const Dashboard = ({ userRole, faculty, onLogout, onCreateRequest, onSwitchToAdm
                             </button>
                           )}
                           {request.status === 'sourcing' && (
-                            <button 
-                              onClick={() => handleStatusChange(request.id, 'screening')}
-                              className="text-xs bg-teal-500 text-white px-3 py-1.5 rounded-lg hover:bg-teal-600 transition shadow-md whitespace-nowrap"
-                            >
-                              คัดเลือกใบสมัคร
-                            </button>
+                            <>
+                              <button 
+                                onClick={() => {
+                                  setSelectedRequestForApplication(request);
+                                  setShowApplicationModal(true);
+                                }}
+                                className="text-xs bg-blue-500 text-white px-3 py-1.5 rounded-lg hover:bg-blue-600 transition shadow-md whitespace-nowrap flex items-center gap-1"
+                              >
+                                <Users size={14} />
+                                จัดการใบสมัคร
+                              </button>
+                              <button 
+                                onClick={() => handleStatusChange(request.id, 'screening')}
+                                className="text-xs bg-teal-500 text-white px-3 py-1.5 rounded-lg hover:bg-teal-600 transition shadow-md whitespace-nowrap"
+                              >
+                                คัดเลือกใบสมัคร
+                              </button>
+                            </>
                           )}
                           {request.status === 'screening' && (
                             <>
+                              <button 
+                                onClick={() => {
+                                  setSelectedRequestForApplication(request);
+                                  setShowApplicationModal(true);
+                                }}
+                                className="text-xs bg-blue-500 text-white px-3 py-1.5 rounded-lg hover:bg-blue-600 transition shadow-md whitespace-nowrap flex items-center gap-1"
+                              >
+                                <Users size={14} />
+                                จัดการใบสมัคร
+                              </button>
                               <button 
                                 onClick={() => {
                                   setSelectedRequestForAnalysis(request);
@@ -995,15 +1052,37 @@ const Dashboard = ({ userRole, faculty, onLogout, onCreateRequest, onSwitchToAdm
                             </button>
                           )}
                           {request.status === 'sourcing' && (
-                            <button 
-                              onClick={() => handleStatusChange(request.id, 'screening')}
-                              className="text-xs bg-teal-500 text-white px-3 py-1.5 rounded-lg hover:bg-teal-600 transition shadow-md whitespace-nowrap"
-                            >
-                              คัดเลือก
-                            </button>
+                            <>
+                              <button 
+                                onClick={() => {
+                                  setSelectedRequestForApplication(request);
+                                  setShowApplicationModal(true);
+                                }}
+                                className="text-xs bg-blue-500 text-white px-3 py-1.5 rounded-lg hover:bg-blue-600 transition shadow-md whitespace-nowrap flex items-center gap-1"
+                              >
+                                <Users size={14} />
+                                จัดการใบสมัคร
+                              </button>
+                              <button 
+                                onClick={() => handleStatusChange(request.id, 'screening')}
+                                className="text-xs bg-teal-500 text-white px-3 py-1.5 rounded-lg hover:bg-teal-600 transition shadow-md whitespace-nowrap"
+                              >
+                                คัดเลือก
+                              </button>
+                            </>
                           )}
                           {request.status === 'screening' && (
                             <>
+                              <button 
+                                onClick={() => {
+                                  setSelectedRequestForApplication(request);
+                                  setShowApplicationModal(true);
+                                }}
+                                className="text-xs bg-blue-500 text-white px-3 py-1.5 rounded-lg hover:bg-blue-600 transition shadow-md whitespace-nowrap flex items-center gap-1"
+                              >
+                                <Users size={14} />
+                                จัดการใบสมัคร
+                              </button>
                               <button 
                                 onClick={() => {
                                   setSelectedRequestForAnalysis(request);
@@ -1216,6 +1295,56 @@ const Dashboard = ({ userRole, faculty, onLogout, onCreateRequest, onSwitchToAdm
           onCancel={() => {
             setShowStatusModal(false);
             setPendingStatusChange(null);
+          }}
+        />
+      )}
+
+      {/* Application Management Modal */}
+      {showApplicationModal && selectedRequestForApplication && (
+        <ApplicationManagementModal
+          isOpen={showApplicationModal}
+          request={selectedRequestForApplication}
+          onClose={() => {
+            setShowApplicationModal(false);
+            setSelectedRequestForApplication(null);
+          }}
+          onUpdate={() => {
+            // Refresh requests
+            window.dispatchEvent(new Event('localStorageUpdate'));
+          }}
+        />
+      )}
+
+      {/* Interview Result Modal */}
+      {showInterviewResultModal && selectedRequestForInterview && (
+        <InterviewResultModal
+          isOpen={showInterviewResultModal}
+          request={selectedRequestForInterview}
+          onClose={() => {
+            setShowInterviewResultModal(false);
+            setSelectedRequestForInterview(null);
+          }}
+          onSave={() => {
+            // Refresh requests
+            window.dispatchEvent(new Event('localStorageUpdate'));
+            // Auto update status to interview_result
+            handleStatusChange(selectedRequestForInterview.id, 'interview_result');
+          }}
+        />
+      )}
+
+      {/* Faculty Approval Modal */}
+      {showFacultyApprovalModal && selectedRequestForApproval && (
+        <FacultyApprovalModal
+          isOpen={showFacultyApprovalModal}
+          request={selectedRequestForApproval}
+          onClose={() => {
+            setShowFacultyApprovalModal(false);
+            setSelectedRequestForApproval(null);
+          }}
+          onApprove={() => {
+            // Refresh requests
+            window.dispatchEvent(new Event('localStorageUpdate'));
           }}
         />
       )}
