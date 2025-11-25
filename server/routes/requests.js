@@ -38,14 +38,26 @@ router.get('/', async (req, res) => {
         query = query.where('status', '==', status);
       }
       
-      // เรียงตามเวลา
-      query = query.orderBy('createdAt', 'desc');
+      // เรียงตามเวลา (ถ้ามี createdAt)
+      try {
+        query = query.orderBy('createdAt', 'desc');
+      } catch (error) {
+        // ถ้าไม่มี index สำหรับ orderBy จะเรียงใน JavaScript แทน
+        console.warn('Cannot orderBy createdAt, will sort in JavaScript');
+      }
       
       const snapshot = await query.get();
       requests = snapshot.docs.map(doc => ({
         id: doc.id,
         ...doc.data()
       }));
+      
+      // เรียงตามเวลาใน JavaScript (ถ้า orderBy ไม่ได้)
+      requests.sort((a, b) => {
+        const timeA = a.createdAt?.seconds || a.createdAt?._seconds || 0;
+        const timeB = b.createdAt?.seconds || b.createdAt?._seconds || 0;
+        return timeB - timeA;
+      });
     }
     
     // กรองตาม role
