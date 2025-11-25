@@ -11,7 +11,6 @@
  * Roles ที่รองรับ:
  * 1. hr: เจ้าหน้าที่ฝ่ายบุคคล (สามารถดูทุกคณะ)
  * 2. vp_hr: รองอธิการบดี (สามารถดูทุกคณะ)
- * 3. president: อธิการบดี (สามารถดูทุกคณะ)
  * 4. faculty: คณะ/หน่วยงาน (สามารถดูเฉพาะคณะของตัวเอง)
  * 
  * ============================================================================
@@ -275,7 +274,6 @@ const RegisterPage = ({ onBackToLogin, onRegisterSuccess }) => {
               <option value="faculty">คณะ/หน่วยงาน</option>
               <option value="hr">เจ้าหน้าที่ฝ่ายบุคคล</option>
               <option value="vp_hr">รองอธิการบดี</option>
-              <option value="president">อธิการบดี</option>
             </select>
           </div>
 

@@ -228,7 +228,7 @@ export const escapeHtml = (text) => {
  * @returns {boolean} - true ถ้า role ถูกต้อง
  */
 export const validateRole = (role) => {
-  const validRoles = ['hr', 'vp_hr', 'president', 'faculty'];
+  const validRoles = ['hr', 'vp_hr', 'faculty'];
   return validRoles.includes(role);
 };
 

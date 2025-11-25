@@ -112,7 +112,6 @@ const getRoleLabel = (role) => {
   const roleLabels = {
     'hr': 'เจ้าหน้าที่ฝ่ายบุคคล',
     'vp_hr': 'รองอธิการบดี',
-    'president': 'อธิการบดี',
     'faculty': 'คณะ/หน่วยงาน'
   };
   return roleLabels[role] || role;

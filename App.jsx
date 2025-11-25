@@ -162,7 +162,7 @@ export default function App() {
   /**
    * handleLogin: ฟังก์ชันที่ถูกเรียกเมื่อผู้ใช้กดปุ่ม Login ในหน้า LoginPage
    * 
-   * @param {string} userRole - บทบาทของผู้ใช้ ('hr', 'vp_hr', 'president', หรือ 'faculty')
+   * @param {string} userRole - บทบาทของผู้ใช้ ('hr', 'vp_hr', หรือ 'faculty')
    * @param {Object|null} faculty - ข้อมูลคณะที่เลือก (null ถ้าไม่ใช่ faculty)
    * @param {Object} firebaseUser - Firebase User Object (ถ้ามี)
    */

@@ -258,7 +258,6 @@ const UserFormModal = ({ selectedUser, onClose, onSuccess }) => {
         >
           <option value="hr">เจ้าหน้าที่ฝ่ายบุคคล</option>
           <option value="vp_hr">รองอธิการบดี</option>
-          <option value="president">อธิการบดี</option>
           <option value="faculty">คณะ/หน่วยงาน</option>
         </select>
         {errors.role && <p className="text-red-500 text-xs mt-1">{errors.role}</p>}
