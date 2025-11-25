@@ -68,6 +68,7 @@ import { WORKFLOW_STEPS } from '../constants';
 import SPULogo from './SPULogo';
 import ResumeAnalysisModal from './ResumeAnalysisModal';
 import ResumeInputModal from './ResumeInputModal';
+import StatusTransitionModal from './StatusTransitionModal';
 
 // ============================================================================
 // นำเข้า Local Storage Utility
@@ -100,6 +101,10 @@ const Dashboard = ({ userRole, faculty, onLogout, onCreateRequest, onSwitchToAdm
   const [showResumeInput, setShowResumeInput] = useState(false);
   const [selectedRequestForAnalysis, setSelectedRequestForAnalysis] = useState(null);
   const [resumeData, setResumeData] = useState(null);
+
+  // State สำหรับ Status Transition Modal
+  const [showStatusModal, setShowStatusModal] = useState(false);
+  const [pendingStatusChange, setPendingStatusChange] = useState(null);
   
   // ตรวจจับการ scroll สำหรับ navbar effect
   useEffect(() => {
@@ -283,6 +288,33 @@ const Dashboard = ({ userRole, faculty, onLogout, onCreateRequest, onSwitchToAdm
   // ========================================================================
   // ฟังก์ชันอัปเดตสถานะคำขอ (สำหรับ HR เท่านั้น)
   // ========================================================================
+  /**
+   * handleStatusChange: จัดการการเปลี่ยนสถานะ (แสดง Modal ก่อน)
+   * 
+   * @param {string} reqId - ID ของคำขอ
+   * @param {string} newStatus - สถานะใหม่
+   */
+  const handleStatusChange = (reqId, newStatus) => {
+    const request = requests.find(r => r.id === reqId);
+    if (!request) return;
+
+    setPendingStatusChange({ reqId, newStatus, request });
+    setShowStatusModal(true);
+  };
+
+  /**
+   * confirmStatusChange: ยืนยันการเปลี่ยนสถานะ (หลังจากผ่าน Modal)
+   */
+  const confirmStatusChange = async () => {
+    if (!pendingStatusChange) return;
+
+    const { reqId, newStatus } = pendingStatusChange;
+    await updateStatus(reqId, newStatus);
+    
+    setShowStatusModal(false);
+    setPendingStatusChange(null);
+  };
+
   /**
    * updateStatus: อัปเดตสถานะของคำขอใน Firestore
    * 
@@ -725,7 +757,7 @@ const Dashboard = ({ userRole, faculty, onLogout, onCreateRequest, onSwitchToAdm
                         <div className="flex justify-end space-x-2">
                           {request.status === 'submitted' && (
                             <button 
-                              onClick={() => updateStatus(request.id, 'hr_review')}
+                              onClick={() => handleStatusChange(request.id, 'hr_review')}
                               className="text-xs bg-blue-500 text-white px-3 py-1.5 rounded-lg hover:bg-blue-600 transition shadow-md whitespace-nowrap"
                             >
                               รับเรื่อง
@@ -733,7 +765,7 @@ const Dashboard = ({ userRole, faculty, onLogout, onCreateRequest, onSwitchToAdm
                           )}
                           {request.status === 'hr_review' && (
                             <button 
-                              onClick={() => updateStatus(request.id, 'vp_hr')}
+                              onClick={() => handleStatusChange(request.id, 'vp_hr')}
                               className="text-xs bg-blue-500 text-white px-3 py-1.5 rounded-lg hover:bg-blue-600 transition shadow-md whitespace-nowrap"
                             >
                               เสนอ VP
@@ -741,7 +773,7 @@ const Dashboard = ({ userRole, faculty, onLogout, onCreateRequest, onSwitchToAdm
                           )}
                           {request.status === 'vp_hr' && (
                             <button 
-                              onClick={() => updateStatus(request.id, 'recruiting')}
+                              onClick={() => handleStatusChange(request.id, 'recruiting')}
                               className="text-xs bg-indigo-600 text-white px-3 py-1.5 rounded-lg hover:bg-indigo-700 transition shadow-md whitespace-nowrap"
                             >
                               ประกาศรับสมัคร
@@ -749,7 +781,7 @@ const Dashboard = ({ userRole, faculty, onLogout, onCreateRequest, onSwitchToAdm
                           )}
                           {request.status === 'recruiting' && (
                             <button 
-                              onClick={() => updateStatus(request.id, 'sourcing')}
+                              onClick={() => handleStatusChange(request.id, 'sourcing')}
                               className="text-xs bg-cyan-500 text-white px-3 py-1.5 rounded-lg hover:bg-cyan-600 transition shadow-md whitespace-nowrap"
                             >
                               เริ่มสรรหา
@@ -757,7 +789,7 @@ const Dashboard = ({ userRole, faculty, onLogout, onCreateRequest, onSwitchToAdm
                           )}
                           {request.status === 'sourcing' && (
                             <button 
-                              onClick={() => updateStatus(request.id, 'screening')}
+                              onClick={() => handleStatusChange(request.id, 'screening')}
                               className="text-xs bg-teal-500 text-white px-3 py-1.5 rounded-lg hover:bg-teal-600 transition shadow-md whitespace-nowrap"
                             >
                               คัดเลือกใบสมัคร
@@ -776,7 +808,7 @@ const Dashboard = ({ userRole, faculty, onLogout, onCreateRequest, onSwitchToAdm
                                 วิเคราะห์ด้วย AI
                               </button>
                               <button 
-                                onClick={() => updateStatus(request.id, 'application_review')}
+                                onClick={() => handleStatusChange(request.id, 'application_review')}
                                 className="text-xs bg-amber-500 text-white px-3 py-1.5 rounded-lg hover:bg-amber-600 transition shadow-md whitespace-nowrap"
                               >
                                 ส่งให้ต้นสังกัด
@@ -785,7 +817,7 @@ const Dashboard = ({ userRole, faculty, onLogout, onCreateRequest, onSwitchToAdm
                           )}
                           {request.status === 'application_review' && (
                             <button 
-                              onClick={() => updateStatus(request.id, 'interview_scheduled')}
+                              onClick={() => handleStatusChange(request.id, 'interview_scheduled')}
                               className="text-xs bg-orange-500 text-white px-3 py-1.5 rounded-lg hover:bg-orange-600 transition shadow-md whitespace-nowrap"
                             >
                               นัดสัมภาษณ์
@@ -793,7 +825,7 @@ const Dashboard = ({ userRole, faculty, onLogout, onCreateRequest, onSwitchToAdm
                           )}
                           {request.status === 'interview_scheduled' && (
                             <button 
-                              onClick={() => updateStatus(request.id, 'interview')}
+                              onClick={() => handleStatusChange(request.id, 'interview')}
                               className="text-xs bg-pink-500 text-white px-3 py-1.5 rounded-lg hover:bg-pink-600 transition shadow-md whitespace-nowrap"
                             >
                               เริ่มสัมภาษณ์
@@ -801,7 +833,7 @@ const Dashboard = ({ userRole, faculty, onLogout, onCreateRequest, onSwitchToAdm
                           )}
                           {request.status === 'interview' && (
                             <button 
-                              onClick={() => updateStatus(request.id, 'interview_result')}
+                              onClick={() => handleStatusChange(request.id, 'interview_result')}
                               className="text-xs bg-rose-500 text-white px-3 py-1.5 rounded-lg hover:bg-rose-600 transition shadow-md whitespace-nowrap"
                             >
                               พิจารณาผล
@@ -809,7 +841,7 @@ const Dashboard = ({ userRole, faculty, onLogout, onCreateRequest, onSwitchToAdm
                           )}
                           {request.status === 'interview_result' && (
                             <button 
-                              onClick={() => updateStatus(request.id, 'president')}
+                              onClick={() => handleStatusChange(request.id, 'president')}
                               className="text-xs bg-slate-500 text-white px-3 py-1.5 rounded-lg hover:bg-slate-600 transition shadow-md whitespace-nowrap"
                             >
                               เสนออธิการบดี
@@ -817,7 +849,7 @@ const Dashboard = ({ userRole, faculty, onLogout, onCreateRequest, onSwitchToAdm
                           )}
                           {request.status === 'president' && (
                             <button 
-                              onClick={() => updateStatus(request.id, 'notified')}
+                              onClick={() => handleStatusChange(request.id, 'notified')}
                               className="text-xs bg-emerald-600 text-white px-3 py-1.5 rounded-lg hover:bg-emerald-700 transition shadow-md whitespace-nowrap"
                             >
                               แจ้งบุคลากร
@@ -897,7 +929,7 @@ const Dashboard = ({ userRole, faculty, onLogout, onCreateRequest, onSwitchToAdm
                         <div className="flex gap-2 flex-wrap">
                           {request.status === 'submitted' && (
                             <button 
-                              onClick={() => updateStatus(request.id, 'hr_review')}
+                              onClick={() => handleStatusChange(request.id, 'hr_review')}
                               className="text-xs bg-blue-500 text-white px-3 py-1.5 rounded-lg hover:bg-blue-600 transition shadow-md whitespace-nowrap"
                             >
                               รับเรื่อง
@@ -905,7 +937,7 @@ const Dashboard = ({ userRole, faculty, onLogout, onCreateRequest, onSwitchToAdm
                           )}
                           {request.status === 'hr_review' && (
                             <button 
-                              onClick={() => updateStatus(request.id, 'vp_hr')}
+                              onClick={() => handleStatusChange(request.id, 'vp_hr')}
                               className="text-xs bg-indigo-500 text-white px-3 py-1.5 rounded-lg hover:bg-indigo-600 transition shadow-md whitespace-nowrap"
                             >
                               เสนอ VP
@@ -913,7 +945,7 @@ const Dashboard = ({ userRole, faculty, onLogout, onCreateRequest, onSwitchToAdm
                           )}
                           {request.status === 'vp_hr' && (
                             <button 
-                              onClick={() => updateStatus(request.id, 'recruiting')}
+                              onClick={() => handleStatusChange(request.id, 'recruiting')}
                               className="text-xs bg-indigo-600 text-white px-3 py-1.5 rounded-lg hover:bg-indigo-700 transition shadow-md whitespace-nowrap"
                             >
                               ประกาศรับสมัคร
@@ -921,7 +953,7 @@ const Dashboard = ({ userRole, faculty, onLogout, onCreateRequest, onSwitchToAdm
                           )}
                           {request.status === 'recruiting' && (
                             <button 
-                              onClick={() => updateStatus(request.id, 'sourcing')}
+                              onClick={() => handleStatusChange(request.id, 'sourcing')}
                               className="text-xs bg-cyan-500 text-white px-3 py-1.5 rounded-lg hover:bg-cyan-600 transition shadow-md whitespace-nowrap"
                             >
                               เริ่มสรรหา
@@ -929,7 +961,7 @@ const Dashboard = ({ userRole, faculty, onLogout, onCreateRequest, onSwitchToAdm
                           )}
                           {request.status === 'sourcing' && (
                             <button 
-                              onClick={() => updateStatus(request.id, 'screening')}
+                              onClick={() => handleStatusChange(request.id, 'screening')}
                               className="text-xs bg-teal-500 text-white px-3 py-1.5 rounded-lg hover:bg-teal-600 transition shadow-md whitespace-nowrap"
                             >
                               คัดเลือก
@@ -948,7 +980,7 @@ const Dashboard = ({ userRole, faculty, onLogout, onCreateRequest, onSwitchToAdm
                                 วิเคราะห์ AI
                               </button>
                               <button 
-                                onClick={() => updateStatus(request.id, 'application_review')}
+                                onClick={() => handleStatusChange(request.id, 'application_review')}
                                 className="text-xs bg-amber-500 text-white px-3 py-1.5 rounded-lg hover:bg-amber-600 transition shadow-md whitespace-nowrap"
                               >
                                 ส่งต้นสังกัด
@@ -957,7 +989,7 @@ const Dashboard = ({ userRole, faculty, onLogout, onCreateRequest, onSwitchToAdm
                           )}
                           {request.status === 'application_review' && (
                             <button 
-                              onClick={() => updateStatus(request.id, 'interview_scheduled')}
+                              onClick={() => handleStatusChange(request.id, 'interview_scheduled')}
                               className="text-xs bg-orange-500 text-white px-3 py-1.5 rounded-lg hover:bg-orange-600 transition shadow-md whitespace-nowrap"
                             >
                               นัดสัมภาษณ์
@@ -965,7 +997,7 @@ const Dashboard = ({ userRole, faculty, onLogout, onCreateRequest, onSwitchToAdm
                           )}
                           {request.status === 'interview_scheduled' && (
                             <button 
-                              onClick={() => updateStatus(request.id, 'interview')}
+                              onClick={() => handleStatusChange(request.id, 'interview')}
                               className="text-xs bg-pink-500 text-white px-3 py-1.5 rounded-lg hover:bg-pink-600 transition shadow-md whitespace-nowrap"
                             >
                               เริ่มสัมภาษณ์
@@ -973,7 +1005,7 @@ const Dashboard = ({ userRole, faculty, onLogout, onCreateRequest, onSwitchToAdm
                           )}
                           {request.status === 'interview' && (
                             <button 
-                              onClick={() => updateStatus(request.id, 'interview_result')}
+                              onClick={() => handleStatusChange(request.id, 'interview_result')}
                               className="text-xs bg-rose-500 text-white px-3 py-1.5 rounded-lg hover:bg-rose-600 transition shadow-md whitespace-nowrap"
                             >
                               พิจารณาผล
@@ -981,7 +1013,7 @@ const Dashboard = ({ userRole, faculty, onLogout, onCreateRequest, onSwitchToAdm
                           )}
                           {request.status === 'interview_result' && (
                             <button 
-                              onClick={() => updateStatus(request.id, 'president')}
+                              onClick={() => handleStatusChange(request.id, 'president')}
                               className="text-xs bg-slate-500 text-white px-3 py-1.5 rounded-lg hover:bg-slate-600 transition shadow-md whitespace-nowrap"
                             >
                               เสนออธิการบดี
@@ -989,7 +1021,7 @@ const Dashboard = ({ userRole, faculty, onLogout, onCreateRequest, onSwitchToAdm
                           )}
                           {request.status === 'president' && (
                             <button 
-                              onClick={() => updateStatus(request.id, 'notified')}
+                              onClick={() => handleStatusChange(request.id, 'notified')}
                               className="text-xs bg-emerald-600 text-white px-3 py-1.5 rounded-lg hover:bg-emerald-700 transition shadow-md whitespace-nowrap"
                             >
                               แจ้งบุคลากร
@@ -1114,6 +1146,21 @@ const Dashboard = ({ userRole, faculty, onLogout, onCreateRequest, onSwitchToAdm
             setShowResumeAnalysis(false);
             setSelectedRequestForAnalysis(null);
             setResumeData(null);
+          }}
+        />
+      )}
+
+      {/* Status Transition Modal */}
+      {showStatusModal && pendingStatusChange && (
+        <StatusTransitionModal
+          isOpen={showStatusModal}
+          currentStatus={pendingStatusChange.request.status}
+          newStatus={pendingStatusChange.newStatus}
+          request={pendingStatusChange.request}
+          onConfirm={confirmStatusChange}
+          onCancel={() => {
+            setShowStatusModal(false);
+            setPendingStatusChange(null);
           }}
         />
       )}
