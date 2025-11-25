@@ -26,7 +26,7 @@
 // ============================================================================
 // หมายเหตุ: ควรย้ายไปใช้ Environment Variable (.env) แทนการ Hard-code
 // ตัวอย่าง: const apiKey = import.meta.env.VITE_GEMINI_API_KEY || "";
-const apiKey = "";
+const apiKey = import.meta.env.VITE_GEMINI_API_KEY || process.env.GEMINI_API_KEY || "";
 
 /**
  * ============================================================================

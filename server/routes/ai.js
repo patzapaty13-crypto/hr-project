@@ -72,7 +72,47 @@ router.post('/analyze-resume', async (req, res) => {
       });
     }
     
-    const analysis = await analyzeResume(jobDescription, resumeText);
+    // แปลง resumeText และ jobDescription เป็น object สำหรับ analyzeResume
+    let jobDescObj = jobDescription;
+    let resumeObj = resumeText;
+    
+    // ถ้าเป็น string ให้แปลงเป็น object
+    if (typeof jobDescription === 'string') {
+      // พยายาม parse JSON หรือสร้าง object จาก text
+      try {
+        jobDescObj = JSON.parse(jobDescription);
+      } catch {
+        // ถ้า parse ไม่ได้ ให้ parse จาก text format
+        const lines = jobDescription.split('\n').map(l => l.trim()).filter(l => l);
+        jobDescObj = {
+          position: lines.find(l => l.includes('ตำแหน่ง'))?.replace(/ตำแหน่ง:?\s*/i, '').trim() || '',
+          description: lines.find(l => l.includes('รายละเอียดงาน'))?.replace(/รายละเอียดงาน:?\s*/i, '').trim() || 
+                      lines.find(l => l.includes('รายละเอียด'))?.replace(/รายละเอียด:?\s*/i, '').trim() || 
+                      jobDescription,
+          requirements: lines.find(l => l.includes('คุณสมบัติ'))?.replace(/คุณสมบัติที่ต้องการ:?\s*/i, '').trim() || 
+                       lines.find(l => l.includes('คุณสมบัติ'))?.replace(/คุณสมบัติ:?\s*/i, '').trim() || ''
+        };
+      }
+    }
+    
+    if (typeof resumeText === 'string') {
+      // พยายาม parse JSON หรือสร้าง object จาก text
+      try {
+        resumeObj = JSON.parse(resumeText);
+      } catch {
+        // ถ้า parse ไม่ได้ ให้ parse จาก text format
+        const lines = resumeText.split('\n').map(l => l.trim()).filter(l => l);
+        resumeObj = {
+          experience: lines.find(l => l.includes('ประสบการณ์'))?.replace(/ประสบการณ์การทำงาน:?\s*/i, '').trim() || 
+                     lines.find(l => l.includes('ประสบการณ์'))?.replace(/ประสบการณ์:?\s*/i, '').trim() || '',
+          skills: lines.find(l => l.includes('ทักษะ'))?.replace(/ทักษะ:?\s*/i, '').trim() || '',
+          education: lines.find(l => l.includes('การศึกษา'))?.replace(/การศึกษา:?\s*/i, '').trim() || '',
+          achievements: lines.find(l => l.includes('ผลงาน'))?.replace(/ผลงาน:?\s*/i, '').trim() || ''
+        };
+      }
+    }
+    
+    const analysis = await analyzeResume(jobDescObj, resumeObj);
     
     res.json({
       success: true,
@@ -82,7 +122,7 @@ router.post('/analyze-resume', async (req, res) => {
     console.error('Error analyzing resume:', error);
     res.status(500).json({
       success: false,
-      error: error.message
+      error: error.message || 'เกิดข้อผิดพลาดในการวิเคราะห์'
     });
   }
 });

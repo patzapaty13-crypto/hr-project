@@ -19,7 +19,7 @@
 
 import React, { useState } from 'react';
 import { X, Sparkles, TrendingUp, AlertCircle, CheckCircle, Loader } from 'lucide-react';
-import { analyzeResume } from '../utils/resumeAnalyzer';
+import { aiAPI } from '../utils/api';
 
 const ResumeAnalysisModal = ({ isOpen, jobDescription, resume, onClose }) => {
   const [analysisResult, setAnalysisResult] = useState(null);
@@ -39,11 +39,35 @@ const ResumeAnalysisModal = ({ isOpen, jobDescription, resume, onClose }) => {
     setAnalysisResult(null);
 
     try {
-      const result = await analyzeResume(jobDescription, resume);
-      setAnalysisResult(result);
+      // สร้าง resumeText จาก resume object
+      const resumeText = `
+ประสบการณ์การทำงาน: ${resume.experience || 'ไม่ระบุ'}
+ทักษะ: ${resume.skills || 'ไม่ระบุ'}
+การศึกษา: ${resume.education || 'ไม่ระบุ'}
+ผลงาน: ${resume.achievements || 'ไม่ระบุ'}
+      `.trim();
+
+      // สร้าง jobDescriptionText จาก jobDescription object
+      const jobDescriptionText = `
+ตำแหน่ง: ${jobDescription.position || 'ไม่ระบุ'}
+รายละเอียดงาน: ${jobDescription.description || 'ไม่ระบุ'}
+คุณสมบัติที่ต้องการ: ${jobDescription.requirements || 'ไม่ระบุ'}
+      `.trim();
+
+      // เรียกใช้ API endpoint
+      const response = await aiAPI.analyzeResume({
+        jobDescription: jobDescriptionText,
+        resumeText: resumeText
+      });
+
+      if (response.success && response.data) {
+        setAnalysisResult(response.data);
+      } else {
+        throw new Error(response.error || 'ไม่สามารถวิเคราะห์ได้');
+      }
     } catch (err) {
       console.error('Analysis error:', err);
-      setError('เกิดข้อผิดพลาดในการวิเคราะห์ กรุณาลองใหม่อีกครั้ง');
+      setError(err.message || 'เกิดข้อผิดพลาดในการวิเคราะห์ กรุณาลองใหม่อีกครั้ง');
     } finally {
       setIsAnalyzing(false);
     }
