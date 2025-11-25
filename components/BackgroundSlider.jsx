@@ -23,7 +23,7 @@ const SPU_IMAGES = [
   },
   {
     id: 2,
-    url: 'https://images.unsplash.com/photo-1523050854058-8df90110c9f1?w=1920&q=80',
+    url: 'https://www.spu.ac.th/wp-content/uploads/2024/07/20210622224036.png',
     alt: 'SPU Campus View'
   },
   {
