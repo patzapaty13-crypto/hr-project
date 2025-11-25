@@ -78,7 +78,7 @@ export const sendRequestNotificationEmail = async (requestData, requestId) => {
       to_email: RECIPIENT_EMAIL,
       to_name: 'HR Team',
       from_name: 'SPU Personnel System',
-      subject: `คำขออัตรากำลังพลใหม่ - ${requestData.facultyName}`,
+      subject: `คำขออัตราใหม่ - ${requestData.facultyName}`,
       request_id: requestId,
       faculty_name: requestData.facultyName,
       position: requestData.position,
