@@ -28,7 +28,7 @@ import React, { useState, useEffect } from 'react';
 // Building: Icon สำหรับคณะ/หน่วยงาน
 // Briefcase: Icon สำหรับ HR
 // Plus: Icon สำหรับปุ่มเพิ่ม/สร้างใหม่
-import { LogOut, Building, Briefcase, Plus } from 'lucide-react';
+import { LogOut, Building, Briefcase, Plus, Sparkles } from 'lucide-react';
 
 // ============================================================================
 // นำเข้า Firestore Functions
@@ -66,6 +66,8 @@ import { WORKFLOW_STEPS } from '../constants';
 // ============================================================================
 // SPULogo: Component สำหรับแสดง Logo SPU
 import SPULogo from './SPULogo';
+import ResumeAnalysisModal from './ResumeAnalysisModal';
+import ResumeInputModal from './ResumeInputModal';
 
 // ============================================================================
 // นำเข้า Local Storage Utility
@@ -92,6 +94,12 @@ const Dashboard = ({ userRole, faculty, onLogout, onCreateRequest, onSwitchToAdm
   
   // State สำหรับ navbar scroll effect
   const [scrolled, setScrolled] = useState(false);
+  
+  // State สำหรับ Resume Analysis Modal
+  const [showResumeAnalysis, setShowResumeAnalysis] = useState(false);
+  const [showResumeInput, setShowResumeInput] = useState(false);
+  const [selectedRequestForAnalysis, setSelectedRequestForAnalysis] = useState(null);
+  const [resumeData, setResumeData] = useState(null);
   
   // ตรวจจับการ scroll สำหรับ navbar effect
   useEffect(() => {
@@ -756,12 +764,24 @@ const Dashboard = ({ userRole, faculty, onLogout, onCreateRequest, onSwitchToAdm
                             </button>
                           )}
                           {request.status === 'screening' && (
-                            <button 
-                              onClick={() => updateStatus(request.id, 'application_review')}
-                              className="text-xs bg-amber-500 text-white px-3 py-1.5 rounded-lg hover:bg-amber-600 transition shadow-md whitespace-nowrap"
-                            >
-                              ส่งให้ต้นสังกัด
-                            </button>
+                            <>
+                              <button 
+                                onClick={() => {
+                                  setSelectedRequestForAnalysis(request);
+                                  setShowResumeInput(true);
+                                }}
+                                className="text-xs bg-purple-500 text-white px-3 py-1.5 rounded-lg hover:bg-purple-600 transition shadow-md whitespace-nowrap flex items-center gap-1"
+                              >
+                                <Sparkles size={14} />
+                                วิเคราะห์ด้วย AI
+                              </button>
+                              <button 
+                                onClick={() => updateStatus(request.id, 'application_review')}
+                                className="text-xs bg-amber-500 text-white px-3 py-1.5 rounded-lg hover:bg-amber-600 transition shadow-md whitespace-nowrap"
+                              >
+                                ส่งให้ต้นสังกัด
+                              </button>
+                            </>
                           )}
                           {request.status === 'application_review' && (
                             <button 
@@ -916,12 +936,24 @@ const Dashboard = ({ userRole, faculty, onLogout, onCreateRequest, onSwitchToAdm
                             </button>
                           )}
                           {request.status === 'screening' && (
-                            <button 
-                              onClick={() => updateStatus(request.id, 'application_review')}
-                              className="text-xs bg-amber-500 text-white px-3 py-1.5 rounded-lg hover:bg-amber-600 transition shadow-md whitespace-nowrap"
-                            >
-                              ส่งต้นสังกัด
-                            </button>
+                            <>
+                              <button 
+                                onClick={() => {
+                                  setSelectedRequestForAnalysis(request);
+                                  setShowResumeInput(true);
+                                }}
+                                className="text-xs bg-purple-500 text-white px-3 py-1.5 rounded-lg hover:bg-purple-600 transition shadow-md whitespace-nowrap flex items-center gap-1"
+                              >
+                                <Sparkles size={14} />
+                                วิเคราะห์ AI
+                              </button>
+                              <button 
+                                onClick={() => updateStatus(request.id, 'application_review')}
+                                className="text-xs bg-amber-500 text-white px-3 py-1.5 rounded-lg hover:bg-amber-600 transition shadow-md whitespace-nowrap"
+                              >
+                                ส่งต้นสังกัด
+                              </button>
+                            </>
                           )}
                           {request.status === 'application_review' && (
                             <button 
@@ -1050,6 +1082,41 @@ const Dashboard = ({ userRole, faculty, onLogout, onCreateRequest, onSwitchToAdm
           </div>
         </div>
       </footer>
+
+      {/* Resume Input Modal */}
+      {showResumeInput && selectedRequestForAnalysis && (
+        <ResumeInputModal
+          isOpen={showResumeInput}
+          onClose={() => {
+            setShowResumeInput(false);
+            setSelectedRequestForAnalysis(null);
+            setResumeData(null);
+          }}
+          onSubmit={(resume) => {
+            setResumeData(resume);
+            setShowResumeInput(false);
+            setShowResumeAnalysis(true);
+          }}
+        />
+      )}
+
+      {/* Resume Analysis Modal */}
+      {showResumeAnalysis && selectedRequestForAnalysis && resumeData && (
+        <ResumeAnalysisModal
+          isOpen={showResumeAnalysis}
+          jobDescription={{
+            position: selectedRequestForAnalysis.position,
+            description: selectedRequestForAnalysis.description || '',
+            requirements: selectedRequestForAnalysis.requirements || ''
+          }}
+          resume={resumeData}
+          onClose={() => {
+            setShowResumeAnalysis(false);
+            setSelectedRequestForAnalysis(null);
+            setResumeData(null);
+          }}
+        />
+      )}
     </div>
   );
 };
