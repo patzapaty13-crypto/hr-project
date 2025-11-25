@@ -536,6 +536,10 @@ const Dashboard = ({ userRole, faculty, onLogout, onCreateRequest, onSwitchToAdm
                 Personnel System
               </p>
             </div>
+            {/* Train Animation */}
+            <div className="hidden sm:flex items-center ml-4">
+              <TrainAnimation />
+            </div>
           </div>
           {/* ส่วนขวา: Navigation และปุ่มออกจากระบบ */}
           <div className="flex items-center space-x-3 sm:space-x-6 w-full sm:w-auto justify-end">
