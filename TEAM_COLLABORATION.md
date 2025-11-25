@@ -174,6 +174,23 @@ git push -u origin feature/your-feature-name
 
 ---
 
+## 🔐 Git Permission Issues
+
+### ปัญหา: Permission Denied (403 Error)
+
+**ถ้าเพื่อนเจอ error:**
+```
+Permission to patzapaty13-crypto/hr-project.git denied
+```
+
+**ดูคู่มือ:** [FIX_GIT_PERMISSION_ERROR.md](./FIX_GIT_PERMISSION_ERROR.md)
+
+**Quick Fix:**
+1. เจ้าของ repository: เพิ่มเพื่อนเป็น collaborator (Settings → Collaborators)
+2. เพื่อน: ใช้ SSH หรือ Personal Access Token
+
+---
+
 ## ⚠️ Conflict Resolution
 
 ### เมื่อเกิด Conflict
