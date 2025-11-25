@@ -69,7 +69,7 @@ export const getUserByEmail = async (email) => {
  * ตรวจสอบสิทธิ์การเข้าถึงตาม role และ faculty
  * 
  * @param {Object} userData - ข้อมูลผู้ใช้ (email, role, facultyId)
- * @param {string} loginRole - บทบาทที่เลือกตอน Login (hr, vp_hr, president, faculty)
+ * @param {string} loginRole - บทบาทที่เลือกตอน Login (hr, vp_hr, faculty)
  * @param {string} loginFacultyId - ID คณะที่เลือกตอน Login (ถ้าเป็น faculty)
  * @returns {Object} { allowed: boolean, message: string }
  */
