@@ -239,11 +239,17 @@ const Dashboard = ({ userRole, faculty, onLogout, onCreateRequest, onSwitchToAdm
         /**
          * กรองข้อมูลตามบทบาท
          * - HR: เห็นคำขอทั้งหมด (ไม่ต้องกรอง)
+         * - VP HR: เห็นเฉพาะคำขอที่อยู่ในสถานะ 'hr_review' และ 'vp_hr' (รอการพิจารณา)
          * - Faculty: เห็นเฉพาะคำขอของคณะตัวเอง (กรองตาม facultyId)
          */
         if (userRole === 'hr') {
           // HR เห็นทั้งหมด
           setRequests(data);
+        } else if (userRole === 'vp_hr') {
+          // VP HR เห็นเฉพาะคำขอที่รอการพิจารณา
+          setRequests(data.filter(request => 
+            request.status === 'hr_review' || request.status === 'vp_hr'
+          ));
         } else {
           // คณะเห็นเฉพาะของตัวเอง
           // กรองเฉพาะคำขอที่ facultyId ตรงกับคณะที่เลือก
@@ -476,12 +482,14 @@ const Dashboard = ({ userRole, faculty, onLogout, onCreateRequest, onSwitchToAdm
                     <Building size={16} className="sm:w-[18px] sm:h-[18px] text-gray-700" />
                   )}
                 </div>
-                <p className="text-xs sm:text-sm font-semibold text-gray-900 truncate">
-                  {userRole === 'hr' 
-                    ? 'สำนักงานบุคคล (HR)'  // ถ้าเป็น HR แสดง "สำนักงานบุคคล (HR)"
-                    : faculty?.name          // ถ้าเป็น Faculty แสดงชื่อคณะ
-                  }
-                </p>
+                  <p className="text-xs sm:text-sm font-semibold text-gray-900 truncate">
+                    {userRole === 'hr' 
+                      ? 'สำนักงานบุคคล (HR)'  // ถ้าเป็น HR แสดง "สำนักงานบุคคล (HR)"
+                      : userRole === 'vp_hr'
+                      ? 'รองอธิการบดี (VP HR)'  // ถ้าเป็น VP HR แสดง "รองอธิการบดี (VP HR)"
+                      : faculty?.name          // ถ้าเป็น Faculty แสดงชื่อคณะ
+                    }
+                  </p>
               </div>
               <p className="text-[10px] sm:text-xs text-gray-600 mt-0.5 hidden sm:block font-medium">
                 Personnel System
@@ -538,11 +546,13 @@ const Dashboard = ({ userRole, faculty, onLogout, onCreateRequest, onSwitchToAdm
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-6 sm:mb-8">
             <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold mb-3 sm:mb-4 text-gray-900">
-              {userRole === 'hr' ? 'จัดการคำขอทั้งหมด' : 'คำขอของฉัน'}
+              {userRole === 'hr' ? 'จัดการคำขอทั้งหมด' : userRole === 'vp_hr' ? 'คำขอที่รอการพิจารณา' : 'คำขอของฉัน'}
             </h1>
                 <p className="text-base sm:text-lg lg:text-xl text-gray-600 px-4">
               {userRole === 'hr' 
                 ? 'ดูและจัดการคำขอลงอัตรากำลังพลทั้งหมดจากคณะและหน่วยงานต่างๆ' 
+                : userRole === 'vp_hr'
+                ? 'ดูและพิจารณาคำขอที่ HR ตรวจสอบแล้วและรอการอนุมัติ'
                 : 'ดูและติดตามสถานะคำขอของคณะคุณ'
               }
             </p>
@@ -633,6 +643,8 @@ const Dashboard = ({ userRole, faculty, onLogout, onCreateRequest, onSwitchToAdm
             <p className="text-gray-600 text-xs sm:text-sm mt-1">
               {userRole === 'hr' 
                 ? 'คำขอลงอัตรากำลังพลทั้งหมดในระบบ' 
+                : userRole === 'vp_hr'
+                ? 'คำขอที่รอการพิจารณาจากรองอธิการบดี'
                 : 'คำขอของคณะที่คุณเลือก'
               }
             </p>
@@ -747,7 +759,7 @@ const Dashboard = ({ userRole, faculty, onLogout, onCreateRequest, onSwitchToAdm
                         {getStatusLabel(request.status)}
                       </span>
                     </td>
-                    {/* คอลัมน์ที่ 5: ปุ่มจัดการ (สำหรับ HR เท่านั้น) */}
+                    {/* คอลัมน์ที่ 5: ปุ่มจัดการ (สำหรับ HR และ VP HR) */}
                     <td className="p-4">
                       {userRole === 'hr' ? (
                         /* 
@@ -924,7 +936,7 @@ const Dashboard = ({ userRole, faculty, onLogout, onCreateRequest, onSwitchToAdm
                         {request.type === 'new' ? 'อัตราใหม่' : 'ทดแทน'}
                       </span>
                       
-                      {/* ปุ่ม Action สำหรับ HR */}
+                      {/* ปุ่ม Action สำหรับ HR และ VP HR */}
                       {userRole === 'hr' && (
                         <div className="flex gap-2 flex-wrap">
                           {request.status === 'submitted' && (
@@ -1025,6 +1037,26 @@ const Dashboard = ({ userRole, faculty, onLogout, onCreateRequest, onSwitchToAdm
                               className="text-xs bg-emerald-600 text-white px-3 py-1.5 rounded-lg hover:bg-emerald-700 transition shadow-md whitespace-nowrap"
                             >
                               แจ้งบุคลากร
+                            </button>
+                          )}
+                        </div>
+                      )}
+                      {userRole === 'vp_hr' && (
+                        <div className="flex gap-2 flex-wrap">
+                          {request.status === 'hr_review' && (
+                            <button 
+                              onClick={() => handleStatusChange(request.id, 'vp_hr')}
+                              className="text-xs bg-purple-500 text-white px-3 py-1.5 rounded-lg hover:bg-purple-600 transition shadow-md whitespace-nowrap"
+                            >
+                              รับเรื่องพิจารณา
+                            </button>
+                          )}
+                          {request.status === 'vp_hr' && (
+                            <button 
+                              onClick={() => handleStatusChange(request.id, 'recruiting')}
+                              className="text-xs bg-green-600 text-white px-3 py-1.5 rounded-lg hover:bg-green-700 transition shadow-md whitespace-nowrap"
+                            >
+                              อนุมัติและประกาศ
                             </button>
                           )}
                         </div>
