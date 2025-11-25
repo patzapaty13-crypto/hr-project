@@ -366,10 +366,24 @@ const Dashboard = ({ userRole, faculty, onLogout, onCreateRequest, onSwitchToAdm
         return 'bg-indigo-100 text-indigo-800 border border-indigo-200';      // สีม่วงอ่อน (กำลังตรวจสอบ)
       case 'vp_hr': 
         return 'bg-purple-200 text-purple-900 border border-purple-300';      // สีม่วงเข้ม (VP พิจารณา)
-      case 'president': 
-        return 'bg-slate-300 text-slate-900 border border-slate-400';      // สีเทาเข้ม (อธิการบดีพิจารณา)
       case 'recruiting': 
-        return 'bg-green-600 text-white border border-green-700';         // สีเขียวเข้ม (ประกาศรับสมัครแล้ว)
+        return 'bg-green-500 text-white border border-green-600';         // สีเขียว (ประกาศรับสมัคร)
+      case 'sourcing': 
+        return 'bg-cyan-100 text-cyan-800 border border-cyan-200';      // สีฟ้าอ่อน (สรรหาผู้สมัคร)
+      case 'screening': 
+        return 'bg-teal-100 text-teal-800 border border-teal-200';      // สีเขียวฟ้า (คัดเลือกใบสมัคร)
+      case 'application_review': 
+        return 'bg-amber-100 text-amber-800 border border-amber-200';      // สีเหลืองอ่อน (พิจารณาใบสมัคร)
+      case 'interview_scheduled': 
+        return 'bg-orange-100 text-orange-800 border border-orange-200';      // สีส้มอ่อน (นัดสัมภาษณ์)
+      case 'interview': 
+        return 'bg-pink-100 text-pink-800 border border-pink-200';      // สีชมพูอ่อน (สัมภาษณ์)
+      case 'interview_result': 
+        return 'bg-rose-100 text-rose-800 border border-rose-200';      // สีชมพูเข้ม (พิจารณาผลสัมภาษณ์)
+      case 'president': 
+        return 'bg-slate-300 text-slate-900 border border-slate-400';      // สีเทาเข้ม (เสนออธิการบดี)
+      case 'notified': 
+        return 'bg-emerald-600 text-white border border-emerald-700';      // สีเขียวเข้ม (แจ้งบุคลากรแล้ว)
       default: 
         return 'bg-gray-100 text-gray-600 border border-gray-200';      // สีเทา (สถานะอื่นๆ)
     }
@@ -518,7 +532,7 @@ const Dashboard = ({ userRole, faculty, onLogout, onCreateRequest, onSwitchToAdm
                   <Building size={24} className="opacity-80 transform group-hover:scale-110 group-hover:rotate-3 transition-all duration-500" />
                 </div>
                 <div className="text-3xl sm:text-4xl font-bold mb-1 transform group-hover:scale-110 transition-transform duration-300">
-                  {requests.filter(r => r.status === 'submitted' || r.status === 'hr_review').length}
+                  {requests.filter(r => r.status === 'submitted' || r.status === 'hr_review' || r.status === 'vp_hr').length}
                 </div>
                 <div className="text-xs sm:text-sm text-green-200">In Progress</div>
               </div>
@@ -529,13 +543,13 @@ const Dashboard = ({ userRole, faculty, onLogout, onCreateRequest, onSwitchToAdm
               <div className="absolute inset-0 bg-gradient-to-br from-yellow-400/0 to-yellow-400/20 group-hover:from-yellow-400/20 group-hover:to-yellow-400/40 transition-all duration-500"></div>
               <div className="relative z-10">
                 <div className="flex items-center justify-between mb-2">
-                  <h3 className="text-sm sm:text-base font-semibold">กำลังพิจารณา</h3>
+                  <h3 className="text-sm sm:text-base font-semibold">กำลังสรรหา/สัมภาษณ์</h3>
                   <Plus size={24} className="opacity-80 transform group-hover:scale-110 group-hover:rotate-3 transition-all duration-500" />
                 </div>
                 <div className="text-3xl sm:text-4xl font-bold mb-1 transform group-hover:scale-110 transition-transform duration-300">
-                  {requests.filter(r => r.status === 'vp_hr' || r.status === 'president').length}
+                  {requests.filter(r => ['recruiting', 'sourcing', 'screening', 'application_review', 'interview_scheduled', 'interview', 'interview_result'].includes(r.status)).length}
                 </div>
-                <div className="text-xs sm:text-sm text-yellow-200">Under Review</div>
+                <div className="text-xs sm:text-sm text-yellow-200">Recruitment</div>
               </div>
             </div>
             
@@ -544,13 +558,13 @@ const Dashboard = ({ userRole, faculty, onLogout, onCreateRequest, onSwitchToAdm
               <div className="absolute inset-0 bg-gradient-to-br from-red-400/0 to-red-400/20 group-hover:from-red-400/20 group-hover:to-red-400/40 transition-all duration-500"></div>
               <div className="relative z-10">
                 <div className="flex items-center justify-between mb-2">
-                  <h3 className="text-sm sm:text-base font-semibold">ประกาศรับสมัคร</h3>
+                  <h3 className="text-sm sm:text-base font-semibold">เสร็จสิ้น</h3>
                   <Briefcase size={24} className="opacity-80 transform group-hover:scale-110 group-hover:rotate-3 transition-all duration-500" />
                 </div>
                 <div className="text-3xl sm:text-4xl font-bold mb-1 transform group-hover:scale-110 transition-transform duration-300">
-                  {requests.filter(r => r.status === 'recruiting').length}
+                  {requests.filter(r => r.status === 'president' || r.status === 'notified').length}
                 </div>
-                <div className="text-xs sm:text-sm text-red-200">Recruiting</div>
+                <div className="text-xs sm:text-sm text-red-200">Completed</div>
               </div>
             </div>
           </div>
@@ -698,14 +712,9 @@ const Dashboard = ({ userRole, faculty, onLogout, onCreateRequest, onSwitchToAdm
                       {userRole === 'hr' ? (
                         /* 
                           ปุ่ม Action สำหรับ HR
-                          แสดงปุ่มตามสถานะปัจจุบันของคำขอ:
-                          - submitted (ส่งเรื่องแล้ว) -> ปุ่ม "รับเรื่อง"
-                          - hr_review (HR ตรวจสอบแล้ว) -> ปุ่ม "เสนอ VP"
-                          - vp_hr (VP อนุมัติแล้ว) -> ปุ่ม "เสนออธิการฯ"
-                          - president (อธิการบดีอนุมัติแล้ว) -> ปุ่ม "ประกาศรับสมัคร"
+                          แสดงปุ่มตามสถานะปัจจุบันของคำขอตาม Flowchart
                         */
                         <div className="flex justify-end space-x-2">
-                          {/* ถ้าสถานะ = 'submitted' แสดงปุ่ม "รับเรื่อง" */}
                           {request.status === 'submitted' && (
                             <button 
                               onClick={() => updateStatus(request.id, 'hr_review')}
@@ -714,7 +723,6 @@ const Dashboard = ({ userRole, faculty, onLogout, onCreateRequest, onSwitchToAdm
                               รับเรื่อง
                             </button>
                           )}
-                          {/* ถ้าสถานะ = 'hr_review' แสดงปุ่ม "เสนอ VP" */}
                           {request.status === 'hr_review' && (
                             <button 
                               onClick={() => updateStatus(request.id, 'vp_hr')}
@@ -723,22 +731,76 @@ const Dashboard = ({ userRole, faculty, onLogout, onCreateRequest, onSwitchToAdm
                               เสนอ VP
                             </button>
                           )}
-                          {/* ถ้าสถานะ = 'vp_hr' แสดงปุ่ม "เสนออธิการฯ" */}
                           {request.status === 'vp_hr' && (
                             <button 
-                              onClick={() => updateStatus(request.id, 'president')}
+                              onClick={() => updateStatus(request.id, 'recruiting')}
                               className="text-xs bg-indigo-600 text-white px-3 py-1.5 rounded-lg hover:bg-indigo-700 transition shadow-md whitespace-nowrap"
                             >
-                              เสนออธิการฯ
+                              ประกาศรับสมัคร
                             </button>
                           )}
-                          {/* ถ้าสถานะ = 'president' แสดงปุ่ม "ประกาศรับสมัคร" */}
+                          {request.status === 'recruiting' && (
+                            <button 
+                              onClick={() => updateStatus(request.id, 'sourcing')}
+                              className="text-xs bg-cyan-500 text-white px-3 py-1.5 rounded-lg hover:bg-cyan-600 transition shadow-md whitespace-nowrap"
+                            >
+                              เริ่มสรรหา
+                            </button>
+                          )}
+                          {request.status === 'sourcing' && (
+                            <button 
+                              onClick={() => updateStatus(request.id, 'screening')}
+                              className="text-xs bg-teal-500 text-white px-3 py-1.5 rounded-lg hover:bg-teal-600 transition shadow-md whitespace-nowrap"
+                            >
+                              คัดเลือกใบสมัคร
+                            </button>
+                          )}
+                          {request.status === 'screening' && (
+                            <button 
+                              onClick={() => updateStatus(request.id, 'application_review')}
+                              className="text-xs bg-amber-500 text-white px-3 py-1.5 rounded-lg hover:bg-amber-600 transition shadow-md whitespace-nowrap"
+                            >
+                              ส่งให้ต้นสังกัด
+                            </button>
+                          )}
+                          {request.status === 'application_review' && (
+                            <button 
+                              onClick={() => updateStatus(request.id, 'interview_scheduled')}
+                              className="text-xs bg-orange-500 text-white px-3 py-1.5 rounded-lg hover:bg-orange-600 transition shadow-md whitespace-nowrap"
+                            >
+                              นัดสัมภาษณ์
+                            </button>
+                          )}
+                          {request.status === 'interview_scheduled' && (
+                            <button 
+                              onClick={() => updateStatus(request.id, 'interview')}
+                              className="text-xs bg-pink-500 text-white px-3 py-1.5 rounded-lg hover:bg-pink-600 transition shadow-md whitespace-nowrap"
+                            >
+                              เริ่มสัมภาษณ์
+                            </button>
+                          )}
+                          {request.status === 'interview' && (
+                            <button 
+                              onClick={() => updateStatus(request.id, 'interview_result')}
+                              className="text-xs bg-rose-500 text-white px-3 py-1.5 rounded-lg hover:bg-rose-600 transition shadow-md whitespace-nowrap"
+                            >
+                              พิจารณาผล
+                            </button>
+                          )}
+                          {request.status === 'interview_result' && (
+                            <button 
+                              onClick={() => updateStatus(request.id, 'president')}
+                              className="text-xs bg-slate-500 text-white px-3 py-1.5 rounded-lg hover:bg-slate-600 transition shadow-md whitespace-nowrap"
+                            >
+                              เสนออธิการบดี
+                            </button>
+                          )}
                           {request.status === 'president' && (
                             <button 
-                              onClick={() => updateStatus(request.id, 'recruiting')}
-                              className="text-xs bg-green-600 text-white px-3 py-1.5 rounded-lg hover:bg-green-700 transition shadow-md whitespace-nowrap"
+                              onClick={() => updateStatus(request.id, 'notified')}
+                              className="text-xs bg-emerald-600 text-white px-3 py-1.5 rounded-lg hover:bg-emerald-700 transition shadow-md whitespace-nowrap"
                             >
-                              ประกาศรับสมัคร
+                              แจ้งบุคลากร
                             </button>
                           )}
                         </div>
@@ -831,18 +893,74 @@ const Dashboard = ({ userRole, faculty, onLogout, onCreateRequest, onSwitchToAdm
                           )}
                           {request.status === 'vp_hr' && (
                             <button 
-                              onClick={() => updateStatus(request.id, 'president')}
+                              onClick={() => updateStatus(request.id, 'recruiting')}
                               className="text-xs bg-indigo-600 text-white px-3 py-1.5 rounded-lg hover:bg-indigo-700 transition shadow-md whitespace-nowrap"
                             >
-                              เสนออธิการฯ
+                              ประกาศรับสมัคร
+                            </button>
+                          )}
+                          {request.status === 'recruiting' && (
+                            <button 
+                              onClick={() => updateStatus(request.id, 'sourcing')}
+                              className="text-xs bg-cyan-500 text-white px-3 py-1.5 rounded-lg hover:bg-cyan-600 transition shadow-md whitespace-nowrap"
+                            >
+                              เริ่มสรรหา
+                            </button>
+                          )}
+                          {request.status === 'sourcing' && (
+                            <button 
+                              onClick={() => updateStatus(request.id, 'screening')}
+                              className="text-xs bg-teal-500 text-white px-3 py-1.5 rounded-lg hover:bg-teal-600 transition shadow-md whitespace-nowrap"
+                            >
+                              คัดเลือก
+                            </button>
+                          )}
+                          {request.status === 'screening' && (
+                            <button 
+                              onClick={() => updateStatus(request.id, 'application_review')}
+                              className="text-xs bg-amber-500 text-white px-3 py-1.5 rounded-lg hover:bg-amber-600 transition shadow-md whitespace-nowrap"
+                            >
+                              ส่งต้นสังกัด
+                            </button>
+                          )}
+                          {request.status === 'application_review' && (
+                            <button 
+                              onClick={() => updateStatus(request.id, 'interview_scheduled')}
+                              className="text-xs bg-orange-500 text-white px-3 py-1.5 rounded-lg hover:bg-orange-600 transition shadow-md whitespace-nowrap"
+                            >
+                              นัดสัมภาษณ์
+                            </button>
+                          )}
+                          {request.status === 'interview_scheduled' && (
+                            <button 
+                              onClick={() => updateStatus(request.id, 'interview')}
+                              className="text-xs bg-pink-500 text-white px-3 py-1.5 rounded-lg hover:bg-pink-600 transition shadow-md whitespace-nowrap"
+                            >
+                              เริ่มสัมภาษณ์
+                            </button>
+                          )}
+                          {request.status === 'interview' && (
+                            <button 
+                              onClick={() => updateStatus(request.id, 'interview_result')}
+                              className="text-xs bg-rose-500 text-white px-3 py-1.5 rounded-lg hover:bg-rose-600 transition shadow-md whitespace-nowrap"
+                            >
+                              พิจารณาผล
+                            </button>
+                          )}
+                          {request.status === 'interview_result' && (
+                            <button 
+                              onClick={() => updateStatus(request.id, 'president')}
+                              className="text-xs bg-slate-500 text-white px-3 py-1.5 rounded-lg hover:bg-slate-600 transition shadow-md whitespace-nowrap"
+                            >
+                              เสนออธิการบดี
                             </button>
                           )}
                           {request.status === 'president' && (
                             <button 
-                              onClick={() => updateStatus(request.id, 'recruiting')}
-                              className="text-xs bg-green-600 text-white px-3 py-1.5 rounded-lg hover:bg-green-700 transition shadow-md whitespace-nowrap"
+                              onClick={() => updateStatus(request.id, 'notified')}
+                              className="text-xs bg-emerald-600 text-white px-3 py-1.5 rounded-lg hover:bg-emerald-700 transition shadow-md whitespace-nowrap"
                             >
-                              ประกาศรับสมัคร
+                              แจ้งบุคลากร
                             </button>
                           )}
                         </div>
