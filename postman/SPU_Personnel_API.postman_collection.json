@@ -1,0 +1,406 @@
+{
+	"info": {
+		"_postman_id": "spu-personnel-api",
+		"name": "SPU Personnel System API",
+		"description": "RESTful API Collection for SPU Personnel System",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Health Check",
+			"item": [
+				{
+					"name": "Health Check",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/health",
+							"host": ["{{base_url}}"],
+							"path": ["health"]
+						},
+						"description": "ตรวจสอบสถานะ API Server"
+					},
+					"response": []
+				},
+				{
+					"name": "Root Endpoint",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/",
+							"host": ["{{base_url}}"],
+							"path": [""]
+						},
+						"description": "ดูรายการ endpoints ทั้งหมด"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Requests",
+			"item": [
+				{
+					"name": "Get All Requests",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/requests?role=hr",
+							"host": ["{{base_url}}"],
+							"path": ["api", "requests"],
+							"query": [
+								{
+									"key": "role",
+									"value": "hr",
+									"description": "hr, vp_hr, faculty"
+								},
+								{
+									"key": "facultyId",
+									"value": "",
+									"disabled": true
+								},
+								{
+									"key": "status",
+									"value": "",
+									"disabled": true
+								}
+							]
+						},
+						"description": "ดึงคำขอทั้งหมด (สามารถกรองตาม role, facultyId, status)"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Request by ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/requests/:id",
+							"host": ["{{base_url}}"],
+							"path": ["api", "requests", ":id"],
+							"variable": [
+								{
+									"key": "id",
+									"value": "req123",
+									"description": "Request ID"
+								}
+							]
+						},
+						"description": "ดึงคำขอตาม ID"
+					},
+					"response": []
+				},
+				{
+					"name": "Create Request",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"position\": \"Software Engineer\",\n  \"type\": \"new\",\n  \"amount\": 1,\n  \"description\": \"พัฒนาระบบ HR Management System\",\n  \"facultyId\": \"it\",\n  \"facultyName\": \"คณะเทคโนโลยีสารสนเทศ\",\n  \"userId\": \"user123\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/requests",
+							"host": ["{{base_url}}"],
+							"path": ["api", "requests"]
+						},
+						"description": "สร้างคำขอใหม่"
+					},
+					"response": []
+				},
+				{
+					"name": "Update Request",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"position\": \"Updated Position\",\n  \"description\": \"Updated description\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/requests/:id",
+							"host": ["{{base_url}}"],
+							"path": ["api", "requests", ":id"],
+							"variable": [
+								{
+									"key": "id",
+									"value": "req123"
+								}
+							]
+						},
+						"description": "อัปเดตคำขอ"
+					},
+					"response": []
+				},
+				{
+					"name": "Update Request Status",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"status\": \"hr_review\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/requests/:id/status",
+							"host": ["{{base_url}}"],
+							"path": ["api", "requests", ":id", "status"],
+							"variable": [
+								{
+									"key": "id",
+									"value": "req123"
+								}
+							]
+						},
+						"description": "เปลี่ยนสถานะคำขอ"
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Request",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/requests/:id",
+							"host": ["{{base_url}}"],
+							"path": ["api", "requests", ":id"],
+							"variable": [
+								{
+									"key": "id",
+									"value": "req123"
+								}
+							]
+						},
+						"description": "ลบคำขอ"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Users",
+			"item": [
+				{
+					"name": "Get All Users",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/users",
+							"host": ["{{base_url}}"],
+							"path": ["api", "users"]
+						},
+						"description": "ดึงผู้ใช้ทั้งหมด"
+					},
+					"response": []
+				},
+				{
+					"name": "Get User by ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/users/:id",
+							"host": ["{{base_url}}"],
+							"path": ["api", "users", ":id"],
+							"variable": [
+								{
+									"key": "id",
+									"value": "user123"
+								}
+							]
+						},
+						"description": "ดึงผู้ใช้ตาม ID"
+					},
+					"response": []
+				},
+				{
+					"name": "Create User",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"user@spu.ac.th\",\n  \"role\": \"hr\",\n  \"facultyId\": \"it\",\n  \"name\": \"John Doe\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/users",
+							"host": ["{{base_url}}"],
+							"path": ["api", "users"]
+						},
+						"description": "สร้างผู้ใช้ใหม่"
+					},
+					"response": []
+				},
+				{
+					"name": "Update User",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"updated@spu.ac.th\",\n  \"role\": \"faculty\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/users/:id",
+							"host": ["{{base_url}}"],
+							"path": ["api", "users", ":id"],
+							"variable": [
+								{
+									"key": "id",
+									"value": "user123"
+								}
+							]
+						},
+						"description": "อัปเดตผู้ใช้"
+					},
+					"response": []
+				},
+				{
+					"name": "Delete User",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/users/:id",
+							"host": ["{{base_url}}"],
+							"path": ["api", "users", ":id"],
+							"variable": [
+								{
+									"key": "id",
+									"value": "user123"
+								}
+							]
+						},
+						"description": "ลบผู้ใช้"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "AI",
+			"item": [
+				{
+					"name": "Generate Job Description",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"position\": \"Software Engineer\",\n  \"type\": \"new\",\n  \"amount\": 1\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/ai/generate-jd",
+							"host": ["{{base_url}}"],
+							"path": ["api", "ai", "generate-jd"]
+						},
+						"description": "สร้าง Job Description ด้วย AI"
+					},
+					"response": []
+				},
+				{
+					"name": "Analyze Resume",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"jobDescription\": \"ตำแหน่ง Software Engineer ต้องการประสบการณ์ 3 ปีขึ้นไป\",\n  \"resumeText\": \"มีประสบการณ์พัฒนาเว็บแอปพลิเคชัน 5 ปี ใช้ React, Node.js\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/ai/analyze-resume",
+							"host": ["{{base_url}}"],
+							"path": ["api", "ai", "analyze-resume"]
+						},
+						"description": "วิเคราะห์ Resume ด้วย AI"
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "http://localhost:3001",
+			"type": "string"
+		}
+	]
+}
+
