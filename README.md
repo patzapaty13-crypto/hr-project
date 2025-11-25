@@ -79,52 +79,33 @@ hr-project/
 └── App.jsx             # Main App Component
 ```
 
-## การ Deploy
+## 🚀 Scripts ที่มี
 
-### Vercel (แนะนำ)
-
-1. ติดตั้ง Vercel CLI:
 ```bash
-npm i -g vercel
+# Development
+npm run dev              # รัน Frontend Development Server
+npm run dev:server        # รัน API Server (nodemon)
+
+# Production
+npm run build            # Build สำหรับ Production
+npm run preview          # Preview Production Build
+
+# Server
+npm run server           # รัน API Server (node)
 ```
 
-2. Deploy:
-```bash
-vercel
-```
+## 📖 เอกสารสำหรับทีม
 
-### Netlify
+- [SETUP_GUIDE.md](./SETUP_GUIDE.md) - คู่มือตั้งค่าโปรเจกต์
+- [QUICK_START_TEAM.md](./QUICK_START_TEAM.md) - Quick Start
+- [GIT_TEAM_WORKFLOW.md](./GIT_TEAM_WORKFLOW.md) - Git Workflow
+- [TEAM_COLLABORATION.md](./TEAM_COLLABORATION.md) - การทำงานร่วมกัน
 
-1. ติดตั้ง Netlify CLI:
-```bash
-npm i -g netlify-cli
-```
+## 🐛 การแก้ไขปัญหา
 
-2. Deploy:
-```bash
-netlify deploy --prod
-```
+ดู [SETUP_GUIDE.md](./SETUP_GUIDE.md#-การแก้ไขปัญหา) หรือ [TROUBLESHOOTING.md](./TROUBLESHOOTING.md)
 
-### Firebase Hosting
-
-1. ติดตั้ง Firebase CLI:
-```bash
-npm i -g firebase-tools
-```
-
-2. Login และ Initialize:
-```bash
-firebase login
-firebase init hosting
-```
-
-3. Build และ Deploy:
-```bash
-npm run build
-firebase deploy
-```
-
-## License
+## 📄 License
 
 Copyright 2025 Sripatum University. All Rights Reserved.
 
